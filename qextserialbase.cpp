@@ -35,6 +35,9 @@ QextSerialBase::QextSerialBase():QIODevice() {
 #elif defined(_TTY_DIGITAL_)
     strcpy(nameStr, "/dev/tty01");
 
+#elif defined(_TTY_FREEBSD_)
+    strcpy(nameStr, "/dev/ttyd1");
+
 #else 
     strcpy(nameStr, "/dev/ttyS0");
 #endif

@@ -28,6 +28,7 @@ _TTY_IRIX_       SGI/IRIX        /dev/ttyf1, /dev/ttyf2
 _TTY_HPUX_       HP-UX           /dev/tty1p0, /dev/tty2p0
 _TTY_SUN_        SunOS/Solaris   /dev/ttya, /dev/ttyb
 _TTY_DIGITAL_    Digital UNIX    /dev/tty01, /dev/tty02
+_TTY_FREEBSD_    FreeBSD         /dev/ttyd0, /dev/ttyd1
 _TTY_LINUX_      Linux           /dev/ttyS0, /dev/ttyS1
 <none>           Linux           /dev/ttyS0, /dev/ttyS1
 \endverbatim
