@@ -65,10 +65,10 @@ public:
 #endif
 
 protected:
-    struct timeval Posix_Timeout;
-    struct timeval Posix_Copy_Timeout;
     QFile* Posix_File;
     struct termios Posix_CommConfig;
+    struct timeval Posix_Timeout;
+    struct timeval Posix_Copy_Timeout;
     void construct(void);
 };
 

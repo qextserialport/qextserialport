@@ -36,7 +36,7 @@ _TTY_LINUX_      Linux           /dev/ttyS0, /dev/ttyS1
 This constructor assigns the device name to the name of the first port on the specified system. 
 See the other constructors if you need to open a different port.
 */
-Posix_QextSerialPort::Posix_QextSerialPort():QextSerialBase(), Posix_File(0) {
+Posix_QextSerialPort::Posix_QextSerialPort():QextSerialBase() {
     construct();
 }
 
@@ -141,12 +141,12 @@ Hardware flow control where supported, otherwise no flow control, and 500 ms tim
 */
 void Posix_QextSerialPort::construct(void) {
     QextSerialBase::construct();
+    Posix_File=new QFile();
     setBaudRate(BAUD115200);
     setDataBits(DATA_8);
     setStopBits(STOP_1);
     setParity(PAR_NONE);
     setFlowControl(FLOW_HARDWARE);
-    Posix_File=new QFile();
     setTimeout(0, 500);
 }
 
@@ -165,29 +165,29 @@ bool Posix_QextSerialPort::open(int) {
         Posix_File->setName(portName);
         if (Posix_File->open(IO_Async|IO_Raw|IO_ReadWrite)) {
             portOpen=true;
+
+            /*configure port settings*/
+            tcgetattr(Posix_File->handle(), &Posix_CommConfig);
+
+            /*set up other port settings*/
+            Posix_CommConfig.c_cflag|=CREAD|CLOCAL;
+            Posix_CommConfig.c_lflag&=(~(ICANON|ECHO|ECHOE|ECHOK|ECHONL|ISIG));
+            Posix_CommConfig.c_iflag&=(~(INPCK|IGNPAR|PARMRK|ISTRIP|ICRNL|IXANY));
+            Posix_CommConfig.c_oflag&=(~OPOST);
+            Posix_CommConfig.c_cc[VMIN]=0;
+            Posix_CommConfig.c_cc[VINTR] = _POSIX_VDISABLE; 
+            Posix_CommConfig.c_cc[VQUIT] = _POSIX_VDISABLE; 
+            Posix_CommConfig.c_cc[VSTART] = _POSIX_VDISABLE; 
+            Posix_CommConfig.c_cc[VSTOP] = _POSIX_VDISABLE; 
+            Posix_CommConfig.c_cc[VSUSP] = _POSIX_VDISABLE; 
+            setBaudRate(Settings.BaudRate);
+            setDataBits(Settings.DataBits);
+            setStopBits(Settings.StopBits);
+            setParity(Settings.Parity);
+            setFlowControl(Settings.FlowControl);
+            setTimeout(Posix_Copy_Timeout.tv_sec, Posix_Copy_Timeout.tv_usec);
+            tcsetattr(Posix_File->handle(), TCSAFLUSH, &Posix_CommConfig);
         }
-
-        /*configure port settings*/
-        tcgetattr(Posix_File->handle(), &Posix_CommConfig);
-
-        /*set up other port settings*/
-        Posix_CommConfig.c_cflag|=CREAD|CLOCAL;
-        Posix_CommConfig.c_lflag&=(~(ICANON|ECHO|ECHOE|ECHOK|ECHONL|ISIG));
-        Posix_CommConfig.c_iflag&=(~(INPCK|IGNPAR|PARMRK|ISTRIP|IXANY));
-        Posix_CommConfig.c_oflag&=(~OPOST);
-        Posix_CommConfig.c_cc[VMIN]=0;
-        Posix_CommConfig.c_cc[VINTR] = _POSIX_VDISABLE; 
-        Posix_CommConfig.c_cc[VQUIT] = _POSIX_VDISABLE; 
-        Posix_CommConfig.c_cc[VSTART] = _POSIX_VDISABLE; 
-        Posix_CommConfig.c_cc[VSTOP] = _POSIX_VDISABLE; 
-        Posix_CommConfig.c_cc[VSUSP] = _POSIX_VDISABLE; 
-        setBaudRate(Settings.BaudRate);
-        setDataBits(Settings.DataBits);
-        setStopBits(Settings.StopBits);
-        setParity(Settings.Parity);
-        setFlowControl(Settings.FlowControl);
-        setTimeout(Posix_Copy_Timeout.tv_sec, Posix_Copy_Timeout.tv_usec);
-        tcsetattr(Posix_File->handle(), TCSAFLUSH, &Posix_CommConfig);
     }
     UNLOCK_MUTEX();
     return portOpen;

@@ -14,6 +14,7 @@ unix:DEFINES            = _TTY_POSIX_
  
 win32:HEADERS          += win_qextserialport.h
 win32:SOURCES          += win_qextserialport.cpp
+win32:DEFINES           = _TTY_WIN_
 
 DESTDIR                 = lib
 TARGET                  = qextserialport

@@ -43,7 +43,6 @@ QextSerialBase::QextSerialBase():QIODevice() {
 #endif
 
     setName(nameStr);
-    construct();
 }
 
 /*!
@@ -52,7 +51,6 @@ Construct a port and assign it to the device specified by the name parameter.
 */
 QextSerialBase::QextSerialBase(const char* name):QIODevice() {
     setName(name);
-    construct();
 }
 
 /*!

@@ -2,6 +2,21 @@ Change history for QextSerialPort (formerly QwSerialPort):
 (Lines beginning with + represent new functionality, * represent changed or
 fixed functionality, - represent removed or deprecated functionality)
 
+Version 0.9 (March 3, 2005) Stefan Sander <stefan-sander@users.sf.net>:
+  + Added a new precompiler constant, _TTY_FREEBSD_
+    to support FreeBSD port names.
+  + Added _TTY_WIN_ constant in qextserialport.pro win32:DEFINES
+    to have Windows port names as default when compiling on it.
+  - Removed construct() call from QextSerialBase constructors,
+    it is called indirectly through Win_QextSerialPort::construct()
+    and Posix_QextSerialPort::construct().
+  + Added construct() call to Win_QextSerialPort constructors.
+  + Added setTimeout(0, 500) call to Win_QextSerialPort::construct().
+  - Removed setTimeout(0, 500) call from Win_QextSerialPort(const char* name).
+  * Fixed Posix_QextSerialPort::open(int) control flow, now the port settings
+    are only applied if the associated file could be opened.
+  * Fixed masking CR to NL, in Posix_CommConfig.c_iflag 
+
 Version 0.8 (, 2003) (Alpha release):
   * Added code to set the port timeouts in Win_QextSerialPort's default 
     constructor.

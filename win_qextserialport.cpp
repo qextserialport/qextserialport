@@ -44,12 +44,15 @@ _TTY_LINUX_      Linux           /dev/ttyS0, /dev/ttyS1
 This constructor associates the object with the first port on the system, e.g. COM1 for Windows 
 platforms.  See the other constructor if you need a port other than the first.
 */
-Win_QextSerialPort::Win_QextSerialPort():QextSerialBase() {}
+Win_QextSerialPort::Win_QextSerialPort():QextSerialBase() {
+    construct();
+}
 
 /*!Win_QextSerialPort::Win_QextSerialPort(const Win_QextSerialPort&)
 Copy constructor.
 */
 Win_QextSerialPort::Win_QextSerialPort(const Win_QextSerialPort& s):QextSerialBase(s.portName) {
+    construct();
     portOpen=s.portOpen;
     lastErr=s.lastErr;
     memcpy(portName, s.portName, sizeof(portName));
@@ -59,8 +62,8 @@ Win_QextSerialPort::Win_QextSerialPort(const Win_QextSerialPort& s):QextSerialBa
     Settings.StopBits=s.Settings.StopBits;
     Settings.BaudRate=s.Settings.BaudRate;
     Win_Handle=s.Win_Handle;
-	memcpy(&Win_CommConfig, &s.Win_CommConfig, sizeof(COMMCONFIG));
-	memcpy(&Win_CommTimeouts, &s.Win_CommTimeouts, sizeof(COMMTIMEOUTS));
+    memcpy(&Win_CommConfig, &s.Win_CommConfig, sizeof(COMMCONFIG));
+    memcpy(&Win_CommTimeouts, &s.Win_CommTimeouts, sizeof(COMMTIMEOUTS));
 }
 
 /*!
@@ -70,7 +73,7 @@ devName is the name of the device, which is windowsystem-specific,
 e.g."COM2" or "/dev/ttyS0".
 */
 Win_QextSerialPort::Win_QextSerialPort(const char* name):QextSerialBase(name) {
-    setTimeout(0, 500);
+    construct();
 }
 
 /*!
@@ -126,8 +129,8 @@ Win_QextSerialPort& Win_QextSerialPort::operator=(const Win_QextSerialPort& s) {
     Settings.StopBits=s.Settings.StopBits;
     Settings.BaudRate=s.Settings.BaudRate;
     Win_Handle=s.Win_Handle;
-	memcpy(&Win_CommConfig, &s.Win_CommConfig, sizeof(COMMCONFIG));
-	memcpy(&Win_CommTimeouts, &s.Win_CommTimeouts, sizeof(COMMTIMEOUTS));
+    memcpy(&Win_CommConfig, &s.Win_CommConfig, sizeof(COMMCONFIG));
+    memcpy(&Win_CommTimeouts, &s.Win_CommTimeouts, sizeof(COMMTIMEOUTS));
     return *this;
 }
 
@@ -139,12 +142,13 @@ flow control, and 500 ms timeout).
 */
 void Win_QextSerialPort::construct(void) {
     QextSerialBase::construct();
+    Win_Handle=INVALID_HANDLE_VALUE;
     setBaudRate(BAUD115200);
     setDataBits(DATA_8);
     setStopBits(STOP_1);
     setParity(PAR_NONE);
     setFlowControl(FLOW_HARDWARE);
-    Win_Handle=INVALID_HANDLE_VALUE;
+    setTimeout(0, 500);
 }
 
 /*!
@@ -171,11 +175,11 @@ bool Win_QextSerialPort::open(int) {
             Win_CommConfig.dcb.fBinary=TRUE;
             Win_CommConfig.dcb.fInX=FALSE;
             Win_CommConfig.dcb.fOutX=FALSE;
-	        Win_CommConfig.dcb.fAbortOnError=FALSE;
+            Win_CommConfig.dcb.fAbortOnError=FALSE;
             Win_CommConfig.dcb.fNull=FALSE;
 
             /*half second timeout by default*/
-	        setTimeout(Win_CommTimeouts.ReadTotalTimeoutConstant/1000, 
+            setTimeout(Win_CommTimeouts.ReadTotalTimeoutConstant/1000, 
                        Win_CommTimeouts.ReadTotalTimeoutConstant%1000);
 
             /*set up parameters*/
@@ -942,10 +946,10 @@ Sets the read and write timeouts for the port to sec seconds and millisec millis
 void Win_QextSerialPort::setTimeout(unsigned long sec, unsigned long millisec) {
     Settings.Timeout_Sec=sec;
     Settings.Timeout_Millisec=millisec;
-	Win_CommTimeouts.ReadIntervalTimeout = sec*1000+millisec;
-	Win_CommTimeouts.ReadTotalTimeoutMultiplier = sec*1000+millisec;
-	Win_CommTimeouts.ReadTotalTimeoutConstant = 0;
-	Win_CommTimeouts.WriteTotalTimeoutMultiplier = sec*1000+millisec;
-	Win_CommTimeouts.WriteTotalTimeoutConstant = 0;
-	SetCommTimeouts(Win_Handle, &Win_CommTimeouts);
+    Win_CommTimeouts.ReadIntervalTimeout = sec*1000+millisec;
+    Win_CommTimeouts.ReadTotalTimeoutMultiplier = sec*1000+millisec;
+    Win_CommTimeouts.ReadTotalTimeoutConstant = 0;
+    Win_CommTimeouts.WriteTotalTimeoutMultiplier = sec*1000+millisec;
+    Win_CommTimeouts.WriteTotalTimeoutConstant = 0;
+    SetCommTimeouts(Win_Handle, &Win_CommTimeouts);
 }
