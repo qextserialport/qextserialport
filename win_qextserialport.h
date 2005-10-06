@@ -22,7 +22,7 @@ public:
     virtual bool open(int mode=0);
     virtual void close();
     virtual void flush();
-    virtual Offset size() const;
+    virtual qint64 size() const;
     virtual int getch();
     virtual int putch(int);
     virtual int ungetch(int);
@@ -37,21 +37,13 @@ public:
     virtual int bytesWaiting();
     virtual void translateError(unsigned long);
     virtual void setTimeout(unsigned long=0, unsigned long=0);
-
-#ifdef QTVER_PRE_30
-    virtual Q_LONG readBlock(char *data, uint maxlen);
-    virtual Q_LONG writeBlock(const char *data, uint len);
-#else 
-    virtual Q_LONG readBlock(char *data, unsigned long maxlen);
-    virtual Q_LONG writeBlock(const char *data, unsigned long len);
-#endif
+    virtual qint64 readBlock(char *data, unsigned long maxlen);
+    virtual qint64 writeBlock(const char *data, unsigned long len);
 
 protected:
     HANDLE Win_Handle;
     COMMCONFIG Win_CommConfig;
     COMMTIMEOUTS Win_CommTimeouts;
-
-    void construct(void);
 };
 
 #endif

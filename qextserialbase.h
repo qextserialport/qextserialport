@@ -1,12 +1,12 @@
+
 #ifndef _QEXTSERIALBASE_H_
 #define _QEXTSERIALBASE_H_
 
-#include <qobject.h>
-#include <qiodevice.h>
-#include <qfile.h>
+#include <QIODevice>
+#include <QFile>
 
 #ifdef QT_THREAD_SUPPORT
-#include <qthread.h>
+#include <QThread>
 #endif
 
 /*if all warning messages are turned off, flag portability warnings to be turned off as well*/
@@ -14,35 +14,18 @@
 #define _TTY_NOWARN_PORT_
 #endif
 
-/*QT3 changed some return types in QIODevice - these typedefs will retain compatibility with 
-  earlier versions*/
-#ifdef QTVER_PRE_30
-typedef uint Offset;
-typedef int Q_LONG;
-#else
-
-/*Some compilers (VC++) don't inherit this typedef from QIODevice.h - copied here*/
-#ifdef _MSC_VER
-#ifdef QT_LARGE_FILE_SUPPORT
-    typedef off_t Offset;
-#else
-    typedef Q_ULONG Offset;
-#endif //_MSC_VER
-#endif //QT_LARGE_FILE_SUPPORT
-#endif //QTVER_PRE_30
-
 /*macros for thread support*/
 #ifdef QT_THREAD_SUPPORT
 #define LOCK_MUTEX() mutex->lock()
 #define UNLOCK_MUTEX() mutex->unlock()
 #else
-#define LOCK_MUTEX() 
-#define UNLOCK_MUTEX() 
+#define LOCK_MUTEX()
+#define UNLOCK_MUTEX()
 #endif
 
 /*macros for warning messages*/
 #ifdef _TTY_NOWARN_PORT_
-#define TTY_PORTABILITY_WARNING(s) 
+#define TTY_PORTABILITY_WARNING(s)
 #else
 #define TTY_PORTABILITY_WARNING(s) qWarning(s)
 #endif
@@ -52,12 +35,6 @@ typedef int Q_LONG;
 #define TTY_WARNING(s) qWarning(s)
 #endif
 
-
-/*simple MIN macro - evaluates to the smaller of the 2 members*/
-#define MIN(a,b) (((a)<(b))?(a):(b))
-
-/*limit of length of port name, not including NULL terminator*/
-#define PORT_NAME_SIZE_LIMIT 80
 
 /*line status constants*/
 #define LS_CTS  0x01
@@ -92,36 +69,10 @@ typedef enum _NamingConvention {
     IRIX_NAMES,
     HPUX_NAMES,
     SUN_NAMES,
-    LINUX_NAMES,
-    DIGITAL_NAMES
+    DIGITAL_NAMES,
+    FREEBSD_NAMES,
+    LINUX_NAMES
 } NamingConvention;
-
-typedef enum _FlowType {
-    FLOW_OFF, 
-    FLOW_HARDWARE, 
-    FLOW_XONXOFF
-} FlowType;
-
-typedef enum _ParityType {
-    PAR_NONE, 
-    PAR_ODD,
-    PAR_EVEN, 
-    PAR_MARK,               //WINDOWS ONLY
-    PAR_SPACE
-} ParityType;
-
-typedef enum _DataBitsType {
-    DATA_5,
-    DATA_6,
-    DATA_7,
-    DATA_8
-} DataBitsType;
-
-typedef enum _StopBitsType {
-    STOP_1, 
-    STOP_1_5,               //WINDOWS ONLY
-    STOP_2
-} StopBitsType;
 
 typedef enum _BaudRateType {
     BAUD50,                //POSIX ONLY
@@ -143,77 +94,103 @@ typedef enum _BaudRateType {
     BAUD56000,             //WINDOWS ONLY
     BAUD57600,
     BAUD76800,             //POSIX ONLY
-    BAUD115200, 
+    BAUD115200,
     BAUD128000,            //WINDOWS ONLY
     BAUD256000             //WINDOWS ONLY
-} BaudRateType; 
+} BaudRateType;
+
+typedef enum _DataBitsType {
+    DATA_5,
+    DATA_6,
+    DATA_7,
+    DATA_8
+} DataBitsType;
+
+typedef enum _ParityType {
+    PAR_NONE,
+    PAR_ODD,
+    PAR_EVEN,
+    PAR_MARK,               //WINDOWS ONLY
+    PAR_SPACE
+} ParityType;
+
+typedef enum _StopBitsType {
+    STOP_1,
+    STOP_1_5,               //WINDOWS ONLY
+    STOP_2
+} StopBitsType;
+
+typedef enum _FlowType {
+    FLOW_OFF,
+    FLOW_HARDWARE,
+    FLOW_XONXOFF
+} FlowType;
 
 /*structure to contain port settings*/
 typedef struct _PortSettings {
-    FlowType FlowControl;
-    ParityType Parity;
-    DataBitsType DataBits;
-    StopBitsType StopBits;
     BaudRateType BaudRate;
-    unsigned long Timeout_Sec;
-    unsigned long Timeout_Millisec;
+    DataBitsType DataBits;
+    ParityType Parity;
+    StopBitsType StopBits;
+    FlowType FlowControl;
+    ulong Timeout_Sec;
+    ulong Timeout_Millisec;
 } PortSettings;
 
 class QextSerialBase:public QIODevice {
 public:
     QextSerialBase();
-    QextSerialBase(const char* name);
+    QextSerialBase(const QString & name);
     virtual ~QextSerialBase();
-    virtual void construct(void);
-    virtual const char* name() const;
-    virtual void setName(const char* name);
-    virtual bool open(int mode=0)=0;
-    virtual bool open(const char* name);
-    virtual void close()=0;
-    virtual void flush()=0;
-    virtual Offset size() const=0;
-    virtual int readLine(char *data, uint maxlen);
-    virtual int getch()=0;
-    virtual int putch(int)=0;
-    virtual int ungetch(int);
-    virtual bool atEnd() const;
-    virtual void setFlowControl(FlowType)=0;
-    virtual FlowType flowControl() const;
-    virtual void setParity(ParityType)=0;
-    virtual ParityType parity() const;
-    virtual void setDataBits(DataBitsType)=0;
-    virtual DataBitsType dataBits() const;
-    virtual void setStopBits(StopBitsType)=0;
-    virtual StopBitsType stopBits() const;
+    virtual void construct();
+    virtual void setPortName(const QString & name);
+    virtual QString portName() const;
+
     virtual void setBaudRate(BaudRateType)=0;
     virtual BaudRateType baudRate() const;
+    virtual void setDataBits(DataBitsType)=0;
+    virtual DataBitsType dataBits() const;
+    virtual void setParity(ParityType)=0;
+    virtual ParityType parity() const;
+    virtual void setStopBits(StopBitsType)=0;
+    virtual StopBitsType stopBits() const;
+    virtual void setFlowControl(FlowType)=0;
+    virtual FlowType flowControl() const;
+    virtual void setTimeout(ulong, ulong)=0;
+
+    virtual bool open(OpenMode mode=0)=0;
     virtual bool isOpen() const;
-    virtual unsigned long lastError() const;
+    virtual void close()=0;
+    virtual void flush()=0;
+
+    virtual qint64 size() const=0;
+    virtual qint64 bytesAvailable() const=0;
+    virtual bool atEnd() const;
+
+    virtual bool getChar(char * c)=0;
+    virtual bool putChar(char c)=0;
+    virtual void ungetChar(char c)=0;
+    virtual qint64 readLine(char * data, qint64 maxSize);
+
+    virtual ulong lastError() const;
+    virtual void translateError(ulong error)=0;
+
     virtual void setDtr(bool set=true)=0;
     virtual void setRts(bool set=true)=0;
-    virtual unsigned long lineStatus(void)=0;
-    virtual int bytesWaiting()=0;
-    virtual void translateError(unsigned long)=0;
-    virtual void setTimeout(unsigned long, unsigned long)=0;
-    virtual bool isOpen(void);
+    virtual ulong lineStatus()=0;
 
-#ifdef QTVER_PRE_30
-    virtual Q_LONG readBlock(char *data, uint maxlen)=0;
-    virtual Q_LONG writeBlock(const char *data, uint len)=0;
-#else
-    virtual Q_LONG readBlock(char *data, unsigned long maxlen)=0;
-    virtual Q_LONG writeBlock(const char *data, unsigned long len)=0;
-#endif
+    virtual qint64 readData(char * data, qint64 maxSize)=0;
+    virtual qint64 writeData(const char * data, qint64 maxSize)=0;
 
 protected:
+    QString port;
     bool portOpen;
-    unsigned long lastErr;
-    char portName[PORT_NAME_SIZE_LIMIT+1];
     PortSettings Settings;
+    ulong lastErr;
 
 #ifdef QT_THREAD_SUPPORT
-    static unsigned long refCount;
     static QMutex* mutex;
+    static ulong refCount;
 #endif
 };
 
