@@ -4,7 +4,7 @@
 /*POSIX CODE*/
 #ifdef _TTY_POSIX_
 #include "posix_qextserialport.h"
-#define QextBaseType Posix_QextSerialPort 
+#define QextBaseType Posix_QextSerialPort
 
 /*MS WINDOWS CODE*/
 #else

@@ -14,7 +14,7 @@
 #define _TTY_NOWARN_PORT_
 #endif
 
-/*QT3 changed some return types in QIODevice - these typedefs will retain compatibility with 
+/*QT3 changed some return types in QIODevice - these typedefs will retain compatibility with
   earlier versions*/
 #ifdef QTVER_PRE_30
 typedef uint Offset;
@@ -36,13 +36,13 @@ typedef int Q_LONG;
 #define LOCK_MUTEX() mutex->lock()
 #define UNLOCK_MUTEX() mutex->unlock()
 #else
-#define LOCK_MUTEX() 
-#define UNLOCK_MUTEX() 
+#define LOCK_MUTEX()
+#define UNLOCK_MUTEX()
 #endif
 
 /*macros for warning messages*/
 #ifdef _TTY_NOWARN_PORT_
-#define TTY_PORTABILITY_WARNING(s) 
+#define TTY_PORTABILITY_WARNING(s)
 #else
 #define TTY_PORTABILITY_WARNING(s) qWarning(s)
 #endif
@@ -97,15 +97,15 @@ typedef enum _NamingConvention {
 } NamingConvention;
 
 typedef enum _FlowType {
-    FLOW_OFF, 
-    FLOW_HARDWARE, 
+    FLOW_OFF,
+    FLOW_HARDWARE,
     FLOW_XONXOFF
 } FlowType;
 
 typedef enum _ParityType {
-    PAR_NONE, 
+    PAR_NONE,
     PAR_ODD,
-    PAR_EVEN, 
+    PAR_EVEN,
     PAR_MARK,               //WINDOWS ONLY
     PAR_SPACE
 } ParityType;
@@ -118,7 +118,7 @@ typedef enum _DataBitsType {
 } DataBitsType;
 
 typedef enum _StopBitsType {
-    STOP_1, 
+    STOP_1,
     STOP_1_5,               //WINDOWS ONLY
     STOP_2
 } StopBitsType;
@@ -143,10 +143,10 @@ typedef enum _BaudRateType {
     BAUD56000,             //WINDOWS ONLY
     BAUD57600,
     BAUD76800,             //POSIX ONLY
-    BAUD115200, 
+    BAUD115200,
     BAUD128000,            //WINDOWS ONLY
     BAUD256000             //WINDOWS ONLY
-} BaudRateType; 
+} BaudRateType;
 
 /*structure to contain port settings*/
 typedef struct _PortSettings {

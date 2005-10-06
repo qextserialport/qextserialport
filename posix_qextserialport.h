@@ -15,7 +15,7 @@
 #ifndef CRTSCTS
 #define CRTSCTS CNEW_RTSCTS
 #endif  //CRTSCTS
-#else 
+#else
 #ifndef CRTSCTS
 #define CRTSCTS     0
 #endif  //CRTSCTS
@@ -30,7 +30,7 @@
 
 class Posix_QextSerialPort:public QextSerialBase {
 public:
-    Posix_QextSerialPort();           
+    Posix_QextSerialPort();
     Posix_QextSerialPort(const Posix_QextSerialPort& s);
     Posix_QextSerialPort(const char* name);
     Posix_QextSerialPort(const PortSettings& settings);
@@ -69,7 +69,6 @@ protected:
     struct termios Posix_CommConfig;
     struct timeval Posix_Timeout;
     struct timeval Posix_Copy_Timeout;
-    void construct(void);
 };
 
 #endif

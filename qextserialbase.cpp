@@ -6,7 +6,7 @@
 \version 0.70 (pre-alpha)
 \author Wayne Roth
 
-A common base class for Win_QextSerialBase, Posix_QextSerialBase and QextSerialPort.  
+A common base class for Win_QextSerialBase, Posix_QextSerialBase and QextSerialPort.
 */
 #ifdef QT_THREAD_SUPPORT
 QMutex* QextSerialBase::mutex=NULL;
@@ -38,11 +38,12 @@ QextSerialBase::QextSerialBase():QIODevice() {
 #elif defined(_TTY_FREEBSD_)
     strcpy(nameStr, "/dev/ttyd1");
 
-#else 
+#else
     strcpy(nameStr, "/dev/ttyS0");
 #endif
 
     setName(nameStr);
+    construct();
 }
 
 /*!
@@ -51,6 +52,7 @@ Construct a port and assign it to the device specified by the name parameter.
 */
 QextSerialBase::QextSerialBase(const char* name):QIODevice() {
     setName(name);
+    construct();
 }
 
 /*!
@@ -84,7 +86,7 @@ Call QextSerialBase::lastError() for error information.
 */
 bool QextSerialBase::atEnd() const {
     if (size()) {
-        return true;     
+        return true;
     }
     return false;
 }
@@ -92,25 +94,25 @@ bool QextSerialBase::atEnd() const {
 /*!
 \fn int QextSerialBase::readLine(char *data, uint maxlen)
 This function will read a line of buffered input from the port, stopping when either maxlen bytes
-have been read, the port has no more data available, or a newline is encountered.  The value 
+have been read, the port has no more data available, or a newline is encountered.  The value
 returned is the length of the string that was read.
 
   Thanks to Olivier Tubach for the original version of this function.
 */
 int QextSerialBase::readLine(char *data, uint maxlen) {
-    int bytesAvail=(int)size();	
+    int bytesAvail=(int)size();
     char* pCur=data;
 
     /*if nothing waiting, return 0 length*/
     if (bytesAvail<1) {
-	    return 0;
+        return 0;
     }
 
     /*read a byte at a time for MIN(bytesAvail, maxlen) iterations, or until a newline*/
-    while (pCur<(data+bytesAvail) && --maxlen) {		
-    	readBlock(pCur, 1);
+    while (pCur<(data+bytesAvail) && --maxlen) {
+        readBlock(pCur, 1);
         if (*pCur++ == '\n') {
-	        break;
+            break;
         }
     }
     *pCur++='\0';
@@ -121,12 +123,12 @@ int QextSerialBase::readLine(char *data, uint maxlen) {
 
 /*!
 \fn int QextSerialBase::ungetch(int)
-This function is included to implement the full QIODevice interface, and currently has no 
+This function is included to implement the full QIODevice interface, and currently has no
 purpose within this class.  This function is meaningless on an unbuffered device and currently
 only prints a warning message to that effect.
 */
 int QextSerialBase::ungetch(int) {
-    
+
     /*meaningless on unbuffered sequential device - return error and print a warning*/
     TTY_WARNING("QextSerialPort: ungetch() called on an unbuffered sequential device - operation is meaningless");
     return -1;
@@ -143,7 +145,7 @@ FlowType QextSerialBase::flowControl() const {
 
 /*!
 \fn ParityType QextSerialBase::parity() const
-Returns the type of parity used by the port.  For a list of possible values returned by 
+Returns the type of parity used by the port.  For a list of possible values returned by
 this function, see the definition of the enum ParityType.
 */
 ParityType QextSerialBase::parity() const {
@@ -152,7 +154,7 @@ ParityType QextSerialBase::parity() const {
 
 /*!
 \fn DataBitsType QextSerialBase::dataBits() const
-Returns the number of data bits used by the port.  For a list of possible values returned by 
+Returns the number of data bits used by the port.  For a list of possible values returned by
 this function, see the definition of the enum DataBitsType.
 */
 DataBitsType QextSerialBase::dataBits() const {
@@ -170,7 +172,7 @@ StopBitsType QextSerialBase::stopBits() const {
 
 /*!
 \fn BaudRateType QextSerialBase::baudRate(void) const
-Returns the baud rate of the serial port.  For a list of possible return values see 
+Returns the baud rate of the serial port.  For a list of possible return values see
 the definition of the enum BaudRateType.
 */
 BaudRateType QextSerialBase::baudRate(void) const {
@@ -187,9 +189,9 @@ bool QextSerialBase::isOpen(void) const {
 
 /*!
 \fn bool QextSerialBase::open(const char* name)
-Opens a serial port by name.  The string passed in the name parameter is associated with the 
-object and subsequent calls to open() may use the no-parameter version.  This function has no 
-effect if the port associated with the class is already open.  The port is also configured to the 
+Opens a serial port by name.  The string passed in the name parameter is associated with the
+object and subsequent calls to open() may use the no-parameter version.  This function has no
+effect if the port associated with the class is already open.  The port is also configured to the
 current settings, as stored in the Settings structure.
 */
 bool QextSerialBase::open(const char* name) {
@@ -207,7 +209,7 @@ bool QextSerialBase::open(const char* name) {
 
 /*!
 \fn unsigned long QextSerialBase::lastError() const
-Returns the code for the last error encountered by the port, or E_NO_ERROR if the last port 
+Returns the code for the last error encountered by the port, or E_NO_ERROR if the last port
 operation was successful.  Possible error codes are:
 
 \verbatim
@@ -220,7 +222,7 @@ E_CAUGHT_NON_BLOCKED_SIGNAL     Caught a non-blocked signal (POSIX)
 E_PORT_TIMEOUT                  Operation timed out (POSIX)
 E_INVALID_DEVICE                The file opened by the port is not a character device (POSIX)
 E_BREAK_CONDITION               The port detected a break condition
-E_FRAMING_ERROR                 The port detected a framing error 
+E_FRAMING_ERROR                 The port detected a framing error
                                 (usually caused by incorrect baud rate settings)
 E_IO_ERROR                      There was an I/O error while communicating with the port
 E_BUFFER_OVERRUN                Character buffer overrun
@@ -250,6 +252,14 @@ Sets up default port settings (115200 8N1 Hardware flow control where supported,
 flow control, and 500 ms timeout).
 */
 void QextSerialBase::construct(void) {
+
+    Settings.BaudRate=BAUD115200;
+    Settings.DataBits=DATA_8;
+    Settings.StopBits=STOP_1;
+    Settings.Parity=PAR_NONE;
+    Settings.FlowControl=FLOW_HARDWARE;
+    Settings.Timeout_Sec=0;
+    Settings.Timeout_Millisec=500;
 
 #ifdef QT_THREAD_SUPPORT
     if (!mutex) {

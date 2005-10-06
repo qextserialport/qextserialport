@@ -4,15 +4,15 @@
 \author Wayne Roth
 
 A cross-platform serial port class.
-This class encapsulates the Windows portion of QextSerialPort.  The user will be notified of 
-errors and possible portability conflicts at run-time by default - this behavior can be turned 
-off by defining _TTY_NOWARN_ (to turn off all warnings) or _TTY_NOWARN_PORT_ (to turn off 
-portability warnings) in the project.  Note that defining _TTY_NOWARN_ also defines 
+This class encapsulates the Windows portion of QextSerialPort.  The user will be notified of
+errors and possible portability conflicts at run-time by default - this behavior can be turned
+off by defining _TTY_NOWARN_ (to turn off all warnings) or _TTY_NOWARN_PORT_ (to turn off
+portability warnings) in the project.  Note that defining _TTY_NOWARN_ also defines
 _TTY_NOWARN_PORT_.
 
-\note 
-On Windows NT/2000/XP this class uses Win32 serial port functions by default.  The user may 
-select POSIX behavior under NT, 2000, or XP ONLY by defining _TTY_POSIX_ in the project. I can 
+\note
+On Windows NT/2000/XP this class uses Win32 serial port functions by default.  The user may
+select POSIX behavior under NT, 2000, or XP ONLY by defining _TTY_POSIX_ in the project. I can
 make no guarantees as to the quality of POSIX support under NT/2000 however.
 
 */
@@ -22,9 +22,9 @@ make no guarantees as to the quality of POSIX support under NT/2000 however.
 
 /*!
 \fn Win_QextSerialPort::Win_QextSerialPort()
-Default constructor.  Note that the name of the device used by a Win_QextSerialPort constructed 
-with this constructor will be determined by #defined constants, or lack thereof - the default 
-behavior is the same as _TTY_LINUX_.  Possible naming conventions and their associated constants 
+Default constructor.  Note that the name of the device used by a Win_QextSerialPort constructed
+with this constructor will be determined by #defined constants, or lack thereof - the default
+behavior is the same as _TTY_LINUX_.  Possible naming conventions and their associated constants
 are:
 
 \verbatim
@@ -41,18 +41,18 @@ _TTY_LINUX_      Linux           /dev/ttyS0, /dev/ttyS1
 <none>           Linux           /dev/ttyS0, /dev/ttyS1
 \endverbatim
 
-This constructor associates the object with the first port on the system, e.g. COM1 for Windows 
+This constructor associates the object with the first port on the system, e.g. COM1 for Windows
 platforms.  See the other constructor if you need a port other than the first.
 */
 Win_QextSerialPort::Win_QextSerialPort():QextSerialBase() {
-    construct();
+    Win_Handle=INVALID_HANDLE_VALUE;
 }
 
 /*!Win_QextSerialPort::Win_QextSerialPort(const Win_QextSerialPort&)
 Copy constructor.
 */
 Win_QextSerialPort::Win_QextSerialPort(const Win_QextSerialPort& s):QextSerialBase(s.portName) {
-    construct();
+    Win_Handle=INVALID_HANDLE_VALUE;
     portOpen=s.portOpen;
     lastErr=s.lastErr;
     memcpy(portName, s.portName, sizeof(portName));
@@ -69,11 +69,11 @@ Win_QextSerialPort::Win_QextSerialPort(const Win_QextSerialPort& s):QextSerialBa
 /*!
 \fn Win_QextSerialPort::Win_QextSerialPort(const char* devName)
 Constructs a serial port attached to the port specified by devName.
-devName is the name of the device, which is windowsystem-specific, 
+devName is the name of the device, which is windowsystem-specific,
 e.g."COM2" or "/dev/ttyS0".
 */
 Win_QextSerialPort::Win_QextSerialPort(const char* name):QextSerialBase(name) {
-    construct();
+    Win_Handle=INVALID_HANDLE_VALUE;
 }
 
 /*!
@@ -81,7 +81,7 @@ Win_QextSerialPort::Win_QextSerialPort(const char* name):QextSerialBase(name) {
 Constructs a port with default name and specified settings.
 */
 Win_QextSerialPort::Win_QextSerialPort(const PortSettings& settings) {
-    construct();
+    Win_Handle=INVALID_HANDLE_VALUE;
     setBaudRate(settings.BaudRate);
     setDataBits(settings.DataBits);
     setStopBits(settings.StopBits);
@@ -95,7 +95,7 @@ Win_QextSerialPort::Win_QextSerialPort(const PortSettings& settings) {
 Constructs a port with specified name and settings.
 */
 Win_QextSerialPort::Win_QextSerialPort(const char* name, const PortSettings& settings) {
-    construct();
+    Win_Handle=INVALID_HANDLE_VALUE;
     setName(name);
     setBaudRate(settings.BaudRate);
     setDataBits(settings.DataBits);
@@ -106,7 +106,7 @@ Win_QextSerialPort::Win_QextSerialPort(const char* name, const PortSettings& set
 }
 
 /*!
-\fn Win_QextSerialPort::~Win_QextSerialPort() 
+\fn Win_QextSerialPort::~Win_QextSerialPort()
 Standard destructor.
 */
 Win_QextSerialPort::~Win_QextSerialPort() {
@@ -116,7 +116,7 @@ Win_QextSerialPort::~Win_QextSerialPort() {
 }
 
 /*!
-\fn Win_QextSerialPort& operator=(const Win_QextSerialPort& s) 
+\fn Win_QextSerialPort& operator=(const Win_QextSerialPort& s)
 overrides the = operator
 */
 Win_QextSerialPort& Win_QextSerialPort::operator=(const Win_QextSerialPort& s) {
@@ -135,24 +135,7 @@ Win_QextSerialPort& Win_QextSerialPort::operator=(const Win_QextSerialPort& s) {
 }
 
 /*!
-\fn Win_QextSerialPort::construct(void)
-Common constructor function, called by all versions of Win_QextSerialPort::Win_QextSerialPort().
-Sets up default port settings (115200 8N1 Hardware flow control where supported, otherwise no
-flow control, and 500 ms timeout).
-*/
-void Win_QextSerialPort::construct(void) {
-    QextSerialBase::construct();
-    Win_Handle=INVALID_HANDLE_VALUE;
-    setBaudRate(BAUD115200);
-    setDataBits(DATA_8);
-    setStopBits(STOP_1);
-    setParity(PAR_NONE);
-    setFlowControl(FLOW_HARDWARE);
-    setTimeout(0, 500);
-}
-
-/*!
-\fn bool Win_QextSerialPort::open(int)
+\fn bool Win_QextSerialPort::open(int=0)
 Opens a serial port.  Note that this function does not specify which device to open.  If you need
 to open a device by name, see Win_QextSerialPort::open(const char*).  This function has no effect
 if the port associated with the class is already open.  The port is also configured to the current
@@ -164,7 +147,7 @@ bool Win_QextSerialPort::open(int) {
     if (!portOpen) {
 
         /*open the port*/
-        Win_Handle=CreateFileA(portName, GENERIC_READ|GENERIC_WRITE, 
+        Win_Handle=CreateFileA(portName, GENERIC_READ|GENERIC_WRITE,
                               FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
         if (Win_Handle!=INVALID_HANDLE_VALUE) {
             portOpen=true;
@@ -172,22 +155,20 @@ bool Win_QextSerialPort::open(int) {
             /*configure port settings*/
             GetCommConfig(Win_Handle, &Win_CommConfig, &confSize);
             GetCommState(Win_Handle, &(Win_CommConfig.dcb));
+
+            /*set up parameters*/
             Win_CommConfig.dcb.fBinary=TRUE;
             Win_CommConfig.dcb.fInX=FALSE;
             Win_CommConfig.dcb.fOutX=FALSE;
             Win_CommConfig.dcb.fAbortOnError=FALSE;
             Win_CommConfig.dcb.fNull=FALSE;
-
-            /*half second timeout by default*/
-            setTimeout(Win_CommTimeouts.ReadTotalTimeoutConstant/1000, 
-                       Win_CommTimeouts.ReadTotalTimeoutConstant%1000);
-
-            /*set up parameters*/
             setBaudRate(Settings.BaudRate);
             setDataBits(Settings.DataBits);
-            setStopBits(Settings.StopBits);                               
+            setStopBits(Settings.StopBits);
             setParity(Settings.Parity);
             setFlowControl(Settings.FlowControl);
+            setTimeout(Settings.Timeout_Sec, Settings.Timeout_Millisec);
+            SetCommConfig(Win_Handle, &Win_CommConfig, sizeof(COMMCONFIG));
         }
     }
     UNLOCK_MUTEX();
@@ -223,7 +204,7 @@ void Win_QextSerialPort::flush() {
 \fn Offset Win_QextSerialPort::size() const
 This function will return the number of bytes waiting in the receive queue of the serial port.
 It is included primarily to provide a complete QIODevice interface, and will not record errors
-in the lastErr member (because it is const).  This function is also not thread-safe - in 
+in the lastErr member (because it is const).  This function is also not thread-safe - in
 multithreading situations, use Win_QextSerialPort::bytesWaiting() instead.
 */
 Offset Win_QextSerialPort::size() const {
@@ -238,7 +219,7 @@ Offset Win_QextSerialPort::size() const {
 /*!
 \fn int Win_QextSerialPort::bytesWaiting()
 Returns the number of bytes waiting in the port's receive queue.  This function will return 0 if
-the port is not currently open, or -1 on error.  Error information can be retrieved by calling 
+the port is not currently open, or -1 on error.  Error information can be retrieved by calling
 Win_QextSerialPort::getLastError().
 */
 int Win_QextSerialPort::bytesWaiting() {
@@ -290,17 +271,17 @@ void Win_QextSerialPort::translateError(unsigned long error) {
         lastErr=E_TRANSMIT_OVERFLOW;
     }
 }
-            
+
 /*!
 \fn Q_LONG Win_QextSerialPort::readBlock(char *data, uint maxlen)
 Reads a block of data from the serial port.  This function will read at most maxlen bytes from
-the serial port and place them in the buffer pointed to by data.  Return value is the number of 
-bytes actually read, or -1 on error.  This function will have no effect if the serial port 
+the serial port and place them in the buffer pointed to by data.  Return value is the number of
+bytes actually read, or -1 on error.  This function will have no effect if the serial port
 associated with the class is not currently open.
 */
-Q_LONG Win_QextSerialPort::readBlock(char *data, 
-#ifdef QTVER_PRE_30                                     
-                                     uint maxlen) 
+Q_LONG Win_QextSerialPort::readBlock(char *data,
+#ifdef QTVER_PRE_30
+                                     uint maxlen)
 #else
                                      unsigned long maxlen)
 #endif
@@ -312,7 +293,7 @@ Q_LONG Win_QextSerialPort::readBlock(char *data,
         DWORD Win_BytesRead=0;
         DWORD Win_ErrorMask=0;
         ClearCommError(Win_Handle, &Win_ErrorMask, &Win_ComStat);
-        if (Win_ComStat.cbInQue && 
+        if (Win_ComStat.cbInQue &&
             (!ReadFile(Win_Handle, (void*)data, (DWORD)maxlen, &Win_BytesRead, NULL)
             || Win_BytesRead==0)) {
             lastErr=E_READ_FAILED;
@@ -328,14 +309,14 @@ Q_LONG Win_QextSerialPort::readBlock(char *data,
 
 /*!
 \fn Q_LONG Win_QextSerialPort::writeBlock(const char *data, uint len)
-Writes a block of data to the serial port.  This function will write len bytes 
-from the buffer pointed to by data to the serial port.  Return value is the number 
-of bytes actually written, or -1 on error.  This function will have no effect if the serial 
+Writes a block of data to the serial port.  This function will write len bytes
+from the buffer pointed to by data to the serial port.  Return value is the number
+of bytes actually written, or -1 on error.  This function will have no effect if the serial
 port associated with the class is not currently open.
 */
-Q_LONG Win_QextSerialPort::writeBlock(const char *data, 
+Q_LONG Win_QextSerialPort::writeBlock(const char *data,
 #ifdef QTVER_PRE_30
-                                      uint len) 
+                                      uint len)
 #else
                                       unsigned long len)
 #endif
@@ -366,35 +347,30 @@ int Win_QextSerialPort::getch() {
     LOCK_MUTEX();
     int retVal=-1;
     if (portOpen) {
-        int readChar=-1;
+        int readChar=0;
         COMSTAT Win_ComStat;
         DWORD Win_BytesRead=0;
         DWORD Win_ErrorMask=0;
         ClearCommError(Win_Handle, &Win_ErrorMask, &Win_ComStat);
         if (Win_ComStat.cbInQue) {
-            if (!ReadFile(Win_Handle, (void*)&readChar, 1, &Win_BytesRead, NULL) 
+            if (!ReadFile(Win_Handle, (void*)&readChar, 1, &Win_BytesRead, NULL)
                 || Win_BytesRead==0) {
                 retVal=-1;
                 lastErr=E_READ_FAILED;
             }
             else {
-
-                /*Windows returns (unsigned short)-1 when it means 0xFF for some reason*/
-                if (readChar==-1) {
-                    readChar=0xFF;
-                }
                 retVal=readChar;
             }
         }
-    }    
+    }
     UNLOCK_MUTEX();
     return retVal;
 }
-    
+
 /*!
 \fn int Win_QextSerialPort::putch(int ch)
-Writes a single character to the serial port.  Return value is the byte written, or -1 on 
-error.  This function has no effect if the serial port associated with the class is not 
+Writes a single character to the serial port.  Return value is the byte written, or -1 on
+error.  This function has no effect if the serial port associated with the class is not
 currently open.
 */
 int Win_QextSerialPort::putch(int ch) {
@@ -417,7 +393,7 @@ int Win_QextSerialPort::putch(int ch) {
 
 /*!
 \fn int Win_QextSerialPort::ungetch(int)
-This function is included to implement the full QIODevice interface, and currently has no 
+This function is included to implement the full QIODevice interface, and currently has no
 purpose within this class.  This function is meaningless on an unbuffered device and currently
 only prints a warning message to that effect.
 */
@@ -508,7 +484,7 @@ void Win_QextSerialPort::setParity(ParityType parity) {
                 TTY_PORTABILITY_WARNING("Win_QextSerialPort Portability Warning:  Mark parity is not supported by POSIX systems");
                 Win_CommConfig.dcb.fParity=TRUE;
                 break;
-        
+
             /*no parity*/
             case PAR_NONE:
                 Win_CommConfig.dcb.fParity=FALSE;
@@ -528,7 +504,7 @@ void Win_QextSerialPort::setParity(ParityType parity) {
     }
     UNLOCK_MUTEX();
 }
-    
+
 /*!
 \fn void Win_QextSerialPort::setDataBits(DataBitsType dataBits)
 Sets the number of data bits used by the serial port.  Possible values of dataBits are:
@@ -539,7 +515,7 @@ Sets the number of data bits used by the serial port.  Possible values of dataBi
     DATA_8      8 data bits
 \endverbatim
 
-\note 
+\note
 This function is subject to the following restrictions:
 \par
     5 data bits cannot be used with 2 stop bits.
@@ -552,7 +528,7 @@ This function is subject to the following restrictions:
 void Win_QextSerialPort::setDataBits(DataBitsType dataBits) {
     LOCK_MUTEX();
     if (Settings.DataBits!=dataBits) {
-        if ((Settings.StopBits==STOP_2 && dataBits==DATA_5) || 
+        if ((Settings.StopBits==STOP_2 && dataBits==DATA_5) ||
             (Settings.StopBits==STOP_1_5 && dataBits!=DATA_5)) {
         }
         else {
@@ -619,7 +595,7 @@ Sets the number of stop bits used by the serial port.  Possible values of stopBi
     STOP_2      2 stop bits
 \endverbatim
 
-\note 
+\note
 This function is subject to the following restrictions:
 \par
     2 stop bits cannot be used with 5 data bits.
@@ -631,7 +607,7 @@ This function is subject to the following restrictions:
 void Win_QextSerialPort::setStopBits(StopBitsType stopBits) {
     LOCK_MUTEX();
     if (Settings.StopBits!=stopBits) {
-        if ((Settings.DataBits==DATA_5 && stopBits==STOP_2) || 
+        if ((Settings.DataBits==DATA_5 && stopBits==STOP_2) ||
             (stopBits==STOP_1_5 && Settings.DataBits!=DATA_5)) {
         }
         else {
@@ -676,10 +652,10 @@ void Win_QextSerialPort::setStopBits(StopBitsType stopBits) {
 
 /*!
 \fn void Win_QextSerialPort::setBaudRate(BaudRateType baudRate)
-Sets the baud rate of the serial port.  Note that not all rates are applicable on 
-all platforms.  The following table shows translations of the various baud rate 
+Sets the baud rate of the serial port.  Note that not all rates are applicable on
+all platforms.  The following table shows translations of the various baud rate
 constants on Windows(including NT/2000) and POSIX platforms.  Speeds marked with an *
-are speeds that are usable on both Windows and POSIX.  
+are speeds that are usable on both Windows and POSIX.
 \verbatim
 
   RATE          Windows Speed   POSIX Speed
@@ -735,7 +711,7 @@ void Win_QextSerialPort::setBaudRate(BaudRateType baudRate) {
     }
     if (portOpen) {
         switch (baudRate) {
-            
+
             /*50 baud*/
             case BAUD50:
                 TTY_WARNING("Win_QextSerialPort: Windows does not support 50 baud operation.  Switching to 110 baud.");
@@ -850,7 +826,7 @@ void Win_QextSerialPort::setBaudRate(BaudRateType baudRate) {
                 TTY_PORTABILITY_WARNING("Win_QextSerialPort Portability Warning: POSIX does not support 128000 baud operation.");
                 Win_CommConfig.dcb.BaudRate=CBR_128000;
                 break;
-        
+
             /*256000 baud*/
             case BAUD256000:
                 TTY_PORTABILITY_WARNING("Win_QextSerialPort Portability Warning: POSIX does not support 256000 baud operation.");
@@ -863,8 +839,8 @@ void Win_QextSerialPort::setBaudRate(BaudRateType baudRate) {
 }
 
 /*!
-\fn void Win_QextSerialPort::setDtr(bool set=true) 
-Sets DTR line to the requested state (high by default).  This function will have no effect if 
+\fn void Win_QextSerialPort::setDtr(bool set=true)
+Sets DTR line to the requested state (high by default).  This function will have no effect if
 the port associated with the class is not currently open.
 */
 void Win_QextSerialPort::setDtr(bool set) {
@@ -881,8 +857,8 @@ void Win_QextSerialPort::setDtr(bool set) {
 }
 
 /*!
-\fn void Win_QextSerialPort::setRts(bool set=true) 
-Sets RTS line to the requested state (high by default).  This function will have no effect if 
+\fn void Win_QextSerialPort::setRts(bool set=true)
+Sets RTS line to the requested state (high by default).  This function will have no effect if
 the port associated with the class is not currently open.
 */
 void Win_QextSerialPort::setRts(bool set) {
@@ -902,13 +878,13 @@ void Win_QextSerialPort::setRts(bool set) {
 \fn unsigned long Win_QextSerialPort::lineStatus(void)
 returns the line status as stored by the port function.  This function will retrieve the states
 of the following lines: DCD, CTS, DSR, and RI.  On POSIX systems, the following additional lines
-can be monitored: DTR, RTS, Secondary TXD, and Secondary RXD.  The value returned is an unsigned 
-long with specific bits indicating which lines are high.  The following constants should be used 
+can be monitored: DTR, RTS, Secondary TXD, and Secondary RXD.  The value returned is an unsigned
+long with specific bits indicating which lines are high.  The following constants should be used
 to examine the states of individual lines:
 
 \verbatim
-Mask        Line               
-------      ----               
+Mask        Line
+------      ----
 LS_CTS      CTS
 LS_DSR      DSR
 LS_DCD      DCD
@@ -918,7 +894,7 @@ LS_RI       RI
 This function will return 0 if the port associated with the class is not currently open.
 */
 unsigned long Win_QextSerialPort::lineStatus(void) {
-    unsigned long Status=0, Temp;
+    unsigned long Status=0, Temp=0;
     LOCK_MUTEX();
     if (portOpen) {
         GetCommModemStatus(Win_Handle, &Temp);
@@ -944,12 +920,16 @@ unsigned long Win_QextSerialPort::lineStatus(void) {
 Sets the read and write timeouts for the port to sec seconds and millisec milliseconds.
 */
 void Win_QextSerialPort::setTimeout(unsigned long sec, unsigned long millisec) {
+    LOCK_MUTEX();
     Settings.Timeout_Sec=sec;
     Settings.Timeout_Millisec=millisec;
-    Win_CommTimeouts.ReadIntervalTimeout = sec*1000+millisec;
-    Win_CommTimeouts.ReadTotalTimeoutMultiplier = sec*1000+millisec;
-    Win_CommTimeouts.ReadTotalTimeoutConstant = 0;
-    Win_CommTimeouts.WriteTotalTimeoutMultiplier = sec*1000+millisec;
-    Win_CommTimeouts.WriteTotalTimeoutConstant = 0;
-    SetCommTimeouts(Win_Handle, &Win_CommTimeouts);
+    if(portOpen) {
+        Win_CommTimeouts.ReadIntervalTimeout = sec*1000+millisec;
+        Win_CommTimeouts.ReadTotalTimeoutMultiplier = sec*1000+millisec;
+        Win_CommTimeouts.ReadTotalTimeoutConstant = 0;
+        Win_CommTimeouts.WriteTotalTimeoutMultiplier = sec*1000+millisec;
+        Win_CommTimeouts.WriteTotalTimeoutConstant = 0;
+        SetCommTimeouts(Win_Handle, &Win_CommTimeouts);
+    }
+    UNLOCK_MUTEX();
 }

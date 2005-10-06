@@ -41,7 +41,7 @@ public:
 #ifdef QTVER_PRE_30
     virtual Q_LONG readBlock(char *data, uint maxlen);
     virtual Q_LONG writeBlock(const char *data, uint len);
-#else 
+#else
     virtual Q_LONG readBlock(char *data, unsigned long maxlen);
     virtual Q_LONG writeBlock(const char *data, unsigned long len);
 #endif
@@ -50,8 +50,6 @@ protected:
     HANDLE Win_Handle;
     COMMCONFIG Win_CommConfig;
     COMMTIMEOUTS Win_CommTimeouts;
-
-    void construct(void);
 };
 
 #endif
