@@ -71,7 +71,7 @@ _TTY_FREEBSD_    FreeBSD         /dev/ttyd0, /dev/ttyd1
 _TTY_LINUX_      Linux           /dev/ttyS0, /dev/ttyS1
 &lt;none&gt;           Linux           /dev/ttyS0, /dev/ttyS1
 </pre></div><p>
-The object will be associated with the first port in the system, e.g. COM1 on Windows systems. See the other constructors if you need to use a port other than the first. <div class="fragment"><pre class="fragment">00047  : <a class="code" href="qextserialport_8h.html#a0">QextBaseType</a>()
+The object will be associated with the first port in the system, e.g. COM1 on Windows systems. See the other constructors if you need to use a port other than the first. <div class="fragment"><pre class="fragment">00047  : QextBaseType()
 00048 {}
 </pre></div>
 <p>
@@ -103,7 +103,7 @@ The object will be associated with the first port in the system, e.g. COM1 on Wi
     <td>
 
 <p>
-Constructs a serial port attached to the port specified by name. name is the name of the device, which is windowsystem-specific, e.g."COM1" or "/dev/ttyS0". <div class="fragment"><pre class="fragment">00057  : <a class="code" href="qextserialport_8h.html#a0">QextBaseType</a>(name)
+Constructs a serial port attached to the port specified by name. name is the name of the device, which is windowsystem-specific, e.g."COM1" or "/dev/ttyS0". <div class="fragment"><pre class="fragment">00057  : QextBaseType(name)
 00058 {}
 </pre></div>
 <p>
@@ -135,7 +135,7 @@ Constructs a serial port attached to the port specified by name. name is the nam
     <td>
 
 <p>
-Constructs a port with default name and settings specified by the settings parameter. <div class="fragment"><pre class="fragment">00065  : <a class="code" href="qextserialport_8h.html#a0">QextBaseType</a>(settings)
+Constructs a port with default name and settings specified by the settings parameter. <div class="fragment"><pre class="fragment">00065  : QextBaseType(settings)
 00066 {}
 </pre></div>
 <p>
@@ -176,7 +176,7 @@ Constructs a port with default name and settings specified by the settings param
     <td>
 
 <p>
-Constructs a port with the name and settings specified. <div class="fragment"><pre class="fragment">00073  : <a class="code" href="qextserialport_8h.html#a0">QextBaseType</a>(name, settings)
+Constructs a port with the name and settings specified. <div class="fragment"><pre class="fragment">00073  : QextBaseType(name, settings)
 00074 {}
 </pre></div>
 <p>
@@ -208,7 +208,7 @@ Constructs a port with the name and settings specified. <div class="fragment"><p
     <td>
 
 <p>
-Copy constructor. <div class="fragment"><pre class="fragment">00081  : <a class="code" href="qextserialport_8h.html#a0">QextBaseType</a>(s)
+Copy constructor. <div class="fragment"><pre class="fragment">00081  : QextBaseType(s)
 00082 {}
 </pre></div>
 <p>
@@ -281,7 +281,7 @@ Overrides the = operator. <div class="fragment"><pre class="fragment">00089 {
 </table>
 <hr>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="qextserialport_8h.html">qextserialport.h</a><li><a class="el" href="qextserialport_8cpp.html">qextserialport.cpp</a></ul>
-<hr size="1"><address style="align: right;"><small>Generated on Sat Oct 15 13:33:26 2005 for QextSerialPort by&nbsp;
+<hr size="1"><address style="align: right;"><small>Generated on Sat Oct 15 14:12:21 2005 for QextSerialPort by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.1 </small></address>
 </body>

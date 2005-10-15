@@ -7,6 +7,7 @@
 
 #ifdef QT_THREAD_SUPPORT
 #include <QThread>
+#include <QMutex>
 #endif
 
 /*if all warning messages are turned off, flag portability warnings to be turned off as well*/

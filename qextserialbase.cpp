@@ -91,7 +91,7 @@ void QextSerialBase::construct()
 
 #ifdef QT_THREAD_SUPPORT
     if (!mutex) {
-        mutex=new QMutex(TRUE);
+        mutex=new QMutex( QMutex::Recursive );
     }
     refCount++;
 #endif

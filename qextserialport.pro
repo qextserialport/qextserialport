@@ -1,7 +1,9 @@
 PROJECT                 = qextserialport
 TEMPLATE                = lib
 CONFIG                 -= debug_and_release
-CONFIG                 += warn_on qt thread debug
+#CONFIG                 += debug
+CONFIG                 += release
+CONFIG                 += warn_on qt thread
 QT                     -= gui
 OBJECTS_DIR             = obj
 MOC_DIR                 = moc
@@ -20,4 +22,4 @@ win32:DEFINES          += _TTY_WIN_
 
 DESTDIR                 = lib
 TARGET                  = qextserialport
-VERSION                 = 1.0.0
+unix:VERSION            = 1.0.0

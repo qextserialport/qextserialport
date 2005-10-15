@@ -96,7 +96,7 @@ Posix_QextSerialPort::Posix_QextSerialPort(const PortSettings& settings)
 }
 
 /*!
-\fn Posix_QextSerialPort::Posix_QextSerialPort(const char* name, const PortSettings& settings)
+\fn Posix_QextSerialPort::Posix_QextSerialPort(const QString & name, const PortSettings& settings)
 Constructs a port with specified name and settings.
 */
 Posix_QextSerialPort::Posix_QextSerialPort(const QString & name, const PortSettings& settings)
@@ -730,7 +730,7 @@ void Posix_QextSerialPort::setStopBits(StopBitsType stopBits)
 }
 
 /*!
-\fn void Posix_QextSerialPort::setFlowControl(FlowType flow, bool force=false)
+\fn void Posix_QextSerialPort::setFlowControl(FlowType flow)
 Sets the flow control used by the port.  Possible values of flow are:
 \verbatim
     FLOW_OFF            No flow control
@@ -776,7 +776,7 @@ void Posix_QextSerialPort::setFlowControl(FlowType flow)
 }
 
 /*!
-\fn void Posix_QextSerialPort::setTimeout(unsigned long sec=0, unsigned long millisec=0);
+\fn void Posix_QextSerialPort::setTimeout(ulong sec, ulong millisec);
 Sets the read and write timeouts for the port to sec seconds and millisec milliseconds.
 Note that this is a per-character timeout, i.e. the port will wait this long for each
 individual character, not for the whole read operation.  This timeout also applies to the
@@ -792,7 +792,7 @@ so for example a 550-millisecond timeout will be seen as 550 milliseconds on POS
 the purpose of detecting available bytes in the read buffer.
 
 */
-void Posix_QextSerialPort::setTimeout(unsigned long sec, unsigned long millisec)
+void Posix_QextSerialPort::setTimeout(ulong sec, ulong millisec)
 {
     LOCK_MUTEX();
     Settings.Timeout_Sec=sec;

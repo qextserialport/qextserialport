@@ -17,7 +17,7 @@ public:
     Win_QextSerialPort(const QString & name);
     Win_QextSerialPort(const PortSettings& settings);
     Win_QextSerialPort(const QString & name, const PortSettings& settings);
-    Win_QextSerialPort& operator=(Win_QextSerialPort const& s);
+    Win_QextSerialPort& operator=(const Win_QextSerialPort& s);
     virtual ~Win_QextSerialPort();
     virtual bool open(int mode=0);
     virtual void close();

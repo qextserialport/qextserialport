@@ -1,6 +1,6 @@
 /*!
 \class Win_QextSerialPort
-\version 1.0.0 (pre-alpha)
+\version 1.0.0
 \author Stefan Sander
 
 A cross-platform serial port class.
@@ -51,11 +51,11 @@ Win_QextSerialPort::Win_QextSerialPort():QextSerialBase() {
 /*!Win_QextSerialPort::Win_QextSerialPort(const Win_QextSerialPort&)
 Copy constructor.
 */
-Win_QextSerialPort::Win_QextSerialPort(const Win_QextSerialPort& s):QextSerialBase(s.portName) {
+Win_QextSerialPort::Win_QextSerialPort(const Win_QextSerialPort& s):QextSerialBase(s.port) {
     Win_Handle=INVALID_HANDLE_VALUE;
     portOpen=s.portOpen;
     lastErr=s.lastErr;
-    memcpy(portName, s.portName, sizeof(portName));
+    port = s.port;
     Settings.FlowControl=s.Settings.FlowControl;
     Settings.Parity=s.Settings.Parity;
     Settings.DataBits=s.Settings.DataBits;
@@ -96,7 +96,7 @@ Constructs a port with specified name and settings.
 */
 Win_QextSerialPort::Win_QextSerialPort(const QString & name, const PortSettings& settings) {
     Win_Handle=INVALID_HANDLE_VALUE;
-    setName(name);
+    setPortName(name);
     setBaudRate(settings.BaudRate);
     setDataBits(settings.DataBits);
     setStopBits(settings.StopBits);
@@ -116,13 +116,13 @@ Win_QextSerialPort::~Win_QextSerialPort() {
 }
 
 /*!
-\fn Win_QextSerialPort& operator=(const Win_QextSerialPort& s)
+\fn Win_QextSerialPort& Win_QextSerialPort::operator=(const Win_QextSerialPort& s)
 overrides the = operator
 */
 Win_QextSerialPort& Win_QextSerialPort::operator=(const Win_QextSerialPort& s) {
     portOpen=s.isOpen();
     lastErr=s.lastErr;
-    memcpy(portName, s.portName, sizeof(portName));
+    port = s.port;
     Settings.FlowControl=s.Settings.FlowControl;
     Settings.Parity=s.Settings.Parity;
     Settings.DataBits=s.Settings.DataBits;
@@ -147,7 +147,7 @@ bool Win_QextSerialPort::open(int) {
     if (!portOpen) {
 
         /*open the port*/
-        Win_Handle=CreateFileA(portName, GENERIC_READ|GENERIC_WRITE,
+        Win_Handle=CreateFileA(port.toAscii(), GENERIC_READ|GENERIC_WRITE,
                               FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
         if (Win_Handle!=INVALID_HANDLE_VALUE) {
             portOpen=true;
@@ -289,7 +289,7 @@ qint64 Win_QextSerialPort::readData(char *data, qint64 maxSize)
         DWORD Win_ErrorMask=0;
         ClearCommError(Win_Handle, &Win_ErrorMask, &Win_ComStat);
         if (Win_ComStat.cbInQue &&
-            (!ReadFile(Win_Handle, (void*)data, (DWORD)maxlen, &Win_BytesRead, NULL)
+            (!ReadFile(Win_Handle, (void*)data, (DWORD)maxSize, &Win_BytesRead, NULL)
             || Win_BytesRead==0)) {
             lastErr=E_READ_FAILED;
             retVal=-1;
@@ -309,13 +309,13 @@ from the buffer pointed to by data to the serial port.  Return value is the numb
 of bytes actually written, or -1 on error.  This function will have no effect if the serial
 port associated with the class is not currently open.
 */
-Q_LONG Win_QextSerialPort::writeData(const char *data, qint64 maxSize)
+qint64 Win_QextSerialPort::writeData(const char *data, qint64 maxSize)
 {
     LOCK_MUTEX();
     int retVal=0;
     if (portOpen) {
         DWORD Win_BytesWritten;
-        if (!WriteFile(Win_Handle, (void*)data, (DWORD)len, &Win_BytesWritten, NULL)) {
+        if (!WriteFile(Win_Handle, (void*)data, (DWORD)maxSize, &Win_BytesWritten, NULL)) {
             lastErr=E_WRITE_FAILED;
             retVal=-1;
         }
@@ -387,7 +387,7 @@ This function is included to implement the full QIODevice interface, and current
 purpose within this class.  This function is meaningless on an unbuffered device and currently
 only prints a warning message to that effect.
 */
-void Win_QextSerialPort::ungetch(char c) {
+void Win_QextSerialPort::ungetChar(char c) {
 
     /*meaningless on unbuffered sequential device - return error and print a warning*/
     TTY_WARNING("Win_QextSerialPort: ungetChar() called on an unbuffered sequential device - operation is meaningless");
