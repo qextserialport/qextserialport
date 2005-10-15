@@ -1,7 +1,7 @@
 /*!
 \class Win_QextSerialPort
-\version 0.70 (pre-alpha)
-\author Wayne Roth
+\version 1.0.0 (pre-alpha)
+\author Stefan Sander
 
 A cross-platform serial port class.
 This class encapsulates the Windows portion of QextSerialPort.  The user will be notified of
@@ -67,12 +67,12 @@ Win_QextSerialPort::Win_QextSerialPort(const Win_QextSerialPort& s):QextSerialBa
 }
 
 /*!
-\fn Win_QextSerialPort::Win_QextSerialPort(const char* devName)
+\fn Win_QextSerialPort::Win_QextSerialPort(const QString & name)
 Constructs a serial port attached to the port specified by devName.
 devName is the name of the device, which is windowsystem-specific,
 e.g."COM2" or "/dev/ttyS0".
 */
-Win_QextSerialPort::Win_QextSerialPort(const char* name):QextSerialBase(name) {
+Win_QextSerialPort::Win_QextSerialPort(const QString & name):QextSerialBase(name) {
     Win_Handle=INVALID_HANDLE_VALUE;
 }
 
@@ -91,10 +91,10 @@ Win_QextSerialPort::Win_QextSerialPort(const PortSettings& settings) {
 }
 
 /*!
-\fn Win_QextSerialPort::Win_QextSerialPort(const char* name, const PortSettings& settings)
+\fn Win_QextSerialPort::Win_QextSerialPort(const QString & name, const PortSettings& settings)
 Constructs a port with specified name and settings.
 */
-Win_QextSerialPort::Win_QextSerialPort(const char* name, const PortSettings& settings) {
+Win_QextSerialPort::Win_QextSerialPort(const QString & name, const PortSettings& settings) {
     Win_Handle=INVALID_HANDLE_VALUE;
     setName(name);
     setBaudRate(settings.BaudRate);
@@ -201,28 +201,28 @@ void Win_QextSerialPort::flush() {
 }
 
 /*!
-\fn Offset Win_QextSerialPort::size() const
+\fn qint64 Win_QextSerialPort::size() const
 This function will return the number of bytes waiting in the receive queue of the serial port.
 It is included primarily to provide a complete QIODevice interface, and will not record errors
 in the lastErr member (because it is const).  This function is also not thread-safe - in
-multithreading situations, use Win_QextSerialPort::bytesWaiting() instead.
+multithreading situations, use Win_QextSerialPort::bytesAvailable() instead.
 */
-Offset Win_QextSerialPort::size() const {
+qint64 Win_QextSerialPort::size() const {
     int availBytes;
     COMSTAT Win_ComStat;
     DWORD Win_ErrorMask=0;
     ClearCommError(Win_Handle, &Win_ErrorMask, &Win_ComStat);
     availBytes = Win_ComStat.cbInQue;
-    return (Offset)availBytes;
+    return (qint64)availBytes;
 }
 
 /*!
-\fn int Win_QextSerialPort::bytesWaiting()
+\fn qint64 Win_QextSerialPort::bytesAvailable()
 Returns the number of bytes waiting in the port's receive queue.  This function will return 0 if
 the port is not currently open, or -1 on error.  Error information can be retrieved by calling
 Win_QextSerialPort::getLastError().
 */
-int Win_QextSerialPort::bytesWaiting() {
+qint64 Win_QextSerialPort::bytesAvailable() {
     LOCK_MUTEX();
     if (portOpen) {
         DWORD Errors;
@@ -273,18 +273,13 @@ void Win_QextSerialPort::translateError(unsigned long error) {
 }
 
 /*!
-\fn Q_LONG Win_QextSerialPort::readBlock(char *data, uint maxlen)
+\fn qint64 Win_QextSerialPort::readData(char *data, qint64 maxSize)
 Reads a block of data from the serial port.  This function will read at most maxlen bytes from
 the serial port and place them in the buffer pointed to by data.  Return value is the number of
 bytes actually read, or -1 on error.  This function will have no effect if the serial port
 associated with the class is not currently open.
 */
-Q_LONG Win_QextSerialPort::readBlock(char *data,
-#ifdef QTVER_PRE_30
-                                     uint maxlen)
-#else
-                                     unsigned long maxlen)
-#endif
+qint64 Win_QextSerialPort::readData(char *data, qint64 maxSize)
 {
     LOCK_MUTEX();
     int retVal=0;
@@ -308,18 +303,13 @@ Q_LONG Win_QextSerialPort::readBlock(char *data,
 }
 
 /*!
-\fn Q_LONG Win_QextSerialPort::writeBlock(const char *data, uint len)
+\fn qint64 Win_QextSerialPort::writeData(const char *data, qint64 maxSize)
 Writes a block of data to the serial port.  This function will write len bytes
 from the buffer pointed to by data to the serial port.  Return value is the number
 of bytes actually written, or -1 on error.  This function will have no effect if the serial
 port associated with the class is not currently open.
 */
-Q_LONG Win_QextSerialPort::writeBlock(const char *data,
-#ifdef QTVER_PRE_30
-                                      uint len)
-#else
-                                      unsigned long len)
-#endif
+Q_LONG Win_QextSerialPort::writeData(const char *data, qint64 maxSize)
 {
     LOCK_MUTEX();
     int retVal=0;
@@ -339,15 +329,16 @@ Q_LONG Win_QextSerialPort::writeBlock(const char *data,
 }
 
 /*!
-\fn int Win_QextSerialPort::getch()
-Returns a single character from the serial port, or -1 on error.  This function has no effect if
-the serial port associated with the class is not currently open.
+\fn bool Win_QextSerialPort::getChar(char * c)
+Reads one character from the device and stores it in c.
+Returns true on success; otherwise returns false.
+This function has no effect if the serial port associated with the class is not currently open.
 */
-int Win_QextSerialPort::getch() {
+bool Win_QextSerialPort::getChar(char * c) {
     LOCK_MUTEX();
-    int retVal=-1;
+    bool retVal=false;
     if (portOpen) {
-        int readChar=0;
+        char readChar=0;
         COMSTAT Win_ComStat;
         DWORD Win_BytesRead=0;
         DWORD Win_ErrorMask=0;
@@ -355,11 +346,11 @@ int Win_QextSerialPort::getch() {
         if (Win_ComStat.cbInQue) {
             if (!ReadFile(Win_Handle, (void*)&readChar, 1, &Win_BytesRead, NULL)
                 || Win_BytesRead==0) {
-                retVal=-1;
                 lastErr=E_READ_FAILED;
             }
             else {
-                retVal=readChar;
+                *c = readChar;
+                retVal=true;
             }
         }
     }
@@ -368,22 +359,21 @@ int Win_QextSerialPort::getch() {
 }
 
 /*!
-\fn int Win_QextSerialPort::putch(int ch)
-Writes a single character to the serial port.  Return value is the byte written, or -1 on
-error.  This function has no effect if the serial port associated with the class is not
+\fn bool Win_QextSerialPort::putChar(char c)
+Writes the character c to the device. Returns true on success; otherwise returns false.
+This function has no effect if the serial port associated with the class is not
 currently open.
 */
-int Win_QextSerialPort::putch(int ch) {
+bool Win_QextSerialPort::putChar(char c) {
     LOCK_MUTEX();
-    int retVal=0;
+    bool retVal=false;
     if (portOpen) {
         DWORD Win_BytesWritten;
-        if (!WriteFile(Win_Handle, (void*)&ch, 1, &Win_BytesWritten, NULL)) {
-            retVal=-1;
+        if (!WriteFile(Win_Handle, (void*)&c, 1, &Win_BytesWritten, NULL)) {
             lastErr=E_WRITE_FAILED;
         }
         else {
-            retVal=ch;
+            retVal=true;
         }
     }
     UNLOCK_MUTEX();
@@ -392,16 +382,15 @@ int Win_QextSerialPort::putch(int ch) {
 }
 
 /*!
-\fn int Win_QextSerialPort::ungetch(int)
+\fn void Win_QextSerialPort::ungetChar(char c)
 This function is included to implement the full QIODevice interface, and currently has no
 purpose within this class.  This function is meaningless on an unbuffered device and currently
 only prints a warning message to that effect.
 */
-int Win_QextSerialPort::ungetch(int) {
+void Win_QextSerialPort::ungetch(char c) {
 
     /*meaningless on unbuffered sequential device - return error and print a warning*/
-    TTY_WARNING("Win_QextSerialPort: ungetch() called on an unbuffered sequential device - operation is meaningless");
-    return -1;
+    TTY_WARNING("Win_QextSerialPort: ungetChar() called on an unbuffered sequential device - operation is meaningless");
 }
 
 /*!

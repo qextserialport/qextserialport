@@ -164,7 +164,7 @@ public:
     virtual void flush()=0;
 
     virtual qint64 size() const=0;
-    virtual qint64 bytesAvailable() const=0;
+    virtual qint64 bytesAvailable()=0;
     virtual bool atEnd() const;
 
     virtual bool getChar(char * c)=0;

@@ -1,5 +1,6 @@
 PROJECT                 = qextserialport
 TEMPLATE                = lib
+CONFIG                 -= debug_and_release
 CONFIG                 += warn_on qt thread debug
 QT                     -= gui
 OBJECTS_DIR             = obj

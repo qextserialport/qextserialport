@@ -820,7 +820,9 @@ bool Posix_QextSerialPort::open(OpenMode)
 
         /*open the port*/
         Posix_File->setFileName(port);
-        if (Posix_File->open(ReadWrite|Unbuffered)) {
+        qDebug("Trying to open File");
+        if (Posix_File->open(QIODevice::ReadWrite|QIODevice::Unbuffered)) {
+            qDebug("Opened File succesfully");
             portOpen=true;
 
             /*configure port settings*/
@@ -844,6 +846,8 @@ bool Posix_QextSerialPort::open(OpenMode)
             setFlowControl(Settings.FlowControl);
             setTimeout(Settings.Timeout_Sec, Settings.Timeout_Millisec);
             tcsetattr(Posix_File->handle(), TCSAFLUSH, &Posix_CommConfig);
+        } else {
+            qDebug("Could not open File! Error code : %d", Posix_File->error());
         }
     }
     UNLOCK_MUTEX();
@@ -894,7 +898,7 @@ qint64 Posix_QextSerialPort::size() const
 }
 
 /*!
-\fn qint64 Posix_QextSerialPort::bytesAvailable() const
+\fn qint64 Posix_QextSerialPort::bytesAvailable()
 Returns the number of bytes waiting in the port's receive queue.  This function will return 0 if
 the port is not currently open, or -1 on error.  Error information can be retrieved by calling
 Posix_QextSerialPort::getLastError().
@@ -911,7 +915,7 @@ qint64 Posix_QextSerialPort::bytesAvailable()
         /*on Linux systems the Posix_Timeout structure will be altered by the select() call.
           Make sure we use the right timeout values*/
         //memcpy(&Posix_Timeout, &Posix_Copy_Timeout, sizeof(struct timeval));
-	Posix_Timeout = Posix_Copy_Timeout;
+        Posix_Timeout = Posix_Copy_Timeout;
         int n=select(Posix_File->handle()+1, &fileSet, NULL, &fileSet, &Posix_Timeout);
         if (!n) {
             lastErr=E_PORT_TIMEOUT;
@@ -933,17 +937,21 @@ qint64 Posix_QextSerialPort::bytesAvailable()
 
 /*!
 \fn bool Posix_QextSerialPort::getChar(char * c)
-Returns a single character from the serial port, or -1 on error.  This function has no effect if
-the serial port associated with the class is not currently open.
+Reads one character from the device and stores it in c.
+Returns true on success; otherwise returns false.
+This function has no effect if the serial port associated with the class is not currently open.
 */
 bool Posix_QextSerialPort::getChar(char * c)
 {
     LOCK_MUTEX();
     bool retVal=false;
     if (portOpen) {
-        retVal = Posix_File->getChar(c);
-	if(retVal == false) {
+        char readChar=0;
+        retVal = Posix_File->getChar(&readChar);
+        if(retVal == false) {
             lastErr=E_READ_FAILED;
+        } else {
+            *c = readChar;
         }
     }
     UNLOCK_MUTEX();
@@ -952,8 +960,8 @@ bool Posix_QextSerialPort::getChar(char * c)
 
 /*!
 \fn bool Posix_QextSerialPort::putChar(char c)
-Writes a single character to the serial port.  Return value is the byte written, or -1 on
-error.  This function has no effect if the serial port associated with the class is not
+Writes the character c to the device. Returns true on success; otherwise returns false.
+This function has no effect if the serial port associated with the class is not
 currently open.
 */
 bool Posix_QextSerialPort::putChar(char c)
@@ -979,7 +987,6 @@ only prints a warning message to that effect.
 */
 void Posix_QextSerialPort::ungetChar(char)
 {
-
     /*meaningless on unbuffered sequential device - return error and print a warning*/
     TTY_WARNING("Posix_QextSerialPort: ungetChar() called on an unbuffered sequential device - operation is meaningless");
 }
@@ -1110,7 +1117,7 @@ unsigned long Posix_QextSerialPort::lineStatus()
 
 /*!
 \fn qint64 Posix_QextSerialPort::readData(char * data, qint64 maxSize)
-Reads a block of data from the serial port.  This function will read at most maxlen bytes from
+Reads a block of data from the serial port.  This function will read at most maxSize bytes from
 the serial port and place them in the buffer pointed to by data.  Return value is the number of
 bytes actually read, or -1 on error.  This function will have no effect if the serial port
 associated with the class is not currently open.
@@ -1131,7 +1138,7 @@ qint64 Posix_QextSerialPort::readData(char * data, qint64 maxSize)
 
 /*!
 \fn qint64 Posix_QextSerialPort::writeData(const char * data, qint64 maxSize)
-Writes a block of data to the serial port.  This function will write len bytes
+Writes a block of data to the serial port.  This function will write maxSize bytes
 from the buffer pointed to by data to the serial port.  Return value is the number
 of bytes actually written, or -1 on error.  This function will have no effect if the serial
 port associated with the class is not currently open.

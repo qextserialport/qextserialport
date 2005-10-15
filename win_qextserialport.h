@@ -14,18 +14,18 @@ class Win_QextSerialPort:public QextSerialBase {
 public:
     Win_QextSerialPort();
     Win_QextSerialPort(Win_QextSerialPort const& s);
-    Win_QextSerialPort(const char* name);
+    Win_QextSerialPort(const QString & name);
     Win_QextSerialPort(const PortSettings& settings);
-    Win_QextSerialPort(const char* name, const PortSettings& settings);
+    Win_QextSerialPort(const QString & name, const PortSettings& settings);
     Win_QextSerialPort& operator=(Win_QextSerialPort const& s);
     virtual ~Win_QextSerialPort();
     virtual bool open(int mode=0);
     virtual void close();
     virtual void flush();
     virtual qint64 size() const;
-    virtual int getch();
-    virtual int putch(int);
-    virtual int ungetch(int);
+    virtual bool getChar(char * c);
+    virtual bool putChar(char c);
+    virtual void ungetChar(char c);
     virtual void setFlowControl(FlowType);
     virtual void setParity(ParityType);
     virtual void setDataBits(DataBitsType);
@@ -34,11 +34,11 @@ public:
     virtual void setDtr(bool set=true);
     virtual void setRts(bool set=true);
     virtual unsigned long lineStatus(void);
-    virtual int bytesWaiting();
+    virtual qint64 bytesAvailable();
     virtual void translateError(unsigned long);
     virtual void setTimeout(unsigned long=0, unsigned long=0);
-    virtual qint64 readBlock(char *data, unsigned long maxlen);
-    virtual qint64 writeBlock(const char *data, unsigned long len);
+    virtual qint64 readData(char *data, qint64 maxSize);
+    virtual qint64 writeData(const char *data, qint64 maxSize);
 
 protected:
     HANDLE Win_Handle;
