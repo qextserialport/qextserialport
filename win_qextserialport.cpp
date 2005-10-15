@@ -135,13 +135,13 @@ Win_QextSerialPort& Win_QextSerialPort::operator=(const Win_QextSerialPort& s) {
 }
 
 /*!
-\fn bool Win_QextSerialPort::open(int=0)
+\fn bool Win_QextSerialPort::open(OpenMode=0)
 Opens a serial port.  Note that this function does not specify which device to open.  If you need
 to open a device by name, see Win_QextSerialPort::open(const char*).  This function has no effect
 if the port associated with the class is already open.  The port is also configured to the current
 settings, as stored in the Settings structure.
 */
-bool Win_QextSerialPort::open(int) {
+bool Win_QextSerialPort::open(OpenMode) {
     unsigned long confSize;
     LOCK_MUTEX();
     if (!portOpen) {
