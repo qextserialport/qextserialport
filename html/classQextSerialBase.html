@@ -48,11 +48,11 @@
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">virtual <a class="el" href="qextserialbase_8h.html#a5">FlowType</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#Win__QextSerialPorta34">flowControl</a> () const </td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">virtual void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#Win__QextSerialPorta35">setTimeout</a> (ulong, ulong)=0</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">virtual void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#QextSerialBasea16">setTimeout</a> (ulong, ulong)=0</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">virtual bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#Win__QextSerialPorta36">open</a> (OpenMode mode=0)=0</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">virtual bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#QextSerialBasea17">open</a> (OpenMode mode=0)=0</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">virtual bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#Win__QextSerialPorta37">isOpen</a> () const </td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">virtual bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#Win__QextSerialPorta35">isOpen</a> () const </td></tr>
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">virtual void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#QextSerialBasea19">close</a> ()=0</td></tr>
 
@@ -62,7 +62,7 @@
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">virtual qint64&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#QextSerialBasea22">bytesAvailable</a> ()=0</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">virtual bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#Win__QextSerialPorta38">atEnd</a> () const </td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">virtual bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#Win__QextSerialPorta36">atEnd</a> () const </td></tr>
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">virtual bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#QextSerialBasea24">getChar</a> (char *c)=0</td></tr>
 
@@ -70,11 +70,11 @@
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">virtual void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#QextSerialBasea26">ungetChar</a> (char c)=0</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">virtual qint64&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#Win__QextSerialPorta39">readLine</a> (char *data, qint64 maxSize)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">virtual qint64&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#Win__QextSerialPorta37">readLine</a> (char *data, qint64 maxSize)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">virtual ulong&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#Win__QextSerialPorta40">lastError</a> () const </td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">virtual ulong&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#Win__QextSerialPorta38">lastError</a> () const </td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">virtual void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#Win__QextSerialPorta41">translateError</a> (ulong error)=0</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">virtual void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#QextSerialBasea29">translateError</a> (ulong error)=0</td></tr>
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">virtual void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#QextSerialBasea30">setDtr</a> (bool set=true)=0</td></tr>
 
@@ -662,7 +662,7 @@ Returns the type of flow control used by the port. For a list of possible values
     </td>
   </tr>
 </table>
-<a class="anchor" name="Win__QextSerialPorta35" doxytag="QextSerialBase::setTimeout"></a><p>
+<a class="anchor" name="QextSerialBasea16" doxytag="QextSerialBase::setTimeout"></a><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -698,10 +698,10 @@ Returns the type of flow control used by the port. For a list of possible values
 <p>
 
 <p>
-Implemented in <a class="el" href="classPosix__QextSerialPort.html#Posix__QextSerialPorta12">Posix_QextSerialPort</a>.    </td>
+Implemented in <a class="el" href="classPosix__QextSerialPort.html#Posix__QextSerialPorta12">Posix_QextSerialPort</a>, and <a class="el" href="classWin__QextSerialPort.html#Win__QextSerialPorta24">Win_QextSerialPort</a>.    </td>
   </tr>
 </table>
-<a class="anchor" name="Win__QextSerialPorta36" doxytag="QextSerialBase::open"></a><p>
+<a class="anchor" name="QextSerialBasea17" doxytag="QextSerialBase::open"></a><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -728,10 +728,10 @@ Implemented in <a class="el" href="classPosix__QextSerialPort.html#Posix__QextSe
 <p>
 
 <p>
-Implemented in <a class="el" href="classPosix__QextSerialPort.html#Posix__QextSerialPorta13">Posix_QextSerialPort</a>.    </td>
+Implemented in <a class="el" href="classPosix__QextSerialPort.html#Posix__QextSerialPorta13">Posix_QextSerialPort</a>, and <a class="el" href="classWin__QextSerialPort.html#Win__QextSerialPorta7">Win_QextSerialPort</a>.    </td>
   </tr>
 </table>
-<a class="anchor" name="Win__QextSerialPorta37" doxytag="QextSerialBase::isOpen"></a><p>
+<a class="anchor" name="Win__QextSerialPorta35" doxytag="QextSerialBase::isOpen"></a><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -879,7 +879,7 @@ Implemented in <a class="el" href="classPosix__QextSerialPort.html#Posix__QextSe
 Implemented in <a class="el" href="classPosix__QextSerialPort.html#Posix__QextSerialPorta17">Posix_QextSerialPort</a>, and <a class="el" href="classWin__QextSerialPort.html#Win__QextSerialPorta22">Win_QextSerialPort</a>.    </td>
   </tr>
 </table>
-<a class="anchor" name="Win__QextSerialPorta38" doxytag="QextSerialBase::atEnd"></a><p>
+<a class="anchor" name="Win__QextSerialPorta36" doxytag="QextSerialBase::atEnd"></a><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -903,7 +903,7 @@ Implemented in <a class="el" href="classPosix__QextSerialPort.html#Posix__QextSe
     <td>
 
 <p>
-This function will return true if the input buffer is empty (or on error), and false otherwise. Call <a class="el" href="classQextSerialBase.html#Win__QextSerialPorta40">QextSerialBase::lastError()</a> for error information. <div class="fragment"><pre class="fragment">00185 {
+This function will return true if the input buffer is empty (or on error), and false otherwise. Call <a class="el" href="classQextSerialBase.html#Win__QextSerialPorta38">QextSerialBase::lastError()</a> for error information. <div class="fragment"><pre class="fragment">00185 {
 00186     <span class="keywordflow">if</span> (<a class="code" href="classQextSerialBase.html#QextSerialBasea21">size</a>()) {
 00187         <span class="keywordflow">return</span> <span class="keyword">true</span>;
 00188     }
@@ -1004,7 +1004,7 @@ Implemented in <a class="el" href="classPosix__QextSerialPort.html#Posix__QextSe
 Implemented in <a class="el" href="classPosix__QextSerialPort.html#Posix__QextSerialPorta20">Posix_QextSerialPort</a>, and <a class="el" href="classWin__QextSerialPort.html#Win__QextSerialPorta13">Win_QextSerialPort</a>.    </td>
   </tr>
 </table>
-<a class="anchor" name="Win__QextSerialPorta39" doxytag="QextSerialBase::readLine"></a><p>
+<a class="anchor" name="Win__QextSerialPorta37" doxytag="QextSerialBase::readLine"></a><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -1064,7 +1064,7 @@ This function will read a line of buffered input from the port, stopping when ei
     </td>
   </tr>
 </table>
-<a class="anchor" name="Win__QextSerialPorta40" doxytag="QextSerialBase::lastError"></a><p>
+<a class="anchor" name="Win__QextSerialPorta38" doxytag="QextSerialBase::lastError"></a><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -1116,7 +1116,7 @@ E_WRITE_FAILED                  General write operation failure
     </td>
   </tr>
 </table>
-<a class="anchor" name="Win__QextSerialPorta41" doxytag="QextSerialBase::translateError"></a><p>
+<a class="anchor" name="QextSerialBasea29" doxytag="QextSerialBase::translateError"></a><p>
 <table class="mdTable" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
@@ -1143,7 +1143,7 @@ E_WRITE_FAILED                  General write operation failure
 <p>
 
 <p>
-Implemented in <a class="el" href="classPosix__QextSerialPort.html#Posix__QextSerialPorta21">Posix_QextSerialPort</a>.    </td>
+Implemented in <a class="el" href="classPosix__QextSerialPort.html#Posix__QextSerialPorta21">Posix_QextSerialPort</a>, and <a class="el" href="classWin__QextSerialPort.html#Win__QextSerialPorta23">Win_QextSerialPort</a>.    </td>
   </tr>
 </table>
 <a class="anchor" name="QextSerialBasea30" doxytag="QextSerialBase::setDtr"></a><p>
@@ -1454,7 +1454,7 @@ Implemented in <a class="el" href="classPosix__QextSerialPort.html#Posix__QextSe
 </table>
 <hr>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="qextserialbase_8h.html">qextserialbase.h</a><li><a class="el" href="qextserialbase_8cpp.html">qextserialbase.cpp</a></ul>
-<hr size="1"><address style="align: right;"><small>Generated on Sat Oct 15 14:12:21 2005 for QextSerialPort by&nbsp;
+<hr size="1"><address style="align: right;"><small>Generated on Sun Oct 16 22:07:21 2005 for QextSerialPort by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.1 </small></address>
 </body>

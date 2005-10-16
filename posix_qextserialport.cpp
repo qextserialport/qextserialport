@@ -808,7 +808,7 @@ void Posix_QextSerialPort::setTimeout(ulong sec, ulong millisec)
 }
 
 /*!
-\fn bool Posix_QextSerialPort::open(OpenMode=0)
+\fn bool Posix_QextSerialPort::open(OpenMode)
 Opens the serial port associated to this class.
 This function has no effect if the port associated with the class is already open.
 The port is also configured to the current settings, as stored in the Settings structure.
@@ -1014,7 +1014,7 @@ void Posix_QextSerialPort::translateError(ulong error)
 }
 
 /*!
-\fn void Posix_QextSerialPort::setDtr(bool set=true)
+\fn void Posix_QextSerialPort::setDtr(bool set)
 Sets DTR line to the requested state (high by default).  This function will have no effect if
 the port associated with the class is not currently open.
 */
@@ -1036,7 +1036,7 @@ void Posix_QextSerialPort::setDtr(bool set)
 }
 
 /*!
-\fn void Posix_QextSerialPort::setRts(bool set=true)
+\fn void Posix_QextSerialPort::setRts(bool set)
 Sets RTS line to the requested state (high by default).  This function will have no effect if
 the port associated with the class is not currently open.
 */

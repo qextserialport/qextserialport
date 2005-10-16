@@ -26,7 +26,7 @@ public:
     virtual void setParity(ParityType);
     virtual void setStopBits(StopBitsType);
     virtual void setFlowControl(FlowType);
-    virtual void setTimeout(ulong=0, ulong=0);
+    virtual void setTimeout(ulong, ulong);
 
     virtual bool open(OpenMode mode=0);
     virtual void close();

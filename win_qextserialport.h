@@ -33,10 +33,10 @@ public:
     virtual void setBaudRate(BaudRateType);
     virtual void setDtr(bool set=true);
     virtual void setRts(bool set=true);
-    virtual unsigned long lineStatus(void);
+    virtual ulong lineStatus(void);
     virtual qint64 bytesAvailable();
-    virtual void translateError(unsigned long);
-    virtual void setTimeout(unsigned long=0, unsigned long=0);
+    virtual void translateError(ulong);
+    virtual void setTimeout(ulong, ulong);
     virtual qint64 readData(char *data, qint64 maxSize);
     virtual qint64 writeData(const char *data, qint64 maxSize);
 

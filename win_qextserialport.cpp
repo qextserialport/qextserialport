@@ -135,7 +135,7 @@ Win_QextSerialPort& Win_QextSerialPort::operator=(const Win_QextSerialPort& s) {
 }
 
 /*!
-\fn bool Win_QextSerialPort::open(OpenMode=0)
+\fn bool Win_QextSerialPort::open(OpenMode)
 Opens a serial port.  Note that this function does not specify which device to open.  If you need
 to open a device by name, see Win_QextSerialPort::open(const char*).  This function has no effect
 if the port associated with the class is already open.  The port is also configured to the current
@@ -242,10 +242,10 @@ qint64 Win_QextSerialPort::bytesAvailable() {
 }
 
 /*!
-\fn void Win_QextSerialPort::translateError(unsigned long error)
+\fn void Win_QextSerialPort::translateError(ulong error)
 Translates a system-specific error code to a QextSerialPort error code.  Used internally.
 */
-void Win_QextSerialPort::translateError(unsigned long error) {
+void Win_QextSerialPort::translateError(ulong error) {
     if (error&CE_BREAK) {
         lastErr=E_BREAK_CONDITION;
     }
@@ -828,7 +828,7 @@ void Win_QextSerialPort::setBaudRate(BaudRateType baudRate) {
 }
 
 /*!
-\fn void Win_QextSerialPort::setDtr(bool set=true)
+\fn void Win_QextSerialPort::setDtr(bool set)
 Sets DTR line to the requested state (high by default).  This function will have no effect if
 the port associated with the class is not currently open.
 */
@@ -846,7 +846,7 @@ void Win_QextSerialPort::setDtr(bool set) {
 }
 
 /*!
-\fn void Win_QextSerialPort::setRts(bool set=true)
+\fn void Win_QextSerialPort::setRts(bool set)
 Sets RTS line to the requested state (high by default).  This function will have no effect if
 the port associated with the class is not currently open.
 */
@@ -864,7 +864,7 @@ void Win_QextSerialPort::setRts(bool set) {
 }
 
 /*!
-\fn unsigned long Win_QextSerialPort::lineStatus(void)
+\fn ulong Win_QextSerialPort::lineStatus(void)
 returns the line status as stored by the port function.  This function will retrieve the states
 of the following lines: DCD, CTS, DSR, and RI.  On POSIX systems, the following additional lines
 can be monitored: DTR, RTS, Secondary TXD, and Secondary RXD.  The value returned is an unsigned
@@ -882,7 +882,7 @@ LS_RI       RI
 
 This function will return 0 if the port associated with the class is not currently open.
 */
-unsigned long Win_QextSerialPort::lineStatus(void) {
+ulong Win_QextSerialPort::lineStatus(void) {
     unsigned long Status=0, Temp=0;
     LOCK_MUTEX();
     if (portOpen) {
@@ -905,10 +905,10 @@ unsigned long Win_QextSerialPort::lineStatus(void) {
 }
 
 /*!
-\fn void Win_QextSerialPort::setTimeout(unsigned long sec=0, unsigned long millisec=0);
+\fn void Win_QextSerialPort::setTimeout(ulong sec, ulong millisec);
 Sets the read and write timeouts for the port to sec seconds and millisec milliseconds.
 */
-void Win_QextSerialPort::setTimeout(unsigned long sec, unsigned long millisec) {
+void Win_QextSerialPort::setTimeout(ulong sec, ulong millisec) {
     LOCK_MUTEX();
     Settings.Timeout_Sec=sec;
     Settings.Timeout_Millisec=millisec;
