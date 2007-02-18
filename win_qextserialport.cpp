@@ -53,7 +53,7 @@ Copy constructor.
 */
 Win_QextSerialPort::Win_QextSerialPort(const Win_QextSerialPort& s):QextSerialBase(s.port) {
     Win_Handle=INVALID_HANDLE_VALUE;
-    portOpen=s.portOpen;
+    setOpenMode(s.openMode());
     lastErr=s.lastErr;
     port = s.port;
     Settings.FlowControl=s.Settings.FlowControl;
@@ -110,7 +110,7 @@ Win_QextSerialPort::Win_QextSerialPort(const QString & name, const PortSettings&
 Standard destructor.
 */
 Win_QextSerialPort::~Win_QextSerialPort() {
-    if (portOpen) {
+    if (isOpen()) {
         close();
     }
 }
@@ -120,7 +120,7 @@ Win_QextSerialPort::~Win_QextSerialPort() {
 overrides the = operator
 */
 Win_QextSerialPort& Win_QextSerialPort::operator=(const Win_QextSerialPort& s) {
-    portOpen=s.isOpen();
+    setOpenMode(s.openMode());
     lastErr=s.lastErr;
     port = s.port;
     Settings.FlowControl=s.Settings.FlowControl;
@@ -135,22 +135,26 @@ Win_QextSerialPort& Win_QextSerialPort::operator=(const Win_QextSerialPort& s) {
 }
 
 /*!
-\fn bool Win_QextSerialPort::open(OpenMode)
+\fn bool Win_QextSerialPort::open(OpenMode mode)
 Opens a serial port.  Note that this function does not specify which device to open.  If you need
 to open a device by name, see Win_QextSerialPort::open(const char*).  This function has no effect
 if the port associated with the class is already open.  The port is also configured to the current
 settings, as stored in the Settings structure.
 */
-bool Win_QextSerialPort::open(OpenMode) {
-    unsigned long confSize;
-    LOCK_MUTEX();
-    if (!portOpen) {
+bool Win_QextSerialPort::open(OpenMode mode) {
+    unsigned long confSize = sizeof(COMMCONFIG);
+    Win_CommConfig.dwSize = confSize;
 
+    LOCK_MUTEX();
+    if (mode == QIODevice::NotOpen)
+        return isOpen();
+    if (!isOpen()) {
         /*open the port*/
         Win_Handle=CreateFileA(port.toAscii(), GENERIC_READ|GENERIC_WRITE,
                               FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
         if (Win_Handle!=INVALID_HANDLE_VALUE) {
-            portOpen=true;
+            /*set open mode*/
+            QIODevice::open(mode);
 
             /*configure port settings*/
             GetCommConfig(Win_Handle, &Win_CommConfig, &confSize);
@@ -172,7 +176,7 @@ bool Win_QextSerialPort::open(OpenMode) {
         }
     }
     UNLOCK_MUTEX();
-    return portOpen;
+    return isOpen();
 }
 
 /*!
@@ -183,7 +187,7 @@ is not currently open.
 void Win_QextSerialPort::close() {
     LOCK_MUTEX();
     CloseHandle(Win_Handle);
-    portOpen=false;
+    QIODevice::close();
     UNLOCK_MUTEX();
 }
 
@@ -194,7 +198,7 @@ associated with the class is not currently open.
 */
 void Win_QextSerialPort::flush() {
     LOCK_MUTEX();
-    if (portOpen) {
+    if (isOpen()) {
         FlushFileBuffers(Win_Handle);
     }
     UNLOCK_MUTEX();
@@ -224,7 +228,7 @@ Win_QextSerialPort::getLastError().
 */
 qint64 Win_QextSerialPort::bytesAvailable() {
     LOCK_MUTEX();
-    if (portOpen) {
+    if (isOpen()) {
         DWORD Errors;
         COMSTAT Status;
         bool success=ClearCommError(Win_Handle, &Errors, &Status);
@@ -276,29 +280,30 @@ void Win_QextSerialPort::translateError(ulong error) {
 \fn qint64 Win_QextSerialPort::readData(char *data, qint64 maxSize)
 Reads a block of data from the serial port.  This function will read at most maxlen bytes from
 the serial port and place them in the buffer pointed to by data.  Return value is the number of
-bytes actually read, or -1 on error.  This function will have no effect if the serial port
-associated with the class is not currently open.
+bytes actually read, or -1 on error.
+
+\warning before calling this function ensure that serial port associated with this class
+is currently open (use isOpen() function to check if port is open).
 */
 qint64 Win_QextSerialPort::readData(char *data, qint64 maxSize)
 {
     LOCK_MUTEX();
     int retVal=0;
-    if (portOpen) {
-        COMSTAT Win_ComStat;
-        DWORD Win_BytesRead=0;
-        DWORD Win_ErrorMask=0;
-        ClearCommError(Win_Handle, &Win_ErrorMask, &Win_ComStat);
-        if (Win_ComStat.cbInQue &&
-            (!ReadFile(Win_Handle, (void*)data, (DWORD)maxSize, &Win_BytesRead, NULL)
-            || Win_BytesRead==0)) {
-            lastErr=E_READ_FAILED;
-            retVal=-1;
-        }
-        else {
-            retVal=((int)Win_BytesRead);
-        }
+    COMSTAT Win_ComStat;
+    DWORD Win_BytesRead=0;
+    DWORD Win_ErrorMask=0;
+    ClearCommError(Win_Handle, &Win_ErrorMask, &Win_ComStat);
+    if (Win_ComStat.cbInQue &&
+        (!ReadFile(Win_Handle, (void*)data, (DWORD)maxSize, &Win_BytesRead, NULL)
+        || Win_BytesRead==0)) {
+        lastErr=E_READ_FAILED;
+        retVal=-1;
+    }
+    else {
+        retVal=((int)Win_BytesRead);
     }
     UNLOCK_MUTEX();
+
     return retVal;
 }
 
@@ -306,77 +311,25 @@ qint64 Win_QextSerialPort::readData(char *data, qint64 maxSize)
 \fn qint64 Win_QextSerialPort::writeData(const char *data, qint64 maxSize)
 Writes a block of data to the serial port.  This function will write len bytes
 from the buffer pointed to by data to the serial port.  Return value is the number
-of bytes actually written, or -1 on error.  This function will have no effect if the serial
-port associated with the class is not currently open.
+of bytes actually written, or -1 on error.
+
+\warning before calling this function ensure that serial port associated with this class
+is currently open (use isOpen() function to check if port is open).
 */
 qint64 Win_QextSerialPort::writeData(const char *data, qint64 maxSize)
 {
     LOCK_MUTEX();
     int retVal=0;
-    if (portOpen) {
-        DWORD Win_BytesWritten;
-        if (!WriteFile(Win_Handle, (void*)data, (DWORD)maxSize, &Win_BytesWritten, NULL)) {
-            lastErr=E_WRITE_FAILED;
-            retVal=-1;
-        }
-        else {
-            retVal=((int)Win_BytesWritten);
-        }
+    DWORD Win_BytesWritten;
+    if (!WriteFile(Win_Handle, (void*)data, (DWORD)maxSize, &Win_BytesWritten, NULL)) {
+        lastErr=E_WRITE_FAILED;
+        retVal=-1;
+    }
+    else {
+        retVal=((int)Win_BytesWritten);
     }
     UNLOCK_MUTEX();
-    flush();
-    return retVal;
-}
 
-/*!
-\fn bool Win_QextSerialPort::getChar(char * c)
-Reads one character from the device and stores it in c.
-Returns true on success; otherwise returns false.
-This function has no effect if the serial port associated with the class is not currently open.
-*/
-bool Win_QextSerialPort::getChar(char * c) {
-    LOCK_MUTEX();
-    bool retVal=false;
-    if (portOpen) {
-        char readChar=0;
-        COMSTAT Win_ComStat;
-        DWORD Win_BytesRead=0;
-        DWORD Win_ErrorMask=0;
-        ClearCommError(Win_Handle, &Win_ErrorMask, &Win_ComStat);
-        if (Win_ComStat.cbInQue) {
-            if (!ReadFile(Win_Handle, (void*)&readChar, 1, &Win_BytesRead, NULL)
-                || Win_BytesRead==0) {
-                lastErr=E_READ_FAILED;
-            }
-            else {
-                *c = readChar;
-                retVal=true;
-            }
-        }
-    }
-    UNLOCK_MUTEX();
-    return retVal;
-}
-
-/*!
-\fn bool Win_QextSerialPort::putChar(char c)
-Writes the character c to the device. Returns true on success; otherwise returns false.
-This function has no effect if the serial port associated with the class is not
-currently open.
-*/
-bool Win_QextSerialPort::putChar(char c) {
-    LOCK_MUTEX();
-    bool retVal=false;
-    if (portOpen) {
-        DWORD Win_BytesWritten;
-        if (!WriteFile(Win_Handle, (void*)&c, 1, &Win_BytesWritten, NULL)) {
-            lastErr=E_WRITE_FAILED;
-        }
-        else {
-            retVal=true;
-        }
-    }
-    UNLOCK_MUTEX();
     flush();
     return retVal;
 }
@@ -407,7 +360,7 @@ void Win_QextSerialPort::setFlowControl(FlowType flow) {
     if (Settings.FlowControl!=flow) {
         Settings.FlowControl=flow;
     }
-    if (portOpen) {
+    if (isOpen()) {
         switch(flow) {
 
             /*no flow control*/
@@ -456,7 +409,7 @@ void Win_QextSerialPort::setParity(ParityType parity) {
     if (Settings.Parity!=parity) {
         Settings.Parity=parity;
     }
-    if (portOpen) {
+    if (isOpen()) {
         Win_CommConfig.dcb.Parity=(unsigned char)parity;
         switch (parity) {
 
@@ -524,7 +477,7 @@ void Win_QextSerialPort::setDataBits(DataBitsType dataBits) {
             Settings.DataBits=dataBits;
         }
     }
-    if (portOpen) {
+    if (isOpen()) {
         switch(dataBits) {
 
             /*5 data bits*/
@@ -603,7 +556,7 @@ void Win_QextSerialPort::setStopBits(StopBitsType stopBits) {
             Settings.StopBits=stopBits;
         }
     }
-    if (portOpen) {
+    if (isOpen()) {
         switch (stopBits) {
 
             /*one stop bit*/
@@ -698,7 +651,7 @@ void Win_QextSerialPort::setBaudRate(BaudRateType baudRate) {
                 break;
         }
     }
-    if (portOpen) {
+    if (isOpen()) {
         switch (baudRate) {
 
             /*50 baud*/
@@ -834,7 +787,7 @@ the port associated with the class is not currently open.
 */
 void Win_QextSerialPort::setDtr(bool set) {
     LOCK_MUTEX();
-    if (portOpen) {
+    if (isOpen()) {
         if (set) {
             EscapeCommFunction(Win_Handle, SETDTR);
         }
@@ -852,7 +805,7 @@ the port associated with the class is not currently open.
 */
 void Win_QextSerialPort::setRts(bool set) {
     LOCK_MUTEX();
-    if (portOpen) {
+    if (isOpen()) {
         if (set) {
             EscapeCommFunction(Win_Handle, SETRTS);
         }
@@ -885,7 +838,7 @@ This function will return 0 if the port associated with the class is not current
 ulong Win_QextSerialPort::lineStatus(void) {
     unsigned long Status=0, Temp=0;
     LOCK_MUTEX();
-    if (portOpen) {
+    if (isOpen()) {
         GetCommModemStatus(Win_Handle, &Temp);
         if (Temp&MS_CTS_ON) {
             Status|=LS_CTS;
@@ -912,7 +865,7 @@ void Win_QextSerialPort::setTimeout(ulong sec, ulong millisec) {
     LOCK_MUTEX();
     Settings.Timeout_Sec=sec;
     Settings.Timeout_Millisec=millisec;
-    if(portOpen) {
+    if(isOpen()) {
         Win_CommTimeouts.ReadIntervalTimeout = sec*1000+millisec;
         Win_CommTimeouts.ReadTotalTimeoutMultiplier = sec*1000+millisec;
         Win_CommTimeouts.ReadTotalTimeoutConstant = 0;

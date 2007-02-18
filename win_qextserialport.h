@@ -23,8 +23,6 @@ public:
     virtual void close();
     virtual void flush();
     virtual qint64 size() const;
-    virtual bool getChar(char * c);
-    virtual bool putChar(char c);
     virtual void ungetChar(char c);
     virtual void setFlowControl(FlowType);
     virtual void setParity(ParityType);
@@ -37,13 +35,14 @@ public:
     virtual qint64 bytesAvailable();
     virtual void translateError(ulong);
     virtual void setTimeout(ulong, ulong);
-    virtual qint64 readData(char *data, qint64 maxSize);
-    virtual qint64 writeData(const char *data, qint64 maxSize);
 
 protected:
     HANDLE Win_Handle;
     COMMCONFIG Win_CommConfig;
     COMMTIMEOUTS Win_CommTimeouts;
+
+    virtual qint64 readData(char *data, qint64 maxSize);
+    virtual qint64 writeData(const char *data, qint64 maxSize);
 };
 
 #endif

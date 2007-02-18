@@ -96,7 +96,7 @@ void QextSerialBase::construct()
     refCount++;
 #endif
 
-    portOpen=false;
+    setOpenMode(QIODevice::NotOpen);
 }
 
 /*!
@@ -168,15 +168,6 @@ FlowType QextSerialBase::flowControl() const
 }
 
 /*!
-\fn bool QextSerialBase::isOpen() const
-Returns true if the port associated with the class is currently open, or false if it is not.
-*/
-bool QextSerialBase::isOpen() const
-{
-    return portOpen;
-}
-
-/*!
 \fn bool QextSerialBase::atEnd() const
 This function will return true if the input buffer is empty (or on error), and false otherwise.
 Call QextSerialBase::lastError() for error information.
@@ -200,19 +191,17 @@ qint64 QextSerialBase::readLine(char * data, qint64 maxSize)
     qint64 numBytes = bytesAvailable();
     char* pData = data;
 
-    /*if nothing waiting, return 0 length*/
-    if (numBytes<1) {
-        return 0;
-    }
+    if (maxSize < 2)	//maxSize must be larger than 1
+        return -1;
 
-    /*read a byte at a time for MIN(bytesAvail, maxSize) iterations, or until a newline*/
+    /*read a byte at a time for MIN(bytesAvail, maxSize - 1) iterations, or until a newline*/
     while (pData<(data+numBytes) && --maxSize) {
         readData(pData, 1);
         if (*pData++ == '\n') {
             break;
         }
     }
-    *pData++='\0';
+    *pData='\0';
 
     /*return size of data read*/
     return (pData-data);

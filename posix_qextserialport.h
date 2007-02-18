@@ -35,8 +35,6 @@ public:
     virtual qint64 size() const;
     virtual qint64 bytesAvailable();
 
-    virtual bool getChar(char * c);
-    virtual bool putChar(char c);
     virtual void ungetChar(char c);
 
     virtual void translateError(ulong error);
@@ -45,14 +43,14 @@ public:
     virtual void setRts(bool set=true);
     virtual ulong lineStatus();
 
-    virtual qint64 readData(char * data, qint64 maxSize);
-    virtual qint64 writeData(const char * data, qint64 maxSize);
-
 protected:
     QFile* Posix_File;
     struct termios Posix_CommConfig;
     struct timeval Posix_Timeout;
     struct timeval Posix_Copy_Timeout;
+
+    virtual qint64 readData(char * data, qint64 maxSize);
+    virtual qint64 writeData(const char * data, qint64 maxSize);
 };
 
 #endif

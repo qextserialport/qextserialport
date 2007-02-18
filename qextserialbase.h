@@ -160,7 +160,6 @@ public:
     virtual void setTimeout(ulong, ulong)=0;
 
     virtual bool open(OpenMode mode=0)=0;
-    virtual bool isOpen() const;
     virtual void close()=0;
     virtual void flush()=0;
 
@@ -168,8 +167,6 @@ public:
     virtual qint64 bytesAvailable()=0;
     virtual bool atEnd() const;
 
-    virtual bool getChar(char * c)=0;
-    virtual bool putChar(char c)=0;
     virtual void ungetChar(char c)=0;
     virtual qint64 readLine(char * data, qint64 maxSize);
 
@@ -180,12 +177,8 @@ public:
     virtual void setRts(bool set=true)=0;
     virtual ulong lineStatus()=0;
 
-    virtual qint64 readData(char * data, qint64 maxSize)=0;
-    virtual qint64 writeData(const char * data, qint64 maxSize)=0;
-
 protected:
     QString port;
-    bool portOpen;
     PortSettings Settings;
     ulong lastErr;
 
@@ -193,6 +186,10 @@ protected:
     static QMutex* mutex;
     static ulong refCount;
 #endif
+
+    virtual qint64 readData(char * data, qint64 maxSize)=0;
+    virtual qint64 writeData(const char * data, qint64 maxSize)=0;
+
 };
 
 #endif

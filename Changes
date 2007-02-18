@@ -1,0 +1,11 @@
+1.0.0d
+
+- Removed isOpen() overriden declaration/implementation from qextserialport's classes. isOpen() relies on QIODevice now.
+- Removed bool portOpen variable. Replaced by internal QIODevice.openMode.
+- Removed getChar(), putChar() overriden declaration/implementation. QIODevice can handle this.
+* Calling open() with specified OpenMode invokes QIODevice::open() which result in proper openMode setting.
+* readData(), writeData() are protected as in QIODevice declaration.
+* QIODevice:: read() and write() function are working now (use them instead of readData() writeData()).
+* readData(), writeData() don't check if port is open any more (read() and write() assures that). The same behaviour can be found in QFile for example.
+* Fixed readLine(). 
+

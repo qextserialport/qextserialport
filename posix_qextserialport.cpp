@@ -50,8 +50,8 @@ Copy constructor.
 Posix_QextSerialPort::Posix_QextSerialPort(const Posix_QextSerialPort& s)
  : QextSerialBase(s.port)
 {
+	setOpenMode(s.openMode());
     port = s.port;
-    portOpen=s.portOpen;
     Settings.BaudRate=s.Settings.BaudRate;
     Settings.DataBits=s.Settings.DataBits;
     Settings.Parity=s.Settings.Parity;
@@ -118,8 +118,8 @@ Override the = operator.
 */
 Posix_QextSerialPort& Posix_QextSerialPort::operator=(const Posix_QextSerialPort& s)
 {
+   	setOpenMode(s.openMode());
     port = s.port;
-    portOpen=s.portOpen;
     Settings.BaudRate=s.Settings.BaudRate;
     Settings.DataBits=s.Settings.DataBits;
     Settings.Parity=s.Settings.Parity;
@@ -140,7 +140,7 @@ Standard destructor.
 */
 Posix_QextSerialPort::~Posix_QextSerialPort()
 {
-    if (portOpen) {
+    if (isOpen()) {
         close();
     }
     Posix_File->close();
@@ -218,7 +218,7 @@ void Posix_QextSerialPort::setBaudRate(BaudRateType baudRate)
                 break;
         }
     }
-    if (portOpen) {
+    if (isOpen()) {
         switch (baudRate) {
 
             /*50 baud*/
@@ -521,7 +521,7 @@ void Posix_QextSerialPort::setDataBits(DataBitsType dataBits)
             Settings.DataBits=dataBits;
         }
     }
-    if (portOpen) {
+    if (isOpen()) {
         switch(dataBits) {
 
             /*5 data bits*/
@@ -610,7 +610,7 @@ void Posix_QextSerialPort::setParity(ParityType parity)
             Settings.Parity=parity;
         }
     }
-    if (portOpen) {
+    if (isOpen()) {
         switch (parity) {
 
             /*space parity*/
@@ -698,7 +698,7 @@ void Posix_QextSerialPort::setStopBits(StopBitsType stopBits)
             Settings.StopBits=stopBits;
         }
     }
-    if (portOpen) {
+    if (isOpen()) {
         switch (stopBits) {
 
             /*one stop bit*/
@@ -748,7 +748,7 @@ void Posix_QextSerialPort::setFlowControl(FlowType flow)
     if (Settings.FlowControl!=flow) {
         Settings.FlowControl=flow;
     }
-    if (portOpen) {
+    if (isOpen()) {
         switch(flow) {
 
             /*no flow control*/
@@ -799,7 +799,7 @@ void Posix_QextSerialPort::setTimeout(ulong sec, ulong millisec)
     Settings.Timeout_Millisec=millisec;
     Posix_Copy_Timeout.tv_sec=sec;
     Posix_Copy_Timeout.tv_usec=millisec;
-    if (portOpen) {
+    if (isOpen()) {
         tcgetattr(Posix_File->handle(), &Posix_CommConfig);
         Posix_CommConfig.c_cc[VTIME]=sec*10+millisec/100;
         tcsetattr(Posix_File->handle(), TCSAFLUSH, &Posix_CommConfig);
@@ -808,22 +808,24 @@ void Posix_QextSerialPort::setTimeout(ulong sec, ulong millisec)
 }
 
 /*!
-\fn bool Posix_QextSerialPort::open(OpenMode)
+\fn bool Posix_QextSerialPort::open(OpenMode mode)
 Opens the serial port associated to this class.
 This function has no effect if the port associated with the class is already open.
 The port is also configured to the current settings, as stored in the Settings structure.
 */
-bool Posix_QextSerialPort::open(OpenMode)
+bool Posix_QextSerialPort::open(OpenMode mode)
 {
     LOCK_MUTEX();
-    if (!portOpen) {
-
+    if (mode == QIODevice::NotOpen)
+    	return isOpen();
+    if (!isOpen()) {
         /*open the port*/
         Posix_File->setFileName(port);
         qDebug("Trying to open File");
         if (Posix_File->open(QIODevice::ReadWrite|QIODevice::Unbuffered)) {
             qDebug("Opened File succesfully");
-            portOpen=true;
+            /*set open mode*/
+            QIODevice::open(mode);
 
             /*configure port settings*/
             tcgetattr(Posix_File->handle(), &Posix_CommConfig);
@@ -851,7 +853,7 @@ bool Posix_QextSerialPort::open(OpenMode)
         }
     }
     UNLOCK_MUTEX();
-    return portOpen;
+    return isOpen();
 }
 
 /*!
@@ -863,7 +865,7 @@ void Posix_QextSerialPort::close()
 {
     LOCK_MUTEX();
     Posix_File->close();
-    portOpen=false;
+    QIODevice::close();
     UNLOCK_MUTEX();
 }
 
@@ -875,7 +877,7 @@ associated with the class is not currently open.
 void Posix_QextSerialPort::flush()
 {
     LOCK_MUTEX();
-    if (portOpen) {
+    if (isOpen()) {
         Posix_File->flush();
     }
     UNLOCK_MUTEX();
@@ -906,7 +908,7 @@ Posix_QextSerialPort::getLastError().
 qint64 Posix_QextSerialPort::bytesAvailable()
 {
     LOCK_MUTEX();
-    if (portOpen) {
+    if (isOpen()) {
         int bytesQueued;
         fd_set fileSet;
         FD_ZERO(&fileSet);
@@ -933,50 +935,6 @@ qint64 Posix_QextSerialPort::bytesAvailable()
     }
     UNLOCK_MUTEX();
     return 0;
-}
-
-/*!
-\fn bool Posix_QextSerialPort::getChar(char * c)
-Reads one character from the device and stores it in c.
-Returns true on success; otherwise returns false.
-This function has no effect if the serial port associated with the class is not currently open.
-*/
-bool Posix_QextSerialPort::getChar(char * c)
-{
-    LOCK_MUTEX();
-    bool retVal=false;
-    if (portOpen) {
-        char readChar=0;
-        retVal = Posix_File->getChar(&readChar);
-        if(retVal == false) {
-            lastErr=E_READ_FAILED;
-        } else {
-            *c = readChar;
-        }
-    }
-    UNLOCK_MUTEX();
-    return retVal;
-}
-
-/*!
-\fn bool Posix_QextSerialPort::putChar(char c)
-Writes the character c to the device. Returns true on success; otherwise returns false.
-This function has no effect if the serial port associated with the class is not
-currently open.
-*/
-bool Posix_QextSerialPort::putChar(char c)
-{
-    LOCK_MUTEX();
-    bool retVal=false;
-    if (portOpen) {
-        retVal=Posix_File->putChar(c);
-        if (retVal == false) {
-            lastErr=E_WRITE_FAILED;
-        }
-    }
-    UNLOCK_MUTEX();
-    flush();
-    return retVal;
 }
 
 /*!
@@ -1021,7 +979,7 @@ the port associated with the class is not currently open.
 void Posix_QextSerialPort::setDtr(bool set)
 {
     LOCK_MUTEX();
-    if (portOpen) {
+    if (isOpen()) {
         int status;
         ioctl(Posix_File->handle(), TIOCMGET, &status);
         if (set) {
@@ -1043,7 +1001,7 @@ the port associated with the class is not currently open.
 void Posix_QextSerialPort::setRts(bool set)
 {
     LOCK_MUTEX();
-    if (portOpen) {
+    if (isOpen()) {
         int status;
         ioctl(Posix_File->handle(), TIOCMGET, &status);
         if (set) {
@@ -1084,7 +1042,7 @@ unsigned long Posix_QextSerialPort::lineStatus()
 {
     unsigned long Status=0, Temp=0;
     LOCK_MUTEX();
-    if (portOpen) {
+    if (isOpen()) {
         ioctl(Posix_File->handle(), TIOCMGET, &Temp);
         if (Temp&TIOCM_CTS) {
             Status|=LS_CTS;
@@ -1119,20 +1077,20 @@ unsigned long Posix_QextSerialPort::lineStatus()
 \fn qint64 Posix_QextSerialPort::readData(char * data, qint64 maxSize)
 Reads a block of data from the serial port.  This function will read at most maxSize bytes from
 the serial port and place them in the buffer pointed to by data.  Return value is the number of
-bytes actually read, or -1 on error.  This function will have no effect if the serial port
-associated with the class is not currently open.
+bytes actually read, or -1 on error.
+
+\warning before calling this function ensure that serial port associated with this class
+is currently open (use isOpen() function to check if port is open).
 */
 qint64 Posix_QextSerialPort::readData(char * data, qint64 maxSize)
 {
     LOCK_MUTEX();
     int retVal=0;
-    if (portOpen) {
-        retVal=Posix_File->read(data, maxSize);
-        if (retVal==-1) {
-            lastErr=E_READ_FAILED;
-        }
-    }
+    retVal=Posix_File->read(data, maxSize);
+    if (retVal==-1)
+        lastErr=E_READ_FAILED;
     UNLOCK_MUTEX();
+
     return retVal;
 }
 
@@ -1140,20 +1098,20 @@ qint64 Posix_QextSerialPort::readData(char * data, qint64 maxSize)
 \fn qint64 Posix_QextSerialPort::writeData(const char * data, qint64 maxSize)
 Writes a block of data to the serial port.  This function will write maxSize bytes
 from the buffer pointed to by data to the serial port.  Return value is the number
-of bytes actually written, or -1 on error.  This function will have no effect if the serial
-port associated with the class is not currently open.
+of bytes actually written, or -1 on error.
+
+\warning before calling this function ensure that serial port associated with this class
+is currently open (use isOpen() function to check if port is open).
 */
 qint64 Posix_QextSerialPort::writeData(const char * data, qint64 maxSize)
 {
     LOCK_MUTEX();
     int retVal=0;
-    if (portOpen) {
-        retVal=Posix_File->write(data, maxSize);
-        if (retVal==-1) {
-            lastErr=E_WRITE_FAILED;
-        }
-    }
+    retVal=Posix_File->write(data, maxSize);
+    if (retVal==-1)
+       lastErr=E_WRITE_FAILED;
     UNLOCK_MUTEX();
+
     flush();
     return retVal;
 }
