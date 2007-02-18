@@ -65,7 +65,7 @@
 #define E_WRITE_FAILED              14
 
 /*enums for port settings*/
-typedef enum _NamingConvention {
+enum NamingConvention {
     WIN_NAMES,
     IRIX_NAMES,
     HPUX_NAMES,
@@ -73,9 +73,9 @@ typedef enum _NamingConvention {
     DIGITAL_NAMES,
     FREEBSD_NAMES,
     LINUX_NAMES
-} NamingConvention;
+};
 
-typedef enum _BaudRateType {
+enum BaudRateType {
     BAUD50,                //POSIX ONLY
     BAUD75,                //POSIX ONLY
     BAUD110,
@@ -98,37 +98,37 @@ typedef enum _BaudRateType {
     BAUD115200,
     BAUD128000,            //WINDOWS ONLY
     BAUD256000             //WINDOWS ONLY
-} BaudRateType;
+};
 
-typedef enum _DataBitsType {
+enum DataBitsType {
     DATA_5,
     DATA_6,
     DATA_7,
     DATA_8
-} DataBitsType;
+};
 
-typedef enum _ParityType {
+enum ParityType {
     PAR_NONE,
     PAR_ODD,
     PAR_EVEN,
     PAR_MARK,               //WINDOWS ONLY
     PAR_SPACE
-} ParityType;
+};
 
-typedef enum _StopBitsType {
+enum StopBitsType {
     STOP_1,
     STOP_1_5,               //WINDOWS ONLY
     STOP_2
-} StopBitsType;
+};
 
-typedef enum _FlowType {
+enum FlowType {
     FLOW_OFF,
     FLOW_HARDWARE,
     FLOW_XONXOFF
-} FlowType;
+};
 
 /*structure to contain port settings*/
-typedef struct _PortSettings {
+struct PortSettings {
     BaudRateType BaudRate;
     DataBitsType DataBits;
     ParityType Parity;
@@ -136,7 +136,7 @@ typedef struct _PortSettings {
     FlowType FlowControl;
     ulong Timeout_Sec;
     ulong Timeout_Millisec;
-} PortSettings;
+};
 
 class QextSerialBase:public QIODevice {
 public:
