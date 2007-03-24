@@ -2,6 +2,8 @@ Change history for QextSerialPort (formerly QwSerialPort):
 (Lines beginning with + represent new functionality, * represent changed or
 fixed functionality, - represent removed or deprecated functionality)
 
+Version 1.1 (official release)
+
 Version 1.0.1
   * Minor changes (mostly in test application)
 
