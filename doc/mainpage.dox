@@ -1,0 +1,10 @@
+/**
+
+\mainpage QextSerialPort
+
+<b>A cross-platform serial port library.</b>
+<hr />
+QextSerialPort encapsulates a serial port on both POSIX and Windows systems. 
+
+*/
+
