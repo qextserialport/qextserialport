@@ -1,0 +1,7 @@
+/*!
+\class QextBaseType
+*/
+//this is fake class to trick Doxygen
+class QextBaseType : public Win_QextSerialPort, public Posix_QextSerialPort 
+{};
+
