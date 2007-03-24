@@ -236,7 +236,7 @@ qint64 Win_QextSerialPort::bytesAvailable() {
         if (success) {
             lastErr=E_NO_ERROR;
             UNLOCK_MUTEX();
-            return Status.cbInQue;
+            return Status.cbInQue + QIODevice::bytesAvailable();
         }
         UNLOCK_MUTEX();
         return (unsigned int)-1;

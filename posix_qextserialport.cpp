@@ -931,7 +931,7 @@ qint64 Posix_QextSerialPort::bytesAvailable()
         }
         lastErr=E_NO_ERROR;
         UNLOCK_MUTEX();
-        return bytesQueued;
+        return bytesQueued + QIODevice::bytesAvailable();
     }
     UNLOCK_MUTEX();
     return 0;

@@ -138,7 +138,7 @@ struct PortSettings {
     ulong Timeout_Millisec;
 };
 
-class QextSerialBase:public QIODevice {
+class QextSerialBase : public QIODevice {
 public:
     QextSerialBase();
     QextSerialBase(const QString & name);
@@ -160,6 +160,7 @@ public:
     virtual void setTimeout(ulong, ulong)=0;
 
     virtual bool open(OpenMode mode=0)=0;
+    virtual bool isSequential() const;
     virtual void close()=0;
     virtual void flush()=0;
 

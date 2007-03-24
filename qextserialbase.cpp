@@ -96,7 +96,7 @@ void QextSerialBase::construct()
     refCount++;
 #endif
 
-    setOpenMode(QIODevice::NotOpen);
+	setOpenMode(QIODevice::NotOpen);
 }
 
 /*!
@@ -168,6 +168,17 @@ FlowType QextSerialBase::flowControl() const
 }
 
 /*!
+\fn bool QextSerialBase::isSequential() const
+Returns true if device is sequential, otherwise returns false. Serial port is sequential device
+so this function always returns true. Check QIODevice::isSequential() documentation for more 
+information.
+*/
+bool QextSerialBase::isSequential() const
+{
+	return true;
+}
+
+/*!
 \fn bool QextSerialBase::atEnd() const
 This function will return true if the input buffer is empty (or on error), and false otherwise.
 Call QextSerialBase::lastError() for error information.
@@ -191,8 +202,8 @@ qint64 QextSerialBase::readLine(char * data, qint64 maxSize)
     qint64 numBytes = bytesAvailable();
     char* pData = data;
 
-    if (maxSize < 2)	//maxSize must be larger than 1
-        return -1;
+	if (maxSize < 2)	//maxSize must be larger than 1
+		return -1;
 
     /*read a byte at a time for MIN(bytesAvail, maxSize - 1) iterations, or until a newline*/
     while (pData<(data+numBytes) && --maxSize) {
