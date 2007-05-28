@@ -188,7 +188,7 @@ void Win_QextSerialPort::close() {
     LOCK_MUTEX();
     if (Win_Handle != INVALID_HANDLE_VALUE) {
         if (CloseHandle(Win_Handle))
-        Win_Handle = INVALID_HANDLE_VALUE;
+            Win_Handle = INVALID_HANDLE_VALUE;
     }
     QIODevice::close();
     UNLOCK_MUTEX();
