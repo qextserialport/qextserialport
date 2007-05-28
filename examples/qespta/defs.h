@@ -1,7 +1,6 @@
 /**
  * @file defs.h
  * @brief Global definitions.
- * @see defs
  */
 
 #ifndef DEFS_H_

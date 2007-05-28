@@ -186,7 +186,10 @@ is not currently open.
 */
 void Win_QextSerialPort::close() {
     LOCK_MUTEX();
-    CloseHandle(Win_Handle);
+    if (Win_Handle != INVALID_HANDLE_VALUE) {
+        if (CloseHandle(Win_Handle))
+        Win_Handle = INVALID_HANDLE_VALUE;
+    }
     QIODevice::close();
     UNLOCK_MUTEX();
 }

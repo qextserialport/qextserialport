@@ -20,6 +20,7 @@
 const char* MessageWindow::WINDOW_TITLE = "Message Window";
 MessageWindow* MessageWindow::MsgHandler = NULL;
 
+
 /*
 ==============
 <CONSTRUCTORS>
