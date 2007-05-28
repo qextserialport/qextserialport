@@ -2,6 +2,10 @@ Change history for QextSerialPort (formerly QwSerialPort):
 (Lines beginning with + represent new functionality, * represent changed or
 fixed functionality, - represent removed or deprecated functionality)
 
+
+Current CVS
+  * Fixed bug #1714917 in Win_QextSerialPort::close() method (by Kurt).
+
 Version 1.1 (official release)
 
 Version 1.0.1
