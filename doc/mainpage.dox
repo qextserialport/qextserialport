@@ -4,7 +4,8 @@
 
 <b>A cross-platform serial port library.</b>
 <hr />
-QextSerialPort encapsulates a serial port on both POSIX and Windows systems. 
+QextSerialPort encapsulates a serial port on both POSIX and Windows systems. <br />
+QextSerialEnumerator enumerates ports currently available in the system.
 
 */
 
