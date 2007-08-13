@@ -6,7 +6,6 @@
 
 #include <qextserialenumerator.h>
 
-
 int main(int argc, char *argv[])
 {
 	QList<QextPortInfo> ports = QextSerialEnumerator::getPorts();

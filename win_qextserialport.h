@@ -11,7 +11,7 @@
 #include <windows.h>
 
 class Win_QextSerialPort:public QextSerialBase {
-public:
+public: 
     Win_QextSerialPort();
     Win_QextSerialPort(Win_QextSerialPort const& s);
     Win_QextSerialPort(const QString & name);

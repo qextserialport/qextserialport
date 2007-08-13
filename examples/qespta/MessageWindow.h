@@ -47,7 +47,7 @@ class MessageWindow: public QDockWidget
 		/**
 		 * Append message wrapper. Since ISO forbids casting member functions
 		 * to C functions, wrapper is needed to use this class as QtMsgHandler.
-		 * This method is thread-safe.
+		 * This method is thread-safe but not reentrant.
 		 * 	@param type message type.
 		 * 	@param msg message string.
 		 */

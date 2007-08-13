@@ -1,6 +1,6 @@
-/* qesptest.cpp
+/* QespTest.cpp
 **************************************/
-#include "qesptest.h"
+#include "QespTest.h"
 #include <qextserialport.h>
 #include <QLayout>
 #include <QLineEdit>

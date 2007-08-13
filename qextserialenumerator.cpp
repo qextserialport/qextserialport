@@ -85,8 +85,8 @@
 				SP_DEVINFO_DATA devData = {sizeof(SP_DEVINFO_DATA)};
 				//check for required detData size
 				SetupDiGetDeviceInterfaceDetail(devInfo, & ifcData, NULL, 0, & detDataSize, & devData);
+				//if larger than old detData size then reallocate the buffer
 				if (detDataSize > oldDetDataSize) {
-					//reallocate the buffer
 					delete [] detData;
 					detData = (SP_DEVICE_INTERFACE_DETAIL_DATA *) new char[detDataSize];
 					detData->cbSize = sizeof(SP_DEVICE_INTERFACE_DETAIL_DATA);
@@ -100,7 +100,8 @@
 					info.friendName = getDeviceProperty(devInfo, & devData, SPDRP_FRIENDLYNAME);
 					info.physName = getDeviceProperty(devInfo, & devData, SPDRP_PHYSICAL_DEVICE_OBJECT_NAME);
 					info.enumName = getDeviceProperty(devInfo, & devData, SPDRP_ENUMERATOR_NAME);
-					//to access port name we must open registry directly					
+					//anyway, to get the port name we must still open registry directly :( ??? 
+					//Eh...			
 					HKEY devKey = SetupDiOpenDevRegKey(devInfo, & devData, DICS_FLAG_GLOBAL, 0,
 														DIREG_DEV, KEY_READ);
 					info.portName = getRegKeyValue(devKey, TEXT("PortName"));
