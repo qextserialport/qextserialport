@@ -23,7 +23,6 @@ SOURCES                 = qextserialbase.cpp \
                           qextserialport.cpp \
                           qextserialenumerator.cpp
 
-
 unix:HEADERS           += posix_qextserialport.h
 unix:SOURCES           += posix_qextserialport.cpp
 unix:DEFINES           += _TTY_POSIX_
@@ -38,7 +37,8 @@ win32:LIBS             += -lsetupapi
 
 DESTDIR                 = build
 #DESTDIR				= examples/enumerator/debug
-
+#DESTDIR				= examples/qespta/debug
+#DESTDIR				= examples/event/debug
 
 CONFIG(debug, debug|release) {
 	TARGET = qextserialportd

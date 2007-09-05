@@ -3,6 +3,7 @@
 \class Posix_QextSerialPort
 \version 1.0.0
 \author Stefan Sander
+\author Michal Policht
 
 A cross-platform serial port class.
 This class encapsulates the POSIX portion of QextSerialPort.  The user will be notified of errors
@@ -72,17 +73,19 @@ Constructs a serial port attached to the port specified by name.
 name is the name of the device, which is windowsystem-specific,
 e.g."COM1" or "/dev/ttyS0".
 */
-Posix_QextSerialPort::Posix_QextSerialPort(const QString & name)
+Posix_QextSerialPort::Posix_QextSerialPort(const QString & name, QextSerialBase::QueryMode mode)
  : QextSerialBase(name)
 {
     Posix_File=new QFile();
+    setQueryMode(mode);
+    init();
 }
 
 /*!
 \fn Posix_QextSerialPort::Posix_QextSerialPort(const PortSettings& settings)
 Constructs a port with default name and specified settings.
 */
-Posix_QextSerialPort::Posix_QextSerialPort(const PortSettings& settings)
+Posix_QextSerialPort::Posix_QextSerialPort(const PortSettings& settings, QextSerialBase::QueryMode mode)
  : QextSerialBase()
 {
     setBaudRate(settings.BaudRate);
@@ -92,14 +95,16 @@ Posix_QextSerialPort::Posix_QextSerialPort(const PortSettings& settings)
     setFlowControl(settings.FlowControl);
 
     Posix_File=new QFile();
-    setTimeout(settings.Timeout_Sec, settings.Timeout_Millisec);
+    setTimeout(settings.Timeout_Millisec);
+    setQueryMode(mode);
+    init();
 }
 
 /*!
 \fn Posix_QextSerialPort::Posix_QextSerialPort(const QString & name, const PortSettings& settings)
 Constructs a port with specified name and settings.
 */
-Posix_QextSerialPort::Posix_QextSerialPort(const QString & name, const PortSettings& settings)
+Posix_QextSerialPort::Posix_QextSerialPort(const QString & name, const PortSettings& settings, QextSerialBase::QueryMode mode)
  : QextSerialBase(name)
 {
     setBaudRate(settings.BaudRate);
@@ -109,7 +114,9 @@ Posix_QextSerialPort::Posix_QextSerialPort(const QString & name, const PortSetti
     setFlowControl(settings.FlowControl);
 
     Posix_File=new QFile();
-    setTimeout(settings.Timeout_Sec, settings.Timeout_Millisec);
+    setTimeout(settings.Timeout_Millisec);
+    setQueryMode(mode);
+    init();
 }
 
 /*!
@@ -132,6 +139,12 @@ Posix_QextSerialPort& Posix_QextSerialPort::operator=(const Posix_QextSerialPort
     memcpy(&Posix_Copy_Timeout, &(s.Posix_Copy_Timeout), sizeof(struct timeval));
     memcpy(&Posix_CommConfig, &(s.Posix_CommConfig), sizeof(struct termios));
     return *this;
+}
+
+void Posix_QextSerialPort::init()
+{
+	if (queryMode() == QextSerialBase::EventDriven)
+		qWarning("POSIX doesn't have event driven mechanism implemented yet");
 }
 
 /*!
@@ -776,8 +789,8 @@ void Posix_QextSerialPort::setFlowControl(FlowType flow)
 }
 
 /*!
-\fn void Posix_QextSerialPort::setTimeout(ulong sec, ulong millisec);
-Sets the read and write timeouts for the port to sec seconds and millisec milliseconds.
+\fn void Posix_QextSerialPort::setTimeout(ulong sec);
+Sets the read and write timeouts for the port to millisec milliseconds.
 Note that this is a per-character timeout, i.e. the port will wait this long for each
 individual character, not for the whole read operation.  This timeout also applies to the
 bytesWaiting() function.
@@ -792,16 +805,15 @@ so for example a 550-millisecond timeout will be seen as 550 milliseconds on POS
 the purpose of detecting available bytes in the read buffer.
 
 */
-void Posix_QextSerialPort::setTimeout(ulong sec, ulong millisec)
+void Posix_QextSerialPort::setTimeout(long millisec)
 {
     LOCK_MUTEX();
-    Settings.Timeout_Sec=sec;
-    Settings.Timeout_Millisec=millisec;
-    Posix_Copy_Timeout.tv_sec=sec;
-    Posix_Copy_Timeout.tv_usec=millisec;
+    Settings.Timeout_Millisec = millisec;
+    Posix_Copy_Timeout.tv_sec = millisec / 1000;
+    Posix_Copy_Timeout.tv_usec = millisec % 1000;
     if (isOpen()) {
         tcgetattr(Posix_File->handle(), &Posix_CommConfig);
-        Posix_CommConfig.c_cc[VTIME]=sec*10+millisec/100;
+        Posix_CommConfig.c_cc[VTIME] = millisec/100;
         tcsetattr(Posix_File->handle(), TCSAFLUSH, &Posix_CommConfig);
     }
     UNLOCK_MUTEX();
@@ -1111,7 +1123,6 @@ qint64 Posix_QextSerialPort::writeData(const char * data, qint64 maxSize)
     if (retVal==-1)
        lastErr=E_WRITE_FAILED;
     UNLOCK_MUTEX();
-
-    flush();
+    
     return retVal;
 }

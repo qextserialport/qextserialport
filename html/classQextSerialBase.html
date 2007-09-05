@@ -10,6 +10,7 @@
     <li><a href="main.html"><span>Main&nbsp;Page</span></a></li>
     <li id="current"><a href="classes.html"><span>Classes</span></a></li>
     <li><a href="files.html"><span>Files</span></a></li>
+    <li><a href="pages.html"><span>Related&nbsp;Pages</span></a></li>
   </ul></div>
 <div class="tabs">
   <ul>
@@ -23,7 +24,7 @@
 <p>Inheritance diagram for QextSerialBase:
 <p><center><img src="classQextSerialBase.png" usemap="#QextSerialBase_map" border="0" alt=""></center>
 <map name="QextSerialBase_map">
-<area doxygen="qiodevice.tag:http://doc.trolltech.com/" href="http://doc.trolltech.com/qiodevice.html" alt="QIODevice" shape="rect" coords="70,0,201,24">
+<area doxygen="qiodevice.tag:" href="qiodevice.html" alt="QIODevice" shape="rect" coords="70,0,201,24">
 <area href="classPosix__QextSerialPort.html" alt="Posix_QextSerialPort" shape="rect" coords="0,112,131,136">
 <area href="classWin__QextSerialPort.html" alt="Win_QextSerialPort" shape="rect" coords="141,112,272,136">
 <area href="classQextBaseType.html" alt="QextBaseType" shape="rect" coords="0,168,131,192">
@@ -33,10 +34,22 @@
 </map>
 <a href="classQextSerialBase-members.html">List of all members.</a><table border="0" cellpadding="0" cellspacing="0">
 <tr><td></td></tr>
-<tr><td colspan="2"><br><h2>Public Member Functions</h2></td></tr>
-<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:http://doc.trolltech.com/" href="http://doc.trolltech.com/qiodevice.html#aboutToClose">aboutToClose</a> ()</td></tr>
+<tr><td colspan="2"><br><h2>Public Types</h2></td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#bab21776f71ceb4989ad2326680143f517be3efd147aa1cbf72ce26c61325ccd">EventDriven</a></td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:http://doc.trolltech.com/" href="http://doc.trolltech.com/qiodevice.html#atEnd">atEnd</a> ()</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#bab21776f71ceb4989ad2326680143f5be330e20a1dee9cf5920a417f70eecf0">Polling</a></td></tr>
+
+<tr><td class="memItemLeft" nowrap align="right" valign="top">enum &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#bab21776f71ceb4989ad2326680143f5">QueryMode</a> { <a class="el" href="classQextSerialBase.html#bab21776f71ceb4989ad2326680143f5be330e20a1dee9cf5920a417f70eecf0">Polling</a>, 
+<a class="el" href="classQextSerialBase.html#bab21776f71ceb4989ad2326680143f517be3efd147aa1cbf72ce26c61325ccd">EventDriven</a>
+ }</td></tr>
+
+<tr><td colspan="2"><br><h2>Signals</h2></td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#bc9dc7c9a7735476800eb5aa35bec6a8">dsrChanged</a> (bool status)</td></tr>
+
+<tr><td colspan="2"><br><h2>Public Member Functions</h2></td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:" href="qiodevice.html#aboutToClose">aboutToClose</a> ()</td></tr>
+
+<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:" href="qiodevice.html#atEnd">atEnd</a> ()</td></tr>
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">virtual bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#573bd8fdf0ea5e4fb6caddc13a0ed5eb">atEnd</a> () const </td></tr>
 
@@ -44,11 +57,11 @@
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">virtual qint64&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#7e130a0ba5a0a9ba95ce5f75a5e2c526">bytesAvailable</a> ()=0</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:http://doc.trolltech.com/" href="http://doc.trolltech.com/qiodevice.html#bytesToWrite">bytesToWrite</a> ()</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:" href="qiodevice.html#bytesToWrite">bytesToWrite</a> ()</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:http://doc.trolltech.com/" href="http://doc.trolltech.com/qiodevice.html#bytesWritten">bytesWritten</a> (qint64 bytes)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:" href="qiodevice.html#bytesWritten">bytesWritten</a> (qint64 bytes)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:http://doc.trolltech.com/" href="http://doc.trolltech.com/qiodevice.html#canReadLine">canReadLine</a> ()</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:" href="qiodevice.html#canReadLine">canReadLine</a> ()</td></tr>
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">virtual void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#2a4aea428bc05a88f86849bb7478c082">close</a> ()=0</td></tr>
 
@@ -56,67 +69,69 @@
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">virtual <a class="el" href="qextserialbase_8h.html#189ef78c2c1b7537ab114d576f6214fa">DataBitsType</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#6836465ea5deaa1280e0e777e9c8651e">dataBits</a> () const </td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:http://doc.trolltech.com/" href="http://doc.trolltech.com/qiodevice.html#errorString">errorString</a> ()</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:" href="qiodevice.html#errorString">errorString</a> ()</td></tr>
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">virtual <a class="el" href="qextserialbase_8h.html#02ad1c7cf791a069dd54e409f8db4790">FlowType</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#ad41090da77578cfae4b24510fe8c9b7">flowControl</a> () const </td></tr>
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">virtual void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#58df9d786aa70dfe9f547d4118103f39">flush</a> ()=0</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:http://doc.trolltech.com/" href="http://doc.trolltech.com/qiodevice.html#getChar">getChar</a> (char *c)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:" href="qiodevice.html#getChar">getChar</a> (char *c)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:http://doc.trolltech.com/" href="http://doc.trolltech.com/qiodevice.html#isOpen">isOpen</a> ()</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:" href="qiodevice.html#isOpen">isOpen</a> ()</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:http://doc.trolltech.com/" href="http://doc.trolltech.com/qiodevice.html#isReadable">isReadable</a> ()</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:" href="qiodevice.html#isReadable">isReadable</a> ()</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:http://doc.trolltech.com/" href="http://doc.trolltech.com/qiodevice.html#isSequential">isSequential</a> ()</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:" href="qiodevice.html#isSequential">isSequential</a> ()</td></tr>
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">virtual bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#099fb47548a3566ed32d4d878fa57f4c">isSequential</a> () const </td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:http://doc.trolltech.com/" href="http://doc.trolltech.com/qiodevice.html#isTextModeEnabled">isTextModeEnabled</a> ()</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:" href="qiodevice.html#isTextModeEnabled">isTextModeEnabled</a> ()</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:http://doc.trolltech.com/" href="http://doc.trolltech.com/qiodevice.html#isWritable">isWritable</a> ()</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:" href="qiodevice.html#isWritable">isWritable</a> ()</td></tr>
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">virtual ulong&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#e4029cb49127422b7e76586930366b05">lastError</a> () const </td></tr>
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">virtual ulong&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#28b87dd41160a61e2953dca38aa332d6">lineStatus</a> ()=0</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">virtual bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#e7fadc74c97f903f6b499e6155236b3e">open</a> (OpenMode mode=0)=0</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">virtual bool&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#754cf108d4b7114b1dd538ef6dd65d1a">open</a> (OpenMode mode)=0</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:http://doc.trolltech.com/" href="http://doc.trolltech.com/qiodevice.html#openMode">openMode</a> ()</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:" href="qiodevice.html#openMode">openMode</a> ()</td></tr>
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">virtual <a class="el" href="qextserialbase_8h.html#ee22d32d87c815090354bf9b8e957ace">ParityType</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#d1ea7aa9d42563f6473b5c6dc9643e31">parity</a> () const </td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:http://doc.trolltech.com/" href="http://doc.trolltech.com/qiodevice.html#peek-2">peek</a> (qint64 maxSize)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:" href="qiodevice.html#peek-2">peek</a> (qint64 maxSize)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:http://doc.trolltech.com/" href="http://doc.trolltech.com/qiodevice.html#peek">peek</a> (char *data, qint64 maxSize)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:" href="qiodevice.html#peek">peek</a> (char *data, qint64 maxSize)</td></tr>
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">virtual QString&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#b890631914790729980569e38f3f8b6e">portName</a> () const </td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:http://doc.trolltech.com/" href="http://doc.trolltech.com/qiodevice.html#pos">pos</a> ()</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:" href="qiodevice.html#pos">pos</a> ()</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:http://doc.trolltech.com/" href="http://doc.trolltech.com/qiodevice.html#putChar">putChar</a> (char c)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:" href="qiodevice.html#putChar">putChar</a> (char c)</td></tr>
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#136b187c6684be0bac22e616b053f7b7">QextSerialBase</a> (const QString &amp;name)</td></tr>
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#ba0fc6d8b5c675c91ebff90fc6415748">QextSerialBase</a> ()</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:http://doc.trolltech.com/" href="http://doc.trolltech.com/qiodevice.html#read-2">read</a> (qint64 maxSize)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top"><a class="el" href="classQextSerialBase.html#bab21776f71ceb4989ad2326680143f5">QextSerialBase::QueryMode</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#bebbc04c8a4360cefa33a63dde224a1e">queryMode</a> () const </td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:http://doc.trolltech.com/" href="http://doc.trolltech.com/qiodevice.html#read">read</a> (char *data, qint64 maxSize)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:" href="qiodevice.html#read-2">read</a> (qint64 maxSize)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:http://doc.trolltech.com/" href="http://doc.trolltech.com/qiodevice.html#readAll">readAll</a> ()</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:" href="qiodevice.html#read">read</a> (char *data, qint64 maxSize)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:http://doc.trolltech.com/" href="http://doc.trolltech.com/qiodevice.html#readLine-2">readLine</a> (qint64 maxSize=0)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:" href="qiodevice.html#readAll">readAll</a> ()</td></tr>
+
+<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:" href="qiodevice.html#readLine-2">readLine</a> (qint64 maxSize=0)</td></tr>
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">virtual qint64&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#ee681a896845c9594c84dcd47d7eb566">readLine</a> (char *data, qint64 maxSize)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:http://doc.trolltech.com/" href="http://doc.trolltech.com/qiodevice.html#readLineData">readLineData</a> (char *data, qint64 maxSize)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:" href="qiodevice.html#readLineData">readLineData</a> (char *data, qint64 maxSize)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:http://doc.trolltech.com/" href="http://doc.trolltech.com/qiodevice.html#readyRead">readyRead</a> ()</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:" href="qiodevice.html#readyRead">readyRead</a> ()</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:http://doc.trolltech.com/" href="http://doc.trolltech.com/qiodevice.html#reset">reset</a> ()</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:" href="qiodevice.html#reset">reset</a> ()</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:http://doc.trolltech.com/" href="http://doc.trolltech.com/qiodevice.html#seek">seek</a> (qint64 <a class="elRef" doxygen="qiodevice.tag:http://doc.trolltech.com/" href="http://doc.trolltech.com/qiodevice.html#pos">pos</a>)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:" href="qiodevice.html#seek">seek</a> (qint64 <a class="elRef" doxygen="qiodevice.tag:" href="qiodevice.html#pos">pos</a>)</td></tr>
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">virtual void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#05b59a48366ae452bf8e033f83402543">setBaudRate</a> (<a class="el" href="qextserialbase_8h.html#6f031169a6a9b150b5af707bb23cf010">BaudRateType</a>)=0</td></tr>
 
@@ -124,25 +139,27 @@
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">virtual void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#14c7fc36f9e7b7e5a9e798c2c1b35505">setDtr</a> (bool set=true)=0</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:http://doc.trolltech.com/" href="http://doc.trolltech.com/qiodevice.html#setErrorString">setErrorString</a> (const QString &amp;str)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:" href="qiodevice.html#setErrorString">setErrorString</a> (const QString &amp;str)</td></tr>
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">virtual void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#976c031b3a51bc71abe7804953e0d366">setFlowControl</a> (<a class="el" href="qextserialbase_8h.html#02ad1c7cf791a069dd54e409f8db4790">FlowType</a>)=0</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:http://doc.trolltech.com/" href="http://doc.trolltech.com/qiodevice.html#setOpenMode">setOpenMode</a> (OpenMode <a class="elRef" doxygen="qiodevice.tag:http://doc.trolltech.com/" href="http://doc.trolltech.com/qiodevice.html#openMode">openMode</a>)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:" href="qiodevice.html#setOpenMode">setOpenMode</a> (OpenMode <a class="elRef" doxygen="qiodevice.tag:" href="qiodevice.html#openMode">openMode</a>)</td></tr>
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">virtual void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#d57f8cb19a8a48012c1f607155eddedf">setParity</a> (<a class="el" href="qextserialbase_8h.html#ee22d32d87c815090354bf9b8e957ace">ParityType</a>)=0</td></tr>
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">virtual void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#1c9f83f00f0ea53ee06b757e197cdf64">setPortName</a> (const QString &amp;name)</td></tr>
 
+<tr><td class="memItemLeft" nowrap align="right" valign="top">virtual void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#bd8e3b9a5028f9c2645ba89c0fc08a6b">setQueryMode</a> (<a class="el" href="classQextSerialBase.html#bab21776f71ceb4989ad2326680143f5">QueryMode</a> mode)</td></tr>
+
 <tr><td class="memItemLeft" nowrap align="right" valign="top">virtual void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#aa23d343095f16e7d7b37e7b61022b3a">setRts</a> (bool set=true)=0</td></tr>
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">virtual void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#fafca39575da5ab668671bff89fdd4bc">setStopBits</a> (<a class="el" href="qextserialbase_8h.html#dc8078895cd941d755d46633b54d3e7f">StopBitsType</a>)=0</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:http://doc.trolltech.com/" href="http://doc.trolltech.com/qiodevice.html#setTextModeEnabled">setTextModeEnabled</a> (bool enabled)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:" href="qiodevice.html#setTextModeEnabled">setTextModeEnabled</a> (bool enabled)</td></tr>
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">virtual void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#02812d40f1b114983ca9c25ea83d159d">setTimeout</a> (ulong, ulong)=0</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:http://doc.trolltech.com/" href="http://doc.trolltech.com/qiodevice.html#size">size</a> ()</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:" href="qiodevice.html#size">size</a> ()</td></tr>
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">virtual qint64&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#86fc9d6239b7d136a9d80b93a727e093">size</a> () const =0</td></tr>
 
@@ -152,13 +169,13 @@
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">virtual void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#d4564cb1b1fdfb317e6a12cb5b351adf">ungetChar</a> (char c)=0</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:http://doc.trolltech.com/" href="http://doc.trolltech.com/qiodevice.html#waitForBytesWritten">waitForBytesWritten</a> (int msecs)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:" href="qiodevice.html#waitForBytesWritten">waitForBytesWritten</a> (int msecs)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:http://doc.trolltech.com/" href="http://doc.trolltech.com/qiodevice.html#waitForReadyRead">waitForReadyRead</a> (int msecs)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:" href="qiodevice.html#waitForReadyRead">waitForReadyRead</a> (int msecs)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:http://doc.trolltech.com/" href="http://doc.trolltech.com/qiodevice.html#write-2">write</a> (const QByteArray &amp;byteArray)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:" href="qiodevice.html#write-2">write</a> (const QByteArray &amp;byteArray)</td></tr>
 
-<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:http://doc.trolltech.com/" href="http://doc.trolltech.com/qiodevice.html#write">write</a> (const char *data, qint64 maxSize)</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="elRef" doxygen="qiodevice.tag:" href="qiodevice.html#write">write</a> (const char *data, qint64 maxSize)</td></tr>
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">virtual&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#80eeebbf4585220ec3ced8fcebf6279f">~QextSerialBase</a> ()</td></tr>
 
@@ -168,23 +185,54 @@
 <tr><td class="memItemLeft" nowrap align="right" valign="top">virtual qint64&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#39a3aaff93640b767fd44dd7ce705e01">writeData</a> (const char *data, qint64 maxSize)=0</td></tr>
 
 <tr><td colspan="2"><br><h2>Protected Attributes</h2></td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top"><a class="el" href="classQextSerialBase.html#bab21776f71ceb4989ad2326680143f5">QextSerialBase::QueryMode</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#67f8a0fb2ce91824c1afc6c95e6b3c3a">_queryMode</a></td></tr>
+
 <tr><td class="memItemLeft" nowrap align="right" valign="top">ulong&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#31816951ba89902fa1dfdb6f18b80f41">lastErr</a></td></tr>
+
+<tr><td class="memItemLeft" nowrap align="right" valign="top">QMutex *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#0c7cf6443ad80a05d51daaca5d0102ab">mutex</a></td></tr>
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top">QString&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#7459f3818391091877c88595a48a950a">port</a></td></tr>
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top"><a class="el" href="structPortSettings.html">PortSettings</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#2d796e3080f78ff63e821f528439db57">Settings</a></td></tr>
 
-<tr><td colspan="2"><br><h2>Static Protected Attributes</h2></td></tr>
-<tr><td class="memItemLeft" nowrap align="right" valign="top">static QMutex *&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#f3d14f4614db4415c5f89746633cf197">mutex</a> = NULL</td></tr>
-
-<tr><td class="memItemLeft" nowrap align="right" valign="top">static ulong&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classQextSerialBase.html#e5df0cdbbf84781c17f02b8dbc99c93a">refCount</a> = 0</td></tr>
-
 </table>
 <hr><a name="_details"></a><h2>Detailed Description</h2>
-<dl compact><dt><b>Version:</b></dt><dd>1.0.0 </dd></dl>
-<dl compact><dt><b>Author:</b></dt><dd>Stefan Sander</dd></dl>
+<dl compact><dt><b>Author:</b></dt><dd>Stefan Sander <p>
+Michal Policht</dd></dl>
 A common base class for Win_QextSerialBase, Posix_QextSerialBase and <a class="el" href="classQextSerialPort.html">QextSerialPort</a>. 
 <p>
+<hr><h2>Member Enumeration Documentation</h2>
+<a class="anchor" name="bab21776f71ceb4989ad2326680143f5"></a><!-- doxytag: member="QextSerialBase::QueryMode" ref="bab21776f71ceb4989ad2326680143f5" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="classQextSerialBase.html#bab21776f71ceb4989ad2326680143f5">QextSerialBase::QueryMode</a>          </td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>
+<dl compact><dt><b>Enumerator: </b></dt><dd>
+<table border="0" cellspacing="2" cellpadding="0">
+<tr><td valign="top"><em><a class="anchor" name="bab21776f71ceb4989ad2326680143f5be330e20a1dee9cf5920a417f70eecf0"></a><!-- doxytag: member="Polling" ref="bab21776f71ceb4989ad2326680143f5be330e20a1dee9cf5920a417f70eecf0" args="" -->Polling</em>&nbsp;</td><td>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" name="bab21776f71ceb4989ad2326680143f517be3efd147aa1cbf72ce26c61325ccd"></a><!-- doxytag: member="EventDriven" ref="bab21776f71ceb4989ad2326680143f517be3efd147aa1cbf72ce26c61325ccd" args="" -->EventDriven</em>&nbsp;</td><td>
+</td></tr>
+</table>
+</dl>
+
+<p>
+Reimplemented in <a class="el" href="classQextSerialPort.html#211f50c9fa3b22235b2dbfa0126c125a">QextSerialPort</a>.<div class="fragment"><pre class="fragment"><a name="l00154"></a>00154                        {
+<a name="l00155"></a>00155             <a class="code" href="classQextSerialBase.html#bab21776f71ceb4989ad2326680143f5be330e20a1dee9cf5920a417f70eecf0">Polling</a>,
+<a name="l00156"></a>00156             <a class="code" href="classQextSerialBase.html#bab21776f71ceb4989ad2326680143f517be3efd147aa1cbf72ce26c61325ccd">EventDriven</a>
+<a name="l00157"></a>00157         };
+</pre></div>
+<p>
+
+</div>
+</div><p>
 <hr><h2>Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" name="ba0fc6d8b5c675c91ebff90fc6415748"></a><!-- doxytag: member="QextSerialBase::QextSerialBase" ref="ba0fc6d8b5c675c91ebff90fc6415748" args="()" -->
 <div class="memitem">
@@ -202,33 +250,33 @@ A common base class for Win_QextSerialBase, Posix_QextSerialBase and <a class="e
 <div class="memdoc">
 
 <p>
-Default constructor. <div class="fragment"><pre class="fragment"><a name="l00021"></a>00021  : <a class="codeRef" doxygen="qiodevice.tag:http://doc.trolltech.com/" href="http://doc.trolltech.com/qiodevice.html#QIODevice">QIODevice</a>()
-<a name="l00022"></a>00022 {
-<a name="l00023"></a>00023 
-<a name="l00024"></a>00024 <span class="preprocessor">#ifdef _TTY_WIN_</span>
-<a name="l00025"></a>00025 <span class="preprocessor"></span>    <a class="code" href="classQextSerialBase.html#1c9f83f00f0ea53ee06b757e197cdf64">setPortName</a>(<span class="stringliteral">"COM1"</span>);
-<a name="l00026"></a>00026 
-<a name="l00027"></a>00027 <span class="preprocessor">#elif defined(_TTY_IRIX_)</span>
-<a name="l00028"></a>00028 <span class="preprocessor"></span>    <a class="code" href="classQextSerialBase.html#1c9f83f00f0ea53ee06b757e197cdf64">setPortName</a>(<span class="stringliteral">"/dev/ttyf1"</span>);
-<a name="l00029"></a>00029 
-<a name="l00030"></a>00030 <span class="preprocessor">#elif defined(_TTY_HPUX_)</span>
-<a name="l00031"></a>00031 <span class="preprocessor"></span>    <a class="code" href="classQextSerialBase.html#1c9f83f00f0ea53ee06b757e197cdf64">setPortName</a>(<span class="stringliteral">"/dev/tty1p0"</span>);
-<a name="l00032"></a>00032 
-<a name="l00033"></a>00033 <span class="preprocessor">#elif defined(_TTY_SUN_)</span>
-<a name="l00034"></a>00034 <span class="preprocessor"></span>    <a class="code" href="classQextSerialBase.html#1c9f83f00f0ea53ee06b757e197cdf64">setPortName</a>(<span class="stringliteral">"/dev/ttya"</span>);
-<a name="l00035"></a>00035 
-<a name="l00036"></a>00036 <span class="preprocessor">#elif defined(_TTY_DIGITAL_)</span>
-<a name="l00037"></a>00037 <span class="preprocessor"></span>    <a class="code" href="classQextSerialBase.html#1c9f83f00f0ea53ee06b757e197cdf64">setPortName</a>(<span class="stringliteral">"/dev/tty01"</span>);
-<a name="l00038"></a>00038 
-<a name="l00039"></a>00039 <span class="preprocessor">#elif defined(_TTY_FREEBSD_)</span>
-<a name="l00040"></a>00040 <span class="preprocessor"></span>    <a class="code" href="classQextSerialBase.html#1c9f83f00f0ea53ee06b757e197cdf64">setPortName</a>(<span class="stringliteral">"/dev/ttyd1"</span>);
-<a name="l00041"></a>00041 
-<a name="l00042"></a>00042 <span class="preprocessor">#else</span>
-<a name="l00043"></a>00043 <span class="preprocessor"></span>    <a class="code" href="classQextSerialBase.html#1c9f83f00f0ea53ee06b757e197cdf64">setPortName</a>(<span class="stringliteral">"/dev/ttyS0"</span>);
-<a name="l00044"></a>00044 <span class="preprocessor">#endif</span>
-<a name="l00045"></a>00045 <span class="preprocessor"></span>
-<a name="l00046"></a>00046     <a class="code" href="classQextSerialBase.html#7495b472b5e269d04c0c2e856901207f">construct</a>();
-<a name="l00047"></a>00047 }
+Default constructor. <div class="fragment"><pre class="fragment"><a name="l00008"></a>00008  : <a class="codeRef" doxygen="qiodevice.tag:" href="qiodevice.html#QIODevice">QIODevice</a>()
+<a name="l00009"></a>00009 {
+<a name="l00010"></a>00010 
+<a name="l00011"></a>00011 <span class="preprocessor">#ifdef _TTY_WIN_</span>
+<a name="l00012"></a>00012 <span class="preprocessor"></span>    <a class="code" href="classQextSerialBase.html#1c9f83f00f0ea53ee06b757e197cdf64">setPortName</a>(<span class="stringliteral">"COM1"</span>);
+<a name="l00013"></a>00013 
+<a name="l00014"></a>00014 <span class="preprocessor">#elif defined(_TTY_IRIX_)</span>
+<a name="l00015"></a>00015 <span class="preprocessor"></span>    <a class="code" href="classQextSerialBase.html#1c9f83f00f0ea53ee06b757e197cdf64">setPortName</a>(<span class="stringliteral">"/dev/ttyf1"</span>);
+<a name="l00016"></a>00016 
+<a name="l00017"></a>00017 <span class="preprocessor">#elif defined(_TTY_HPUX_)</span>
+<a name="l00018"></a>00018 <span class="preprocessor"></span>    <a class="code" href="classQextSerialBase.html#1c9f83f00f0ea53ee06b757e197cdf64">setPortName</a>(<span class="stringliteral">"/dev/tty1p0"</span>);
+<a name="l00019"></a>00019 
+<a name="l00020"></a>00020 <span class="preprocessor">#elif defined(_TTY_SUN_)</span>
+<a name="l00021"></a>00021 <span class="preprocessor"></span>    <a class="code" href="classQextSerialBase.html#1c9f83f00f0ea53ee06b757e197cdf64">setPortName</a>(<span class="stringliteral">"/dev/ttya"</span>);
+<a name="l00022"></a>00022 
+<a name="l00023"></a>00023 <span class="preprocessor">#elif defined(_TTY_DIGITAL_)</span>
+<a name="l00024"></a>00024 <span class="preprocessor"></span>    <a class="code" href="classQextSerialBase.html#1c9f83f00f0ea53ee06b757e197cdf64">setPortName</a>(<span class="stringliteral">"/dev/tty01"</span>);
+<a name="l00025"></a>00025 
+<a name="l00026"></a>00026 <span class="preprocessor">#elif defined(_TTY_FREEBSD_)</span>
+<a name="l00027"></a>00027 <span class="preprocessor"></span>    <a class="code" href="classQextSerialBase.html#1c9f83f00f0ea53ee06b757e197cdf64">setPortName</a>(<span class="stringliteral">"/dev/ttyd1"</span>);
+<a name="l00028"></a>00028 
+<a name="l00029"></a>00029 <span class="preprocessor">#else</span>
+<a name="l00030"></a>00030 <span class="preprocessor"></span>    <a class="code" href="classQextSerialBase.html#1c9f83f00f0ea53ee06b757e197cdf64">setPortName</a>(<span class="stringliteral">"/dev/ttyS0"</span>);
+<a name="l00031"></a>00031 <span class="preprocessor">#endif</span>
+<a name="l00032"></a>00032 <span class="preprocessor"></span>
+<a name="l00033"></a>00033     <a class="code" href="classQextSerialBase.html#7495b472b5e269d04c0c2e856901207f">construct</a>();
+<a name="l00034"></a>00034 }
 </pre></div>
 <p>
 
@@ -251,11 +299,11 @@ Default constructor. <div class="fragment"><pre class="fragment"><a name="l00021
 <div class="memdoc">
 
 <p>
-Construct a port and assign it to the device specified by the name parameter. <div class="fragment"><pre class="fragment"><a name="l00054"></a>00054  : <a class="codeRef" doxygen="qiodevice.tag:http://doc.trolltech.com/" href="http://doc.trolltech.com/qiodevice.html#QIODevice">QIODevice</a>()
-<a name="l00055"></a>00055 {
-<a name="l00056"></a>00056     <a class="code" href="classQextSerialBase.html#1c9f83f00f0ea53ee06b757e197cdf64">setPortName</a>(name);
-<a name="l00057"></a>00057     <a class="code" href="classQextSerialBase.html#7495b472b5e269d04c0c2e856901207f">construct</a>();
-<a name="l00058"></a>00058 }
+Construct a port and assign it to the device specified by the name parameter. <div class="fragment"><pre class="fragment"><a name="l00041"></a>00041  : <a class="codeRef" doxygen="qiodevice.tag:" href="qiodevice.html#QIODevice">QIODevice</a>()
+<a name="l00042"></a>00042 {
+<a name="l00043"></a>00043     <a class="code" href="classQextSerialBase.html#1c9f83f00f0ea53ee06b757e197cdf64">setPortName</a>(name);
+<a name="l00044"></a>00044     <a class="code" href="classQextSerialBase.html#7495b472b5e269d04c0c2e856901207f">construct</a>();
+<a name="l00045"></a>00045 }
 </pre></div>
 <p>
 
@@ -277,17 +325,9 @@ Construct a port and assign it to the device specified by the name parameter. <d
 <div class="memdoc">
 
 <p>
-Standard destructor. <div class="fragment"><pre class="fragment"><a name="l00065"></a>00065 {
-<a name="l00066"></a>00066 
-<a name="l00067"></a>00067 <span class="preprocessor">#ifdef QT_THREAD_SUPPORT</span>
-<a name="l00068"></a>00068 <span class="preprocessor"></span>    <a class="code" href="classQextSerialBase.html#e5df0cdbbf84781c17f02b8dbc99c93a">refCount</a>--;
-<a name="l00069"></a>00069     <span class="keywordflow">if</span> (<a class="code" href="classQextSerialBase.html#f3d14f4614db4415c5f89746633cf197">mutex</a> &amp;&amp; <a class="code" href="classQextSerialBase.html#e5df0cdbbf84781c17f02b8dbc99c93a">refCount</a>==0) {
-<a name="l00070"></a>00070         <span class="keyword">delete</span> <a class="code" href="classQextSerialBase.html#f3d14f4614db4415c5f89746633cf197">mutex</a>;
-<a name="l00071"></a>00071         <a class="code" href="classQextSerialBase.html#f3d14f4614db4415c5f89746633cf197">mutex</a>=NULL;
-<a name="l00072"></a>00072     }
-<a name="l00073"></a>00073 <span class="preprocessor">#endif</span>
-<a name="l00074"></a>00074 <span class="preprocessor"></span>
-<a name="l00075"></a>00075 }
+Standard destructor. <div class="fragment"><pre class="fragment"><a name="l00052"></a>00052 {
+<a name="l00053"></a>00053     <span class="keyword">delete</span> <a class="code" href="classQextSerialBase.html#0c7cf6443ad80a05d51daaca5d0102ab">mutex</a>;
+<a name="l00054"></a>00054 }
 </pre></div>
 <p>
 
@@ -310,12 +350,12 @@ Standard destructor. <div class="fragment"><pre class="fragment"><a name="l00065
 <div class="memdoc">
 
 <p>
-This function will return true if the input buffer is empty (or on error), and false otherwise. Call <a class="el" href="classQextSerialBase.html#e4029cb49127422b7e76586930366b05">QextSerialBase::lastError()</a> for error information. <div class="fragment"><pre class="fragment"><a name="l00187"></a>00187 {
-<a name="l00188"></a>00188     <span class="keywordflow">if</span> (<a class="code" href="classQextSerialBase.html#86fc9d6239b7d136a9d80b93a727e093">size</a>()) {
-<a name="l00189"></a>00189         <span class="keywordflow">return</span> <span class="keyword">true</span>;
-<a name="l00190"></a>00190     }
-<a name="l00191"></a>00191     <span class="keywordflow">return</span> <span class="keyword">false</span>;
-<a name="l00192"></a>00192 }
+This function will return true if the input buffer is empty (or on error), and false otherwise. Call <a class="el" href="classQextSerialBase.html#e4029cb49127422b7e76586930366b05">QextSerialBase::lastError()</a> for error information. <div class="fragment"><pre class="fragment"><a name="l00164"></a>00164 {
+<a name="l00165"></a>00165     <span class="keywordflow">if</span> (<a class="code" href="classQextSerialBase.html#86fc9d6239b7d136a9d80b93a727e093">size</a>()) {
+<a name="l00166"></a>00166         <span class="keywordflow">return</span> <span class="keyword">true</span>;
+<a name="l00167"></a>00167     }
+<a name="l00168"></a>00168     <span class="keywordflow">return</span> <span class="keyword">false</span>;
+<a name="l00169"></a>00169 }
 </pre></div>
 <p>
 
@@ -338,9 +378,9 @@ This function will return true if the input buffer is empty (or on error), and f
 <div class="memdoc">
 
 <p>
-Returns the baud rate of the serial port. For a list of possible return values see the definition of the enum BaudRateType. <div class="fragment"><pre class="fragment"><a name="l00126"></a>00126 {
-<a name="l00127"></a>00127     <span class="keywordflow">return</span> <a class="code" href="classQextSerialBase.html#2d796e3080f78ff63e821f528439db57">Settings</a>.<a class="code" href="structPortSettings.html#be617f3545d6be4587e1a0700a0b0e5b">BaudRate</a>;
-<a name="l00128"></a>00128 }
+Returns the baud rate of the serial port. For a list of possible return values see the definition of the enum BaudRateType. <div class="fragment"><pre class="fragment"><a name="l00103"></a>00103 {
+<a name="l00104"></a>00104     <span class="keywordflow">return</span> <a class="code" href="classQextSerialBase.html#2d796e3080f78ff63e821f528439db57">Settings</a>.<a class="code" href="structPortSettings.html#be617f3545d6be4587e1a0700a0b0e5b">BaudRate</a>;
+<a name="l00105"></a>00105 }
 </pre></div>
 <p>
 
@@ -364,7 +404,7 @@ Returns the baud rate of the serial port. For a list of possible return values s
 <p>
 
 <p>
-Reimplemented from <a class="elRef" doxygen="qiodevice.tag:http://doc.trolltech.com/" href="http://doc.trolltech.com/qiodevice.html#bytesAvailable">QIODevice</a>.
+Reimplemented from <a class="elRef" doxygen="qiodevice.tag:" href="qiodevice.html#bytesAvailable">QIODevice</a>.
 <p>
 Implemented in <a class="el" href="classPosix__QextSerialPort.html#6d593fe4f4623e93537a531d2c6157b7">Posix_QextSerialPort</a>, and <a class="el" href="classWin__QextSerialPort.html#8c76fa901fd01f97f57addad088c3e2c">Win_QextSerialPort</a>.
 </div>
@@ -387,7 +427,7 @@ Implemented in <a class="el" href="classPosix__QextSerialPort.html#6d593fe4f4623
 <p>
 
 <p>
-Reimplemented from <a class="elRef" doxygen="qiodevice.tag:http://doc.trolltech.com/" href="http://doc.trolltech.com/qiodevice.html#close">QIODevice</a>.
+Reimplemented from <a class="elRef" doxygen="qiodevice.tag:" href="qiodevice.html#close">QIODevice</a>.
 <p>
 Implemented in <a class="el" href="classPosix__QextSerialPort.html#3a7ddf86a867770c88777c3e78545cb0">Posix_QextSerialPort</a>, and <a class="el" href="classWin__QextSerialPort.html#fd2a4f6a94c877e5ae2dbf742af61b1d">Win_QextSerialPort</a>.
 </div>
@@ -408,24 +448,17 @@ Implemented in <a class="el" href="classPosix__QextSerialPort.html#3a7ddf86a8677
 <div class="memdoc">
 
 <p>
-Common constructor function for setting up default port settings. (115200 Baud, 8N1, Hardware flow control where supported, otherwise no flow control, and 500 ms timeout). <div class="fragment"><pre class="fragment"><a name="l00083"></a>00083 {
-<a name="l00084"></a>00084     <a class="code" href="classQextSerialBase.html#2d796e3080f78ff63e821f528439db57">Settings</a>.<a class="code" href="structPortSettings.html#be617f3545d6be4587e1a0700a0b0e5b">BaudRate</a>=<a class="code" href="qextserialbase_8h.html#6f031169a6a9b150b5af707bb23cf01054a5ab3e880bc1722d455e420c0351e6">BAUD115200</a>;
-<a name="l00085"></a>00085     <a class="code" href="classQextSerialBase.html#2d796e3080f78ff63e821f528439db57">Settings</a>.<a class="code" href="structPortSettings.html#9ec9d5a304b2ac8d3a100d07bce7c0b6">DataBits</a>=<a class="code" href="qextserialbase_8h.html#189ef78c2c1b7537ab114d576f6214fa719dc653cb3f7c9fbf6c8b8c36d78a9f">DATA_8</a>;
-<a name="l00086"></a>00086     <a class="code" href="classQextSerialBase.html#2d796e3080f78ff63e821f528439db57">Settings</a>.<a class="code" href="structPortSettings.html#8d0bfbdcb40e9e3919e3f9829ae72582">Parity</a>=<a class="code" href="qextserialbase_8h.html#ee22d32d87c815090354bf9b8e957acee0df16cbf90ff8b05d96d37094b3980a">PAR_NONE</a>;
-<a name="l00087"></a>00087     <a class="code" href="classQextSerialBase.html#2d796e3080f78ff63e821f528439db57">Settings</a>.<a class="code" href="structPortSettings.html#0752c70eb7e12f02ddf59739a056b04c">StopBits</a>=<a class="code" href="qextserialbase_8h.html#dc8078895cd941d755d46633b54d3e7f5a97cec5fc7aa14a4caae4b53d97fcfc">STOP_1</a>;
-<a name="l00088"></a>00088     <a class="code" href="classQextSerialBase.html#2d796e3080f78ff63e821f528439db57">Settings</a>.<a class="code" href="structPortSettings.html#10720f6217b8d8b90c326ea030c43e30">FlowControl</a>=<a class="code" href="qextserialbase_8h.html#02ad1c7cf791a069dd54e409f8db479037eb6a580629a080ce39792149cf4976">FLOW_HARDWARE</a>;
-<a name="l00089"></a>00089     <a class="code" href="classQextSerialBase.html#2d796e3080f78ff63e821f528439db57">Settings</a>.<a class="code" href="structPortSettings.html#159ca543549b3b872917fc4ef0757b60">Timeout_Sec</a>=0;
-<a name="l00090"></a>00090     <a class="code" href="classQextSerialBase.html#2d796e3080f78ff63e821f528439db57">Settings</a>.<a class="code" href="structPortSettings.html#c1b008038ad143262a2ee18247fe2c39">Timeout_Millisec</a>=500;
-<a name="l00091"></a>00091 
-<a name="l00092"></a>00092 <span class="preprocessor">#ifdef QT_THREAD_SUPPORT</span>
-<a name="l00093"></a>00093 <span class="preprocessor"></span>    <span class="keywordflow">if</span> (!<a class="code" href="classQextSerialBase.html#f3d14f4614db4415c5f89746633cf197">mutex</a>) {
-<a name="l00094"></a>00094         <a class="code" href="classQextSerialBase.html#f3d14f4614db4415c5f89746633cf197">mutex</a>=<span class="keyword">new</span> QMutex( QMutex::Recursive );
-<a name="l00095"></a>00095     }
-<a name="l00096"></a>00096     <a class="code" href="classQextSerialBase.html#e5df0cdbbf84781c17f02b8dbc99c93a">refCount</a>++;
-<a name="l00097"></a>00097 <span class="preprocessor">#endif</span>
-<a name="l00098"></a>00098 <span class="preprocessor"></span>
-<a name="l00099"></a>00099     <a class="codeRef" doxygen="qiodevice.tag:http://doc.trolltech.com/" href="http://doc.trolltech.com/qiodevice.html#setOpenMode">setOpenMode</a>(QIODevice::NotOpen);
-<a name="l00100"></a>00100 }
+Common constructor function for setting up default port settings. (115200 Baud, 8N1, Hardware flow control where supported, otherwise no flow control, and 0 ms timeout). <div class="fragment"><pre class="fragment"><a name="l00062"></a>00062 {
+<a name="l00063"></a>00063     <a class="code" href="classQextSerialBase.html#2d796e3080f78ff63e821f528439db57">Settings</a>.<a class="code" href="structPortSettings.html#be617f3545d6be4587e1a0700a0b0e5b">BaudRate</a>=<a class="code" href="qextserialbase_8h.html#6f031169a6a9b150b5af707bb23cf01054a5ab3e880bc1722d455e420c0351e6">BAUD115200</a>;
+<a name="l00064"></a>00064     <a class="code" href="classQextSerialBase.html#2d796e3080f78ff63e821f528439db57">Settings</a>.<a class="code" href="structPortSettings.html#9ec9d5a304b2ac8d3a100d07bce7c0b6">DataBits</a>=<a class="code" href="qextserialbase_8h.html#189ef78c2c1b7537ab114d576f6214fa719dc653cb3f7c9fbf6c8b8c36d78a9f">DATA_8</a>;
+<a name="l00065"></a>00065     <a class="code" href="classQextSerialBase.html#2d796e3080f78ff63e821f528439db57">Settings</a>.<a class="code" href="structPortSettings.html#8d0bfbdcb40e9e3919e3f9829ae72582">Parity</a>=<a class="code" href="qextserialbase_8h.html#ee22d32d87c815090354bf9b8e957acee0df16cbf90ff8b05d96d37094b3980a">PAR_NONE</a>;
+<a name="l00066"></a>00066     <a class="code" href="classQextSerialBase.html#2d796e3080f78ff63e821f528439db57">Settings</a>.<a class="code" href="structPortSettings.html#0752c70eb7e12f02ddf59739a056b04c">StopBits</a>=<a class="code" href="qextserialbase_8h.html#dc8078895cd941d755d46633b54d3e7f5a97cec5fc7aa14a4caae4b53d97fcfc">STOP_1</a>;
+<a name="l00067"></a>00067     <a class="code" href="classQextSerialBase.html#2d796e3080f78ff63e821f528439db57">Settings</a>.<a class="code" href="structPortSettings.html#10720f6217b8d8b90c326ea030c43e30">FlowControl</a>=<a class="code" href="qextserialbase_8h.html#02ad1c7cf791a069dd54e409f8db479037eb6a580629a080ce39792149cf4976">FLOW_HARDWARE</a>;
+<a name="l00068"></a>00068     <a class="code" href="classQextSerialBase.html#2d796e3080f78ff63e821f528439db57">Settings</a>.<a class="code" href="structPortSettings.html#159ca543549b3b872917fc4ef0757b60">Timeout_Sec</a>=0;
+<a name="l00069"></a>00069     <a class="code" href="classQextSerialBase.html#2d796e3080f78ff63e821f528439db57">Settings</a>.<a class="code" href="structPortSettings.html#c1b008038ad143262a2ee18247fe2c39">Timeout_Millisec</a>=0;
+<a name="l00070"></a>00070     <a class="code" href="classQextSerialBase.html#0c7cf6443ad80a05d51daaca5d0102ab">mutex</a> = <span class="keyword">new</span> QMutex( QMutex::Recursive );
+<a name="l00071"></a>00071     <a class="codeRef" doxygen="qiodevice.tag:" href="qiodevice.html#setOpenMode">setOpenMode</a>(QIODevice::NotOpen);
+<a name="l00072"></a>00072 }
 </pre></div>
 <p>
 
@@ -447,11 +480,37 @@ Common constructor function for setting up default port settings. (115200 Baud, 
 <div class="memdoc">
 
 <p>
-Returns the number of data bits used by the port. For a list of possible values returned by this function, see the definition of the enum DataBitsType. <div class="fragment"><pre class="fragment"><a name="l00136"></a>00136 {
-<a name="l00137"></a>00137     <span class="keywordflow">return</span> <a class="code" href="classQextSerialBase.html#2d796e3080f78ff63e821f528439db57">Settings</a>.<a class="code" href="structPortSettings.html#9ec9d5a304b2ac8d3a100d07bce7c0b6">DataBits</a>;
-<a name="l00138"></a>00138 }
+Returns the number of data bits used by the port. For a list of possible values returned by this function, see the definition of the enum DataBitsType. <div class="fragment"><pre class="fragment"><a name="l00113"></a>00113 {
+<a name="l00114"></a>00114     <span class="keywordflow">return</span> <a class="code" href="classQextSerialBase.html#2d796e3080f78ff63e821f528439db57">Settings</a>.<a class="code" href="structPortSettings.html#9ec9d5a304b2ac8d3a100d07bce7c0b6">DataBits</a>;
+<a name="l00115"></a>00115 }
 </pre></div>
 <p>
+
+</div>
+</div><p>
+<a class="anchor" name="bc9dc7c9a7735476800eb5aa35bec6a8"></a><!-- doxytag: member="QextSerialBase::dsrChanged" ref="bc9dc7c9a7735476800eb5aa35bec6a8" args="(bool status)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void QextSerialBase::dsrChanged           </td>
+          <td>(</td>
+          <td class="paramtype">bool&nbsp;</td>
+          <td class="paramname"> <em>status</em>          </td>
+          <td>&nbsp;)&nbsp;</td>
+          <td width="100%"><code> [signal]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>
+This signal is emitted whenever dsr line has changed its state. You may use this signal to check if device is connected. <dl compact><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>status</em>&nbsp;</td><td><code>true</code> when DSR signal is on, <code>false</code> otherwise.</td></tr>
+  </table>
+</dl>
+<dl compact><dt><b>See also:</b></dt><dd><a class="el" href="classQextSerialBase.html#28b87dd41160a61e2953dca38aa332d6">lineStatus()</a>. </dd></dl>
 
 </div>
 </div><p>
@@ -471,9 +530,9 @@ Returns the number of data bits used by the port. For a list of possible values 
 <div class="memdoc">
 
 <p>
-Returns the type of flow control used by the port. For a list of possible values returned by this function, see the definition of the enum FlowType. <div class="fragment"><pre class="fragment"><a name="l00166"></a>00166 {
-<a name="l00167"></a>00167     <span class="keywordflow">return</span> <a class="code" href="classQextSerialBase.html#2d796e3080f78ff63e821f528439db57">Settings</a>.<a class="code" href="structPortSettings.html#10720f6217b8d8b90c326ea030c43e30">FlowControl</a>;
-<a name="l00168"></a>00168 }
+Returns the type of flow control used by the port. For a list of possible values returned by this function, see the definition of the enum FlowType. <div class="fragment"><pre class="fragment"><a name="l00143"></a>00143 {
+<a name="l00144"></a>00144     <span class="keywordflow">return</span> <a class="code" href="classQextSerialBase.html#2d796e3080f78ff63e821f528439db57">Settings</a>.<a class="code" href="structPortSettings.html#10720f6217b8d8b90c326ea030c43e30">FlowControl</a>;
+<a name="l00145"></a>00145 }
 </pre></div>
 <p>
 
@@ -516,9 +575,9 @@ Implemented in <a class="el" href="classPosix__QextSerialPort.html#5f12a1a6c1c6a
 <div class="memdoc">
 
 <p>
-Returns true if device is sequential, otherwise returns false. Serial port is sequential device so this function always returns true. Check <a class="elRef" doxygen="qiodevice.tag:http://doc.trolltech.com/" href="http://doc.trolltech.com/qiodevice.html#isSequential">QIODevice::isSequential()</a> documentation for more information. <div class="fragment"><pre class="fragment"><a name="l00177"></a>00177 {
-<a name="l00178"></a>00178     <span class="keywordflow">return</span> <span class="keyword">true</span>;
-<a name="l00179"></a>00179 }
+Returns true if device is sequential, otherwise returns false. Serial port is sequential device so this function always returns true. Check <a class="elRef" doxygen="qiodevice.tag:" href="qiodevice.html#isSequential">QIODevice::isSequential()</a> documentation for more information. <div class="fragment"><pre class="fragment"><a name="l00154"></a>00154 {
+<a name="l00155"></a>00155     <span class="keywordflow">return</span> <span class="keyword">true</span>;
+<a name="l00156"></a>00156 }
 </pre></div>
 <p>
 
@@ -559,9 +618,9 @@ E_RECEIVE_PARITY_ERROR          The port detected a parity error in the received
 E_TRANSMIT_OVERFLOW             Transmit buffer overflow
 E_READ_FAILED                   General read operation failure
 E_WRITE_FAILED                  General write operation failure
-</pre></div> <div class="fragment"><pre class="fragment"><a name="l00248"></a>00248 {
-<a name="l00249"></a>00249     <span class="keywordflow">return</span> <a class="code" href="classQextSerialBase.html#31816951ba89902fa1dfdb6f18b80f41">lastErr</a>;
-<a name="l00250"></a>00250 }
+</pre></div> <div class="fragment"><pre class="fragment"><a name="l00225"></a>00225 {
+<a name="l00226"></a>00226     <span class="keywordflow">return</span> <a class="code" href="classQextSerialBase.html#31816951ba89902fa1dfdb6f18b80f41">lastErr</a>;
+<a name="l00227"></a>00227 }
 </pre></div>
 <p>
 
@@ -588,7 +647,7 @@ E_WRITE_FAILED                  General write operation failure
 Implemented in <a class="el" href="classPosix__QextSerialPort.html#b419544e866cab58b8a3ce6341f6a7e9">Posix_QextSerialPort</a>, and <a class="el" href="classWin__QextSerialPort.html#5aecf6de25391bb59ad4d18f3562eef3">Win_QextSerialPort</a>.
 </div>
 </div><p>
-<a class="anchor" name="e7fadc74c97f903f6b499e6155236b3e"></a><!-- doxytag: member="QextSerialBase::open" ref="e7fadc74c97f903f6b499e6155236b3e" args="(OpenMode mode=0)=0" -->
+<a class="anchor" name="754cf108d4b7114b1dd538ef6dd65d1a"></a><!-- doxytag: member="QextSerialBase::open" ref="754cf108d4b7114b1dd538ef6dd65d1a" args="(OpenMode mode)=0" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -596,7 +655,7 @@ Implemented in <a class="el" href="classPosix__QextSerialPort.html#b419544e866ca
           <td class="memname">virtual bool QextSerialBase::open           </td>
           <td>(</td>
           <td class="paramtype">OpenMode&nbsp;</td>
-          <td class="paramname"> <em>mode</em> = <code>0</code>          </td>
+          <td class="paramname"> <em>mode</em>          </td>
           <td>&nbsp;)&nbsp;</td>
           <td width="100%"><code> [pure virtual]</code></td>
         </tr>
@@ -607,9 +666,9 @@ Implemented in <a class="el" href="classPosix__QextSerialPort.html#b419544e866ca
 <p>
 
 <p>
-Reimplemented from <a class="elRef" doxygen="qiodevice.tag:http://doc.trolltech.com/" href="http://doc.trolltech.com/qiodevice.html#open">QIODevice</a>.
+Reimplemented from <a class="elRef" doxygen="qiodevice.tag:" href="qiodevice.html#open">QIODevice</a>.
 <p>
-Implemented in <a class="el" href="classPosix__QextSerialPort.html#5585e9e5a60f2d134e2c03e7a8cadeb9">Posix_QextSerialPort</a>, and <a class="el" href="classWin__QextSerialPort.html#48e6b76953155180647f0b1a1ace8c2a">Win_QextSerialPort</a>.
+Implemented in <a class="el" href="classPosix__QextSerialPort.html#200cb519edfef82199bf1701f4b872e9">Posix_QextSerialPort</a>, and <a class="el" href="classWin__QextSerialPort.html#80fa78e5c369199a1bf37b37786e9b05">Win_QextSerialPort</a>.
 </div>
 </div><p>
 <a class="anchor" name="d1ea7aa9d42563f6473b5c6dc9643e31"></a><!-- doxytag: member="QextSerialBase::parity" ref="d1ea7aa9d42563f6473b5c6dc9643e31" args="() const " -->
@@ -628,9 +687,9 @@ Implemented in <a class="el" href="classPosix__QextSerialPort.html#5585e9e5a60f2
 <div class="memdoc">
 
 <p>
-Returns the type of parity used by the port. For a list of possible values returned by this function, see the definition of the enum ParityType. <div class="fragment"><pre class="fragment"><a name="l00146"></a>00146 {
-<a name="l00147"></a>00147     <span class="keywordflow">return</span> <a class="code" href="classQextSerialBase.html#2d796e3080f78ff63e821f528439db57">Settings</a>.<a class="code" href="structPortSettings.html#8d0bfbdcb40e9e3919e3f9829ae72582">Parity</a>;
-<a name="l00148"></a>00148 }
+Returns the type of parity used by the port. For a list of possible values returned by this function, see the definition of the enum ParityType. <div class="fragment"><pre class="fragment"><a name="l00123"></a>00123 {
+<a name="l00124"></a>00124     <span class="keywordflow">return</span> <a class="code" href="classQextSerialBase.html#2d796e3080f78ff63e821f528439db57">Settings</a>.<a class="code" href="structPortSettings.html#8d0bfbdcb40e9e3919e3f9829ae72582">Parity</a>;
+<a name="l00125"></a>00125 }
 </pre></div>
 <p>
 
@@ -652,9 +711,31 @@ Returns the type of parity used by the port. For a list of possible values retur
 <div class="memdoc">
 
 <p>
-Returns the name set by <a class="el" href="classQextSerialBase.html#1c9f83f00f0ea53ee06b757e197cdf64">setPortName()</a>. <div class="fragment"><pre class="fragment"><a name="l00116"></a>00116 {
-<a name="l00117"></a>00117     <span class="keywordflow">return</span> <a class="code" href="classQextSerialBase.html#7459f3818391091877c88595a48a950a">port</a>;
-<a name="l00118"></a>00118 }
+Returns the name set by <a class="el" href="classQextSerialBase.html#1c9f83f00f0ea53ee06b757e197cdf64">setPortName()</a>. <div class="fragment"><pre class="fragment"><a name="l00093"></a>00093 {
+<a name="l00094"></a>00094     <span class="keywordflow">return</span> <a class="code" href="classQextSerialBase.html#7459f3818391091877c88595a48a950a">port</a>;
+<a name="l00095"></a>00095 }
+</pre></div>
+<p>
+
+</div>
+</div><p>
+<a class="anchor" name="bebbc04c8a4360cefa33a63dde224a1e"></a><!-- doxytag: member="QextSerialBase::queryMode" ref="bebbc04c8a4360cefa33a63dde224a1e" args="() const " -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classQextSerialBase.html#bab21776f71ceb4989ad2326680143f5">QextSerialBase::QueryMode</a> QextSerialBase::queryMode           </td>
+          <td>(</td>
+          <td class="paramname">          </td>
+          <td>&nbsp;)&nbsp;</td>
+          <td width="100%"> const<code> [inline]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>
+<div class="fragment"><pre class="fragment"><a name="l00176"></a>00176 { <span class="keywordflow">return</span> <a class="code" href="classQextSerialBase.html#67f8a0fb2ce91824c1afc6c95e6b3c3a">_queryMode</a>; };
 </pre></div>
 <p>
 
@@ -688,7 +769,7 @@ Returns the name set by <a class="el" href="classQextSerialBase.html#1c9f83f00f0
 <p>
 
 <p>
-Reimplemented from <a class="elRef" doxygen="qiodevice.tag:http://doc.trolltech.com/" href="http://doc.trolltech.com/qiodevice.html#readData">QIODevice</a>.
+Reimplemented from <a class="elRef" doxygen="qiodevice.tag:" href="qiodevice.html#readData">QIODevice</a>.
 <p>
 Implemented in <a class="el" href="classPosix__QextSerialPort.html#73b99fe7198e7e94b13c13416a6b9fae">Posix_QextSerialPort</a>, and <a class="el" href="classWin__QextSerialPort.html#39d6d73caac12dc1ca58d88b6e08dcb9">Win_QextSerialPort</a>.
 </div>
@@ -721,25 +802,25 @@ Implemented in <a class="el" href="classPosix__QextSerialPort.html#73b99fe7198e7
 <p>
 This function will read a line of buffered input from the port, stopping when either maxSize bytes have been read, the port has no more data available, or a newline is encountered. The value returned is the length of the string that was read. 
 <p>
-Reimplemented from <a class="elRef" doxygen="qiodevice.tag:http://doc.trolltech.com/" href="http://doc.trolltech.com/qiodevice.html#readLine">QIODevice</a>.<div class="fragment"><pre class="fragment"><a name="l00201"></a>00201 {
-<a name="l00202"></a>00202     qint64 numBytes = <a class="code" href="classQextSerialBase.html#7e130a0ba5a0a9ba95ce5f75a5e2c526">bytesAvailable</a>();
-<a name="l00203"></a>00203     <span class="keywordtype">char</span>* pData = data;
-<a name="l00204"></a>00204 
-<a name="l00205"></a>00205     <span class="keywordflow">if</span> (maxSize &lt; 2)    <span class="comment">//maxSize must be larger than 1</span>
-<a name="l00206"></a>00206         <span class="keywordflow">return</span> -1;
-<a name="l00207"></a>00207 
-<a name="l00208"></a>00208     <span class="comment">/*read a byte at a time for MIN(bytesAvail, maxSize - 1) iterations, or until a newline*/</span>
-<a name="l00209"></a>00209     <span class="keywordflow">while</span> (pData&lt;(data+numBytes) &amp;&amp; --maxSize) {
-<a name="l00210"></a>00210         <a class="code" href="classQextSerialBase.html#d36903893a43ad4468e25243117dea73">readData</a>(pData, 1);
-<a name="l00211"></a>00211         <span class="keywordflow">if</span> (*pData++ == <span class="charliteral">'\n'</span>) {
-<a name="l00212"></a>00212             <span class="keywordflow">break</span>;
-<a name="l00213"></a>00213         }
-<a name="l00214"></a>00214     }
-<a name="l00215"></a>00215     *pData=<span class="charliteral">'\0'</span>;
-<a name="l00216"></a>00216 
-<a name="l00217"></a>00217     <span class="comment">/*return size of data read*/</span>
-<a name="l00218"></a>00218     <span class="keywordflow">return</span> (pData-data);
-<a name="l00219"></a>00219 }
+Reimplemented from <a class="elRef" doxygen="qiodevice.tag:" href="qiodevice.html#readLine">QIODevice</a>.<div class="fragment"><pre class="fragment"><a name="l00178"></a>00178 {
+<a name="l00179"></a>00179     qint64 numBytes = <a class="code" href="classQextSerialBase.html#7e130a0ba5a0a9ba95ce5f75a5e2c526">bytesAvailable</a>();
+<a name="l00180"></a>00180     <span class="keywordtype">char</span>* pData = data;
+<a name="l00181"></a>00181 
+<a name="l00182"></a>00182     <span class="keywordflow">if</span> (maxSize &lt; 2)    <span class="comment">//maxSize must be larger than 1</span>
+<a name="l00183"></a>00183         <span class="keywordflow">return</span> -1;
+<a name="l00184"></a>00184 
+<a name="l00185"></a>00185     <span class="comment">/*read a byte at a time for MIN(bytesAvail, maxSize - 1) iterations, or until a newline*/</span>
+<a name="l00186"></a>00186     <span class="keywordflow">while</span> (pData&lt;(data+numBytes) &amp;&amp; --maxSize) {
+<a name="l00187"></a>00187         <a class="code" href="classQextSerialBase.html#d36903893a43ad4468e25243117dea73">readData</a>(pData, 1);
+<a name="l00188"></a>00188         <span class="keywordflow">if</span> (*pData++ == <span class="charliteral">'\n'</span>) {
+<a name="l00189"></a>00189             <span class="keywordflow">break</span>;
+<a name="l00190"></a>00190         }
+<a name="l00191"></a>00191     }
+<a name="l00192"></a>00192     *pData=<span class="charliteral">'\0'</span>;
+<a name="l00193"></a>00193 
+<a name="l00194"></a>00194     <span class="comment">/*return size of data read*/</span>
+<a name="l00195"></a>00195     <span class="keywordflow">return</span> (pData-data);
+<a name="l00196"></a>00196 }
 </pre></div>
 <p>
 
@@ -872,9 +953,43 @@ Implemented in <a class="el" href="classPosix__QextSerialPort.html#22dedc4f44c33
 <div class="memdoc">
 
 <p>
-Sets the name of the device associated with the object, e.g. "COM1", or "/dev/ttyS0". <div class="fragment"><pre class="fragment"><a name="l00107"></a>00107 {
-<a name="l00108"></a>00108     <a class="code" href="classQextSerialBase.html#7459f3818391091877c88595a48a950a">port</a> = name;
-<a name="l00109"></a>00109 }
+Sets the name of the device associated with the object, e.g. "COM1", or "/dev/ttyS0". <div class="fragment"><pre class="fragment"><a name="l00084"></a>00084 {
+<a name="l00085"></a>00085     <a class="code" href="classQextSerialBase.html#7459f3818391091877c88595a48a950a">port</a> = name;
+<a name="l00086"></a>00086 }
+</pre></div>
+<p>
+
+</div>
+</div><p>
+<a class="anchor" name="bd8e3b9a5028f9c2645ba89c0fc08a6b"></a><!-- doxytag: member="QextSerialBase::setQueryMode" ref="bd8e3b9a5028f9c2645ba89c0fc08a6b" args="(QueryMode mode)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void QextSerialBase::setQueryMode           </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classQextSerialBase.html#bab21776f71ceb4989ad2326680143f5">QueryMode</a>&nbsp;</td>
+          <td class="paramname"> <em>mode</em>          </td>
+          <td>&nbsp;)&nbsp;</td>
+          <td width="100%"><code> [virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>
+Set desired serial communication handling style. You may choose from polling or event driven approach. This function does nothing when port is open; to apply changes port must be reopened.<p>
+In event driven approach <a class="elRef" doxygen="qiodevice.tag:" href="qiodevice.html#read">read()</a> and <a class="elRef" doxygen="qiodevice.tag:" href="qiodevice.html#write">write()</a> functions are acting asynchronously. They return immediately and the operation is performed in the background, so they doesn't freeze the calling thread. To determine when operation is finished, <a class="el" href="classQextSerialPort.html">QextSerialPort</a> runs separate thread and monitors serial port events. Whenever the event occurs, adequate signal is emitted.<p>
+When polling is set, <a class="elRef" doxygen="qiodevice.tag:" href="qiodevice.html#read">read()</a> and <a class="elRef" doxygen="qiodevice.tag:" href="qiodevice.html#write">write()</a> are acting synchronously. Signals are not working in this mode and some functions may not be available. The advantage of polling is that it generates less overhead due to lack of signals emissions and it doesn't start separate thread to monitor events.<p>
+Generally event driven approach is more capable and friendly, although some applications may need as low overhead as possible and then polling comes.<p>
+<dl compact><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"></td><td valign="top"><em>mode</em>&nbsp;</td><td>query mode. </td></tr>
+  </table>
+</dl>
+<div class="fragment"><pre class="fragment"><a name="l00075"></a>00075 {
+<a name="l00076"></a>00076     <a class="code" href="classQextSerialBase.html#67f8a0fb2ce91824c1afc6c95e6b3c3a">_queryMode</a> = mechanism;
+<a name="l00077"></a>00077 }
 </pre></div>
 <p>
 
@@ -992,9 +1107,9 @@ Implemented in <a class="el" href="classPosix__QextSerialPort.html#6d5f7c0085310
 <div class="memdoc">
 
 <p>
-Returns the number of stop bits used by the port. For a list of possible return values, see the definition of the enum StopBitsType. <div class="fragment"><pre class="fragment"><a name="l00156"></a>00156 {
-<a name="l00157"></a>00157     <span class="keywordflow">return</span> <a class="code" href="classQextSerialBase.html#2d796e3080f78ff63e821f528439db57">Settings</a>.<a class="code" href="structPortSettings.html#0752c70eb7e12f02ddf59739a056b04c">StopBits</a>;
-<a name="l00158"></a>00158 }
+Returns the number of stop bits used by the port. For a list of possible return values, see the definition of the enum StopBitsType. <div class="fragment"><pre class="fragment"><a name="l00133"></a>00133 {
+<a name="l00134"></a>00134     <span class="keywordflow">return</span> <a class="code" href="classQextSerialBase.html#2d796e3080f78ff63e821f528439db57">Settings</a>.<a class="code" href="structPortSettings.html#0752c70eb7e12f02ddf59739a056b04c">StopBits</a>;
+<a name="l00135"></a>00135 }
 </pre></div>
 <p>
 
@@ -1041,7 +1156,7 @@ Implemented in <a class="el" href="classPosix__QextSerialPort.html#a099923f1360a
 <p>
 
 <p>
-Reimplemented from <a class="elRef" doxygen="qiodevice.tag:http://doc.trolltech.com/" href="http://doc.trolltech.com/qiodevice.html#ungetChar">QIODevice</a>.
+Reimplemented from <a class="elRef" doxygen="qiodevice.tag:" href="qiodevice.html#ungetChar">QIODevice</a>.
 <p>
 Implemented in <a class="el" href="classPosix__QextSerialPort.html#3a425e78db628945a666c52aa8638d0f">Posix_QextSerialPort</a>, and <a class="el" href="classWin__QextSerialPort.html#02ce5d55c51cca1862f2154f680d6e3c">Win_QextSerialPort</a>.
 </div>
@@ -1074,12 +1189,27 @@ Implemented in <a class="el" href="classPosix__QextSerialPort.html#3a425e78db628
 <p>
 
 <p>
-Reimplemented from <a class="elRef" doxygen="qiodevice.tag:http://doc.trolltech.com/" href="http://doc.trolltech.com/qiodevice.html#writeData">QIODevice</a>.
+Reimplemented from <a class="elRef" doxygen="qiodevice.tag:" href="qiodevice.html#writeData">QIODevice</a>.
 <p>
 Implemented in <a class="el" href="classPosix__QextSerialPort.html#e8aabe89e479259b0b991dbd6b424f78">Posix_QextSerialPort</a>, and <a class="el" href="classWin__QextSerialPort.html#be7e2c0f77000edfcf814fccae66fcd9">Win_QextSerialPort</a>.
 </div>
 </div><p>
 <hr><h2>Member Data Documentation</h2>
+<a class="anchor" name="67f8a0fb2ce91824c1afc6c95e6b3c3a"></a><!-- doxytag: member="QextSerialBase::_queryMode" ref="67f8a0fb2ce91824c1afc6c95e6b3c3a" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classQextSerialBase.html#bab21776f71ceb4989ad2326680143f5">QextSerialBase::QueryMode</a> <a class="el" href="classQextSerialBase.html#67f8a0fb2ce91824c1afc6c95e6b3c3a">QextSerialBase::_queryMode</a><code> [protected]</code>          </td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>
+
+</div>
+</div><p>
 <a class="anchor" name="31816951ba89902fa1dfdb6f18b80f41"></a><!-- doxytag: member="QextSerialBase::lastErr" ref="31816951ba89902fa1dfdb6f18b80f41" args="" -->
 <div class="memitem">
 <div class="memproto">
@@ -1095,12 +1225,12 @@ Implemented in <a class="el" href="classPosix__QextSerialPort.html#e8aabe89e4792
 
 </div>
 </div><p>
-<a class="anchor" name="f3d14f4614db4415c5f89746633cf197"></a><!-- doxytag: member="QextSerialBase::mutex" ref="f3d14f4614db4415c5f89746633cf197" args="" -->
+<a class="anchor" name="0c7cf6443ad80a05d51daaca5d0102ab"></a><!-- doxytag: member="QextSerialBase::mutex" ref="0c7cf6443ad80a05d51daaca5d0102ab" args="" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">QMutex * <a class="el" href="classQextSerialBase.html#f3d14f4614db4415c5f89746633cf197">QextSerialBase::mutex</a> = NULL<code> [static, protected]</code>          </td>
+          <td class="memname">QMutex* <a class="el" href="classQextSerialBase.html#0c7cf6443ad80a05d51daaca5d0102ab">QextSerialBase::mutex</a><code> [protected]</code>          </td>
         </tr>
       </table>
 </div>
@@ -1116,21 +1246,6 @@ Implemented in <a class="el" href="classPosix__QextSerialPort.html#e8aabe89e4792
       <table class="memname">
         <tr>
           <td class="memname">QString <a class="el" href="classQextSerialBase.html#7459f3818391091877c88595a48a950a">QextSerialBase::port</a><code> [protected]</code>          </td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-
-<p>
-
-</div>
-</div><p>
-<a class="anchor" name="e5df0cdbbf84781c17f02b8dbc99c93a"></a><!-- doxytag: member="QextSerialBase::refCount" ref="e5df0cdbbf84781c17f02b8dbc99c93a" args="" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">unsigned long <a class="el" href="classQextSerialBase.html#e5df0cdbbf84781c17f02b8dbc99c93a">QextSerialBase::refCount</a> = 0<code> [static, protected]</code>          </td>
         </tr>
       </table>
 </div>
@@ -1157,7 +1272,7 @@ Implemented in <a class="el" href="classPosix__QextSerialPort.html#e8aabe89e4792
 </div><p>
 <hr>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="qextserialbase_8h.html">qextserialbase.h</a><li><a class="el" href="qextserialbase_8cpp.html">qextserialbase.cpp</a></ul>
-<hr size="1"><address style="align: right;"><small>Generated on Sun Mar 25 04:21:54 2007 for QextSerialPort by&nbsp;
+<hr size="1"><address style="align: right;"><small>Generated on Wed Sep 5 19:31:22 2007 for QextSerialPort by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.4.7 </small></address>
 </body>

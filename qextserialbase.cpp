@@ -1,17 +1,4 @@
-
 #include "qextserialbase.h"
-
-/*!
-\class QextSerialBase
-\version 1.0.0
-\author Stefan Sander
-
-A common base class for Win_QextSerialBase, Posix_QextSerialBase and QextSerialPort.
-*/
-#ifdef QT_THREAD_SUPPORT
-QMutex* QextSerialBase::mutex=NULL;
-unsigned long QextSerialBase::refCount=0;
-#endif
 
 /*!
 \fn QextSerialBase::QextSerialBase()
@@ -63,21 +50,13 @@ Standard destructor.
 */
 QextSerialBase::~QextSerialBase()
 {
-
-#ifdef QT_THREAD_SUPPORT
-    refCount--;
-    if (mutex && refCount==0) {
-        delete mutex;
-        mutex=NULL;
-    }
-#endif
-
+	delete mutex;
 }
 
 /*!
 \fn void QextSerialBase::construct()
 Common constructor function for setting up default port settings.
-(115200 Baud, 8N1, Hardware flow control where supported, otherwise no flow control, and 500 ms timeout).
+(115200 Baud, 8N1, Hardware flow control where supported, otherwise no flow control, and 0 ms timeout).
 */
 void QextSerialBase::construct()
 {
@@ -86,17 +65,14 @@ void QextSerialBase::construct()
     Settings.Parity=PAR_NONE;
     Settings.StopBits=STOP_1;
     Settings.FlowControl=FLOW_HARDWARE;
-    Settings.Timeout_Sec=0;
     Settings.Timeout_Millisec=500;
-
-#ifdef QT_THREAD_SUPPORT
-    if (!mutex) {
-        mutex=new QMutex( QMutex::Recursive );
-    }
-    refCount++;
-#endif
-
+	mutex = new QMutex( QMutex::Recursive );
 	setOpenMode(QIODevice::NotOpen);
+}
+
+void QextSerialBase::setQueryMode(QueryMode mechanism)
+{
+	_queryMode = mechanism;
 }
 
 /*!

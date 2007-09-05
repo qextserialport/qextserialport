@@ -1,14 +1,10 @@
-
 #ifndef _QEXTSERIALBASE_H_
 #define _QEXTSERIALBASE_H_
 
 #include <QIODevice>
 #include <QFile>
-
-#ifdef QT_THREAD_SUPPORT
 #include <QThread>
 #include <QMutex>
-#endif
 
 /*if all warning messages are turned off, flag portability warnings to be turned off as well*/
 #ifdef _TTY_NOWARN_
@@ -16,25 +12,20 @@
 #endif
 
 /*macros for thread support*/
-#ifdef QT_THREAD_SUPPORT
 #define LOCK_MUTEX() mutex->lock()
 #define UNLOCK_MUTEX() mutex->unlock()
-#else
-#define LOCK_MUTEX()
-#define UNLOCK_MUTEX()
-#endif
 
-/*macros for warning messages*/
+/*macros for warning and debug messages*/
 #ifdef _TTY_NOWARN_PORT_
 #define TTY_PORTABILITY_WARNING(s)
 #else
 #define TTY_PORTABILITY_WARNING(s) qWarning(s)
-#endif
+#endif /*_TTY_NOWARN_PORT_*/
 #ifdef _TTY_NOWARN_
 #define TTY_WARNING(s)
 #else
 #define TTY_WARNING(s) qWarning(s)
-#endif
+#endif /*_TTY_NOWARN_*/
 
 
 /*line status constants*/
@@ -64,8 +55,11 @@
 #define E_READ_FAILED               13
 #define E_WRITE_FAILED              14
 
-/*enums for port settings*/
-enum NamingConvention {
+/*!
+ * Enums for port settings.
+ */
+enum NamingConvention 
+{
     WIN_NAMES,
     IRIX_NAMES,
     HPUX_NAMES,
@@ -75,7 +69,8 @@ enum NamingConvention {
     LINUX_NAMES
 };
 
-enum BaudRateType {
+enum BaudRateType 
+{
     BAUD50,                //POSIX ONLY
     BAUD75,                //POSIX ONLY
     BAUD110,
@@ -100,14 +95,16 @@ enum BaudRateType {
     BAUD256000             //WINDOWS ONLY
 };
 
-enum DataBitsType {
+enum DataBitsType 
+{
     DATA_5,
     DATA_6,
     DATA_7,
     DATA_8
 };
 
-enum ParityType {
+enum ParityType 
+{
     PAR_NONE,
     PAR_ODD,
     PAR_EVEN,
@@ -115,82 +112,147 @@ enum ParityType {
     PAR_SPACE
 };
 
-enum StopBitsType {
+enum StopBitsType 
+{
     STOP_1,
     STOP_1_5,               //WINDOWS ONLY
     STOP_2
 };
 
-enum FlowType {
+enum FlowType 
+{
     FLOW_OFF,
     FLOW_HARDWARE,
     FLOW_XONXOFF
 };
 
-/*structure to contain port settings*/
-struct PortSettings {
+/**
+ * structure to contain port settings
+ */
+struct PortSettings 
+{
     BaudRateType BaudRate;
     DataBitsType DataBits;
     ParityType Parity;
     StopBitsType StopBits;
     FlowType FlowControl;
-    ulong Timeout_Sec;
-    ulong Timeout_Millisec;
+    long Timeout_Millisec;
 };
 
-class QextSerialBase : public QIODevice {
-public:
-    QextSerialBase();
-    QextSerialBase(const QString & name);
-    virtual ~QextSerialBase();
-    virtual void construct();
-    virtual void setPortName(const QString & name);
-    virtual QString portName() const;
+/*!
+ * \author Stefan Sander
+ * \author Michal Policht
+ * 
+ * A common base class for Win_QextSerialBase, Posix_QextSerialBase and QextSerialPort.
+ */
+class QextSerialBase : public QIODevice 
+{
+	Q_OBJECT
 
-    virtual void setBaudRate(BaudRateType)=0;
-    virtual BaudRateType baudRate() const;
-    virtual void setDataBits(DataBitsType)=0;
-    virtual DataBitsType dataBits() const;
-    virtual void setParity(ParityType)=0;
-    virtual ParityType parity() const;
-    virtual void setStopBits(StopBitsType)=0;
-    virtual StopBitsType stopBits() const;
-    virtual void setFlowControl(FlowType)=0;
-    virtual FlowType flowControl() const;
-    virtual void setTimeout(ulong, ulong)=0;
+	public:
+		enum QueryMode {
+			Polling,
+			EventDriven
+		};
 
-    virtual bool open(OpenMode mode)=0;
-    virtual bool isSequential() const;
-    virtual void close()=0;
-    virtual void flush()=0;
+	protected:
+	    QMutex* mutex;
+	    QString port;
+	    PortSettings Settings;
+	    ulong lastErr;
+		QextSerialBase::QueryMode _queryMode;
 
-    virtual qint64 size() const=0;
-    virtual qint64 bytesAvailable()=0;
-    virtual bool atEnd() const;
+	    virtual qint64 readData(char * data, qint64 maxSize)=0;
+	    virtual qint64 writeData(const char * data, qint64 maxSize)=0;
 
-    virtual void ungetChar(char c)=0;
-    virtual qint64 readLine(char * data, qint64 maxSize);
+	public:
+	    QextSerialBase();
+	    QextSerialBase(const QString & name);
+	    virtual ~QextSerialBase();
+	    virtual void construct();
+	    virtual void setPortName(const QString & name);
+	    virtual QString portName() const;
+	    
+	    /**!
+	     * Get query mode.
+	     * 	\return query mode.
+	     */
+		inline QextSerialBase::QueryMode queryMode() const { return _queryMode; };
 
-    virtual ulong lastError() const;
-    virtual void translateError(ulong error)=0;
+		/*!
+		 * Set desired serial communication handling style. You may choose from polling 
+		 * or event driven approach. This function does nothing when port is open; to 
+		 * apply changes port must be reopened.
+		 * 
+		 * In event driven approach read() and write() functions are acting
+		 * asynchronously. They return immediately and the operation is performed in 
+		 * the background, so they doesn't freeze the calling thread.
+		 * To determine when operation is finished, QextSerialPort runs separate thread 
+		 * and monitors serial port events. Whenever the event occurs, adequate signal 
+		 * is emitted.
+		 * 
+		 * When polling is set, read() and write() are acting synchronously. Signals are
+		 * not working in this mode and some functions may not be available. The advantage
+		 * of polling is that it generates less overhead due to lack of signals emissions
+		 * and it doesn't start separate thread to monitor events.
+		 * 
+		 * Generally event driven approach is more capable and friendly, although some 
+		 * applications may need as low overhead as possible and then polling comes.
+		 * 
+		 * \param mode query mode.
+		 */
+		virtual void setQueryMode(QueryMode mode);
 
-    virtual void setDtr(bool set=true)=0;
-    virtual void setRts(bool set=true)=0;
-    virtual ulong lineStatus()=0;
+//		virtual void setBlockingRead(bool block) = 0; ///< @todo implement.
 
-protected:
-    QString port;
-    PortSettings Settings;
-    ulong lastErr;
+	    virtual void setBaudRate(BaudRateType)=0;
+	    virtual BaudRateType baudRate() const;
+	    virtual void setDataBits(DataBitsType)=0;
+	    virtual DataBitsType dataBits() const;
+	    virtual void setParity(ParityType)=0;
+	    virtual ParityType parity() const;
+	    virtual void setStopBits(StopBitsType)=0;
+	    virtual StopBitsType stopBits() const;
+	    virtual void setFlowControl(FlowType)=0;
+	    virtual FlowType flowControl() const;
+	    virtual void setTimeout(long)=0;
+	
+	    virtual bool open(OpenMode mode)=0;
+	    virtual bool isSequential() const;
+	    virtual void close()=0;
+	    virtual void flush()=0;
+	
+	    virtual qint64 size() const=0;
+	    virtual qint64 bytesAvailable()=0;
+	    virtual bool atEnd() const;
+	
+	    virtual void ungetChar(char c)=0;
+	    virtual qint64 readLine(char * data, qint64 maxSize);
+	
+	    virtual ulong lastError() const;
+	    virtual void translateError(ulong error)=0;
+	
+	    virtual void setDtr(bool set=true)=0;
+	    virtual void setRts(bool set=true)=0;
+	    virtual ulong lineStatus()=0;
 
-#ifdef QT_THREAD_SUPPORT
-    static QMutex* mutex;
-    static ulong refCount;
-#endif
+	signals:
+		/**
+		 * This signal is emitted whenever port settings are updated.
+		 * 	\param valid \p true if settings are valid, \p false otherwise.
+		 * 
+		 * 	@todo implement.
+		 */
+//		void validSettings(bool valid);
 
-    virtual qint64 readData(char * data, qint64 maxSize)=0;
-    virtual qint64 writeData(const char * data, qint64 maxSize)=0;
-
+		/*!
+		 * This signal is emitted whenever dsr line has changed its state. You may
+		 * use this signal to check if device is connected.
+		 * 	\param status \p true when DSR signal is on, \p false otherwise.
+		 * 
+		 * 	\see lineStatus().
+		 */
+		void dsrChanged(bool status);
 };
 
 #endif

@@ -1,7 +1,7 @@
-/**
- * @file qextserialenumerator.h
- * @author Michał Policht
- * @see QextSerialEnumerator
+/*!
+ * \file qextserialenumerator.h
+ * \author Michal Policht
+ * \see QextSerialEnumerator
  */
  
 #ifndef _QEXTSERIALENUMERATOR_H_
@@ -17,7 +17,7 @@
 #endif /*_TTY_WIN_*/
 
 
-/**
+/*!
  * Structure containing port information.
  */
 struct QextPortInfo {
@@ -28,7 +28,7 @@ struct QextPortInfo {
 };
 
 
-/**
+/*!
  * Serial port enumerator. This class provides list of ports available in the system.
  * 
  * Windows implementation is based on Zach Gorman's work from 

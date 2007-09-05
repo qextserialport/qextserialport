@@ -1,14 +1,16 @@
 
 /*!
 \class QextSerialPort
-\version 1.0.0
 \author Stefan Sander
+\author Michal Policht
 
 A cross-platform serial port class.
 This class encapsulates a serial port on both POSIX and Windows systems.  The user will be
 notified of errors and possible portability conflicts at run-time by default - this behavior can
 be turned off by defining _TTY_NOWARN_ (to turn off all warnings) or _TTY_NOWARN_PORT_ (to turn
 off portability warnings) in the project.
+
+You may choose from polling or event driven API. For details check setQueryMode() documentation.
 
 \note
 On Windows NT/2000/XP this class uses Win32 serial port functions by default.  The user may
@@ -21,7 +23,6 @@ make no guarantees as to the quality of POSIX support under NT/2000 however.
 #include "qextserialport.h"
 
 /*!
-\fn QextSerialPort::QextSerialPort()
 Default constructor.  Note that the naming convention used by a QextSerialPort constructed with
 this constructor will be determined by #defined constants, or lack thereof - the default behavior
 is the same as _TTY_LINUX_.  Possible naming conventions and their associated constants are:
@@ -48,34 +49,39 @@ QextSerialPort::QextSerialPort()
 {}
 
 /*!
-\fn QextSerialPort::QextSerialPort(const QString & name)
 Constructs a serial port attached to the port specified by name.
 name is the name of the device, which is windowsystem-specific,
 e.g."COM1" or "/dev/ttyS0".
+
+\see setQueryMode().
 */
-QextSerialPort::QextSerialPort(const QString & name)
- : QextBaseType(name)
-{}
+QextSerialPort::QextSerialPort(const QString & name, QueryMode mode)
+ : QextBaseType(name, mode)
+{
+}
 
 /*!
-\fn QextSerialPort::QextSerialPort(PortSettings const& settings)
 Constructs a port with default name and settings specified by the settings parameter.
+
+\see setQueryMode().
 */
-QextSerialPort::QextSerialPort(PortSettings const& settings)
- : QextBaseType(settings)
+QextSerialPort::QextSerialPort(PortSettings const& settings, QueryMode mode)
+ : QextBaseType(settings, mode)
 {}
 
 /*!
-\fn QextSerialPort::QextSerialPort(const QString & name, PortSettings const& settings)
 Constructs a port with the name and settings specified.
+
+\see setQueryMode().
 */
-QextSerialPort::QextSerialPort(const QString & name, PortSettings const& settings)
- : QextBaseType(name, settings)
+QextSerialPort::QextSerialPort(const QString & name, PortSettings const& settings, QueryMode mode)
+ : QextBaseType(name, settings, mode)
 {}
 
 /*!
-\fn QextSerialPort::QextSerialPort(const QextSerialPort& s)
 Copy constructor.
+
+\deprecated
 */
 QextSerialPort::QextSerialPort(const QextSerialPort& s)
  : QextBaseType(s)
@@ -84,6 +90,8 @@ QextSerialPort::QextSerialPort(const QextSerialPort& s)
 /*!
 \fn QextSerialPort& QextSerialPort::operator=(const QextSerialPort& s)
 Overrides the = operator.
+
+\deprecated
 */
 QextSerialPort& QextSerialPort::operator=(const QextSerialPort& s)
 {
