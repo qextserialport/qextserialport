@@ -60,6 +60,7 @@ Common constructor function for setting up default port settings.
 */
 void QextSerialBase::construct()
 {
+	lastErr = E_NO_ERROR;
     Settings.BaudRate=BAUD115200;
     Settings.DataBits=DATA_8;
     Settings.Parity=PAR_NONE;

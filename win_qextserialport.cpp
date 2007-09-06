@@ -30,10 +30,11 @@ _TTY_LINUX_      Linux           /dev/ttyS0, /dev/ttyS1
 This constructor associates the object with the first port on the system, e.g. COM1 for Windows
 platforms.  See the other constructor if you need a port other than the first.
 */
-Win_QextSerialPort::Win_QextSerialPort():
+Win_QextSerialPort::Win_QextSerialPort(QextSerialBase::QueryMode mode):
 	QextSerialBase() 
 {
     Win_Handle=INVALID_HANDLE_VALUE;
+    setQueryMode(mode);
     init();
 }
 
@@ -83,7 +84,9 @@ Win_QextSerialPort::Win_QextSerialPort(const QString & name, QextSerialBase::Que
 \fn Win_QextSerialPort::Win_QextSerialPort(const PortSettings& settings)
 Constructs a port with default name and specified settings.
 */
-Win_QextSerialPort::Win_QextSerialPort(const PortSettings& settings, QextSerialBase::QueryMode mode) {
+Win_QextSerialPort::Win_QextSerialPort(const PortSettings& settings, QextSerialBase::QueryMode mode):
+	QextSerialBase() 
+{
     Win_Handle=INVALID_HANDLE_VALUE;
     setBaudRate(settings.BaudRate);
     setDataBits(settings.DataBits);
@@ -99,7 +102,9 @@ Win_QextSerialPort::Win_QextSerialPort(const PortSettings& settings, QextSerialB
 \fn Win_QextSerialPort::Win_QextSerialPort(const QString & name, const PortSettings& settings)
 Constructs a port with specified name and settings.
 */
-Win_QextSerialPort::Win_QextSerialPort(const QString & name, const PortSettings& settings, QextSerialBase::QueryMode mode) {
+Win_QextSerialPort::Win_QextSerialPort(const QString & name, const PortSettings& settings, QextSerialBase::QueryMode mode):
+	QextSerialBase(name) 
+{
     Win_Handle=INVALID_HANDLE_VALUE;
     setPortName(name);
     setBaudRate(settings.BaudRate);

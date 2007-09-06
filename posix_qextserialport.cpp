@@ -38,10 +38,12 @@ _TTY_LINUX_      Linux           /dev/ttyS0, /dev/ttyS1
 This constructor assigns the device name to the name of the first port on the specified system.
 See the other constructors if you need to open a different port.
 */
-Posix_QextSerialPort::Posix_QextSerialPort()
+Posix_QextSerialPort::Posix_QextSerialPort(QextSerialBase::QueryMode mode)
 : QextSerialBase()
 {
     Posix_File=new QFile();
+    setQueryMode(mode);
+    init();
 }
 
 /*!

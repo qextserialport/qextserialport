@@ -203,8 +203,6 @@ class QextSerialBase : public QIODevice
 		 */
 		virtual void setQueryMode(QueryMode mode);
 
-//		virtual void setBlockingRead(bool block) = 0; ///< @todo implement.
-
 	    virtual void setBaudRate(BaudRateType)=0;
 	    virtual BaudRateType baudRate() const;
 	    virtual void setDataBits(DataBitsType)=0;
