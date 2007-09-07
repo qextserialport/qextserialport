@@ -860,7 +860,7 @@ bool Posix_QextSerialPort::open(OpenMode mode)
             setParity(Settings.Parity);
             setStopBits(Settings.StopBits);
             setFlowControl(Settings.FlowControl);
-            setTimeout(Settings.Timeout_Sec, Settings.Timeout_Millisec);
+            setTimeout(Settings.Timeout_Millisec);
             tcsetattr(Posix_File->handle(), TCSAFLUSH, &Posix_CommConfig);
         } else {
             qDebug("Could not open File! Error code : %d", Posix_File->error());
