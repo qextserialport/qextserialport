@@ -35,7 +35,7 @@ class MessageWindow: public QDockWidget
 		virtual void customEvent(QEvent* event);
 		
 	public:
-		enum EventType {MessageEvent = 1001};	///< Custom event types.
+		enum EventType {MessageEvent = QEvent::User};	///< Custom event types.
 		
 		/**
 		 * Default constructor.
