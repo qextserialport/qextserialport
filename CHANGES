@@ -12,6 +12,7 @@ Current CVS
   * Removed QT_THREAD_SUPPORT option. Now QextSerialPort must be always compiled with threads support.
   * Mutexes are not static.
   * setTimeout() now accepts only one parameter.
+  * bytesAvailable() on POSIX now shows 0 bytes instead of -1 when no bytes are available.
 
 Version 1.1 (official release)
 
