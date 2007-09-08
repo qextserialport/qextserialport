@@ -924,26 +924,11 @@ qint64 Posix_QextSerialPort::bytesAvailable()
     LOCK_MUTEX();
     if (isOpen()) {
         int bytesQueued;
-        fd_set fileSet;
-        FD_ZERO(&fileSet);
-        FD_SET(Posix_File->handle(), &fileSet);
-
-        /*on Linux systems the Posix_Timeout structure will be altered by the select() call.
-          Make sure we use the right timeout values*/
-        //memcpy(&Posix_Timeout, &Posix_Copy_Timeout, sizeof(struct timeval));
-        Posix_Timeout = Posix_Copy_Timeout;
-        int n=select(Posix_File->handle()+1, &fileSet, NULL, &fileSet, &Posix_Timeout);
-        if (!n) {
-            lastErr=E_PORT_TIMEOUT;
-            UNLOCK_MUTEX();
-            return -1;
-        }
-        if (n==-1 || ioctl(Posix_File->handle(), FIONREAD, &bytesQueued)==-1) {
+        if (ioctl(Posix_File->handle(), FIONREAD, &bytesQueued)==-1) {
             translateError(errno);
             UNLOCK_MUTEX();
             return -1;
         }
-        lastErr=E_NO_ERROR;
         UNLOCK_MUTEX();
         return bytesQueued + QIODevice::bytesAvailable();
     }

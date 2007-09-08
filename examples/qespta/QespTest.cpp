@@ -13,11 +13,11 @@ QespTest::QespTest(QWidget* parent)
 
 {
 	//modify the port settings on your own
-	port = new QextSerialPort("COM1");
+	port = new QextSerialPort("/dev/ttyS0");
 	port->setBaudRate(BAUD19200);
 	port->setFlowControl(FLOW_OFF);
-	port->setParity(PAR_NONE);    
-	port->setDataBits(DATA_8);   
+	port->setParity(PAR_NONE);
+	port->setDataBits(DATA_8);
 	port->setStopBits(STOP_2);
 	//set timeouts to 500 ms
 	port->setTimeout(500);
