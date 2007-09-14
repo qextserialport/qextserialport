@@ -44,8 +44,8 @@ _TTY_LINUX_      Linux           /dev/ttyS0, /dev/ttyS1
 The object will be associated with the first port in the system, e.g. COM1 on Windows systems.
 See the other constructors if you need to use a port other than the first.
 */
-QextSerialPort::QextSerialPort()
- : QextBaseType()
+QextSerialPort::QextSerialPort(QueryMode mode)
+ : QextBaseType(mode)
 {}
 
 /*!

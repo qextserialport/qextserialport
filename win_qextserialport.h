@@ -62,11 +62,11 @@ class Win_QextSerialPort: public QextSerialBase
 	    virtual qint64 writeData(const char *data, qint64 maxSize);
 
 	public:
-	    Win_QextSerialPort(QextSerialBase::QueryMode mode = QextSerialBase::Polling);
+	    Win_QextSerialPort(QextSerialBase::QueryMode mode);
 	    Win_QextSerialPort(Win_QextSerialPort const& s);
-	    Win_QextSerialPort(const QString & name, QextSerialBase::QueryMode mode = QextSerialBase::Polling);
-	    Win_QextSerialPort(const PortSettings& settings, QextSerialBase::QueryMode mode = QextSerialBase::Polling);
-	    Win_QextSerialPort(const QString & name, const PortSettings& settings, QextSerialBase::QueryMode mode = QextSerialBase::Polling);
+	    Win_QextSerialPort(const QString & name, QextSerialBase::QueryMode mode);
+	    Win_QextSerialPort(const PortSettings& settings, QextSerialBase::QueryMode mode);
+	    Win_QextSerialPort(const QString & name, const PortSettings& settings, QextSerialBase::QueryMode mode);
 	    Win_QextSerialPort& operator=(const Win_QextSerialPort& s);
 	    virtual ~Win_QextSerialPort();
 	    virtual bool open(OpenMode mode);

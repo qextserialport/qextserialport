@@ -28,11 +28,11 @@ class Posix_QextSerialPort:public QextSerialBase
 	    virtual qint64 writeData(const char * data, qint64 maxSize);
 
 	public:
-	    Posix_QextSerialPort(QextSerialBase::QueryMode mode = QextSerialBase::Polling);
+	    Posix_QextSerialPort(QextSerialBase::QueryMode mode);
 	    Posix_QextSerialPort(const Posix_QextSerialPort& s);
-	    Posix_QextSerialPort(const QString & name, QextSerialBase::QueryMode mode = QextSerialBase::Polling);
-	    Posix_QextSerialPort(const PortSettings& settings, QextSerialBase::QueryMode mode = QextSerialBase::Polling);
-	    Posix_QextSerialPort(const QString & name, const PortSettings& settings, QextSerialBase::QueryMode mode = QextSerialBase::Polling);
+	    Posix_QextSerialPort(const QString & name, QextSerialBase::QueryMode mode);
+	    Posix_QextSerialPort(const PortSettings& settings, QextSerialBase::QueryMode mode);
+	    Posix_QextSerialPort(const QString & name, const PortSettings& settings, QextSerialBase::QueryMode mode);
 	    Posix_QextSerialPort& operator=(const Posix_QextSerialPort& s);
 	    virtual ~Posix_QextSerialPort();
 	
