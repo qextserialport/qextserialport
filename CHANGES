@@ -13,6 +13,7 @@ Current CVS
   * Mutexes are not static.
   * setTimeout() now accepts only one parameter.
   * bytesAvailable() on POSIX now shows 0 bytes instead of -1 when no bytes are available.
+  * bytesAvailable() is const.
 
 Version 1.1 (official release)
 

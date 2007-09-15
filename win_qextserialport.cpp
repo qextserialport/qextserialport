@@ -292,23 +292,19 @@ qint64 Win_QextSerialPort::size() const {
 /*!
 \fn qint64 Win_QextSerialPort::bytesAvailable()
 Returns the number of bytes waiting in the port's receive queue.  This function will return 0 if
-the port is not currently open, or -1 on error.  Error information can be retrieved by calling
-Win_QextSerialPort::getLastError().
+the port is not currently open, or -1 on error.
 */
-qint64 Win_QextSerialPort::bytesAvailable() {
+qint64 Win_QextSerialPort::bytesAvailable() const {
     LOCK_MUTEX();
     if (isOpen()) {
         DWORD Errors;
         COMSTAT Status;
-        bool success=ClearCommError(Win_Handle, &Errors, &Status);
-        translateError(Errors);
-        if (success) {
-            lastErr=E_NO_ERROR;
+        if (ClearCommError(Win_Handle, &Errors, &Status)) {
             UNLOCK_MUTEX();
             return Status.cbInQue + QIODevice::bytesAvailable();
         }
         UNLOCK_MUTEX();
-        return (unsigned int)-1;
+        return (qint64)-1;
     }
     UNLOCK_MUTEX();
     return 0;

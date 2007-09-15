@@ -82,7 +82,7 @@ class Win_QextSerialPort: public QextSerialBase
 	    virtual void setDtr(bool set=true);
 	    virtual void setRts(bool set=true);
 	    virtual ulong lineStatus(void);
-	    virtual qint64 bytesAvailable();
+	    virtual qint64 bytesAvailable() const;
 	    virtual void translateError(ulong);
 	    virtual void setTimeout(long);
 	    

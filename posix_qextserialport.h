@@ -48,7 +48,7 @@ class Posix_QextSerialPort:public QextSerialBase
 	    virtual void flush();
 	
 	    virtual qint64 size() const;
-	    virtual qint64 bytesAvailable();
+	    virtual qint64 bytesAvailable() const;
 	
 	    virtual void ungetChar(char c);
 	

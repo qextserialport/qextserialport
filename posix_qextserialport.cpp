@@ -916,18 +916,16 @@ qint64 Posix_QextSerialPort::size() const
 /*!
 \fn qint64 Posix_QextSerialPort::bytesAvailable()
 Returns the number of bytes waiting in the port's receive queue.  This function will return 0 if
-the port is not currently open, or -1 on error.  Error information can be retrieved by calling
-Posix_QextSerialPort::getLastError().
+the port is not currently open, or -1 on error.
 */
-qint64 Posix_QextSerialPort::bytesAvailable()
+qint64 Posix_QextSerialPort::bytesAvailable() const
 {
     LOCK_MUTEX();
     if (isOpen()) {
         int bytesQueued;
-        if (ioctl(Posix_File->handle(), FIONREAD, &bytesQueued)==-1) {
-            translateError(errno);
+        if (ioctl(Posix_File->handle(), FIONREAD, &bytesQueued) == -1) {
             UNLOCK_MUTEX();
-            return -1;
+            return (qint64)-1;
         }
         UNLOCK_MUTEX();
         return bytesQueued + QIODevice::bytesAvailable();
