@@ -219,7 +219,7 @@ bool Win_QextSerialPort::open(OpenMode mode) {
 				Win_CommTimeouts.WriteTotalTimeoutConstant = 0;
 				SetCommTimeouts(Win_Handle, &Win_CommTimeouts);
             	if (!SetCommMask( Win_Handle, EV_TXEMPTY | EV_RXCHAR | EV_DSR)) {
-            		qWarning("Failed to set Comm Mask. Error code: %ld", GetLastError());
+            		qWarning("failed to set Comm Mask. Error code: %ld", GetLastError());
 					UNLOCK_MUTEX();
             		return false;
             	}

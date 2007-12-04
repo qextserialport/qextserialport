@@ -13,7 +13,7 @@ QMAKE_LIBDIR += ../../build
 OBJECTS_DIR    = obj
 MOC_DIR        = moc
 UI_DIR         = uic
-CONFIG      += qt thread warn_on
+CONFIG      += qt thread warn_on debug
 
 
 HEADERS += MainWindow.h \

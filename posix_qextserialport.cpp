@@ -13,6 +13,7 @@ warnings) in the project.  Note that _TTY_NOWARN_ will also turn off portability
 */
 
 #include <stdio.h>
+#include <fcntl.h>
 #include "posix_qextserialport.h"
 
 /*!
@@ -41,7 +42,6 @@ See the other constructors if you need to open a different port.
 Posix_QextSerialPort::Posix_QextSerialPort(QextSerialBase::QueryMode mode)
 : QextSerialBase()
 {
-    Posix_File=new QFile();
     setQueryMode(mode);
     init();
 }
@@ -62,8 +62,7 @@ Posix_QextSerialPort::Posix_QextSerialPort(const Posix_QextSerialPort& s)
     Settings.FlowControl=s.Settings.FlowControl;
     lastErr=s.lastErr;
 
-    Posix_File=new QFile();
-    Posix_File=s.Posix_File;
+    fd = s.fd;
     memcpy(&Posix_Timeout, &s.Posix_Timeout, sizeof(struct timeval));
     memcpy(&Posix_Copy_Timeout, &s.Posix_Copy_Timeout, sizeof(struct timeval));
     memcpy(&Posix_CommConfig, &s.Posix_CommConfig, sizeof(struct termios));
@@ -78,7 +77,6 @@ e.g."COM1" or "/dev/ttyS0".
 Posix_QextSerialPort::Posix_QextSerialPort(const QString & name, QextSerialBase::QueryMode mode)
  : QextSerialBase(name)
 {
-    Posix_File=new QFile();
     setQueryMode(mode);
     init();
 }
@@ -96,7 +94,6 @@ Posix_QextSerialPort::Posix_QextSerialPort(const PortSettings& settings, QextSer
     setStopBits(settings.StopBits);
     setFlowControl(settings.FlowControl);
 
-    Posix_File=new QFile();
     setTimeout(settings.Timeout_Millisec);
     setQueryMode(mode);
     init();
@@ -115,7 +112,6 @@ Posix_QextSerialPort::Posix_QextSerialPort(const QString & name, const PortSetti
     setStopBits(settings.StopBits);
     setFlowControl(settings.FlowControl);
 
-    Posix_File=new QFile();
     setTimeout(settings.Timeout_Millisec);
     setQueryMode(mode);
     init();
@@ -136,7 +132,7 @@ Posix_QextSerialPort& Posix_QextSerialPort::operator=(const Posix_QextSerialPort
     Settings.FlowControl=s.Settings.FlowControl;
     lastErr=s.lastErr;
 
-    Posix_File=s.Posix_File;
+    fd = s.fd;
     memcpy(&Posix_Timeout, &(s.Posix_Timeout), sizeof(struct timeval));
     memcpy(&Posix_Copy_Timeout, &(s.Posix_Copy_Timeout), sizeof(struct timeval));
     memcpy(&Posix_CommConfig, &(s.Posix_CommConfig), sizeof(struct termios));
@@ -145,6 +141,7 @@ Posix_QextSerialPort& Posix_QextSerialPort::operator=(const Posix_QextSerialPort
 
 void Posix_QextSerialPort::init()
 {
+	fd = 0;
 	if (queryMode() == QextSerialBase::EventDriven)
 		qWarning("POSIX doesn't have event driven mechanism implemented yet");
 }
@@ -158,8 +155,6 @@ Posix_QextSerialPort::~Posix_QextSerialPort()
     if (isOpen()) {
         close();
     }
-    Posix_File->close();
-    delete Posix_File;
 }
 
 /*!
@@ -501,7 +496,7 @@ void Posix_QextSerialPort::setBaudRate(BaudRateType baudRate)
 #endif
                 break;
         }
-        tcsetattr(Posix_File->handle(), TCSAFLUSH, &Posix_CommConfig);
+        tcsetattr(fd, TCSAFLUSH, &Posix_CommConfig);
     }
     UNLOCK_MUTEX();
 }
@@ -548,7 +543,7 @@ void Posix_QextSerialPort::setDataBits(DataBitsType dataBits)
                     Settings.DataBits=dataBits;
                     Posix_CommConfig.c_cflag&=(~CSIZE);
                     Posix_CommConfig.c_cflag|=CS5;
-                    tcsetattr(Posix_File->handle(), TCSAFLUSH, &Posix_CommConfig);
+                    tcsetattr(fd, TCSAFLUSH, &Posix_CommConfig);
                 }
                 break;
 
@@ -561,7 +556,7 @@ void Posix_QextSerialPort::setDataBits(DataBitsType dataBits)
                     Settings.DataBits=dataBits;
                     Posix_CommConfig.c_cflag&=(~CSIZE);
                     Posix_CommConfig.c_cflag|=CS6;
-                    tcsetattr(Posix_File->handle(), TCSAFLUSH, &Posix_CommConfig);
+                    tcsetattr(fd, TCSAFLUSH, &Posix_CommConfig);
                 }
                 break;
 
@@ -574,7 +569,7 @@ void Posix_QextSerialPort::setDataBits(DataBitsType dataBits)
                     Settings.DataBits=dataBits;
                     Posix_CommConfig.c_cflag&=(~CSIZE);
                     Posix_CommConfig.c_cflag|=CS7;
-                    tcsetattr(Posix_File->handle(), TCSAFLUSH, &Posix_CommConfig);
+                    tcsetattr(fd, TCSAFLUSH, &Posix_CommConfig);
                 }
                 break;
 
@@ -587,7 +582,7 @@ void Posix_QextSerialPort::setDataBits(DataBitsType dataBits)
                     Settings.DataBits=dataBits;
                     Posix_CommConfig.c_cflag&=(~CSIZE);
                     Posix_CommConfig.c_cflag|=CS8;
-                    tcsetattr(Posix_File->handle(), TCSAFLUSH, &Posix_CommConfig);
+                    tcsetattr(fd, TCSAFLUSH, &Posix_CommConfig);
                 }
                 break;
         }
@@ -656,7 +651,7 @@ void Posix_QextSerialPort::setParity(ParityType parity)
                         case DATA_8:
                             break;
                     }
-                    tcsetattr(Posix_File->handle(), TCSAFLUSH, &Posix_CommConfig);
+                    tcsetattr(fd, TCSAFLUSH, &Posix_CommConfig);
                 }
                 break;
 
@@ -668,20 +663,20 @@ void Posix_QextSerialPort::setParity(ParityType parity)
             /*no parity*/
             case PAR_NONE:
                 Posix_CommConfig.c_cflag&=(~PARENB);
-                tcsetattr(Posix_File->handle(), TCSAFLUSH, &Posix_CommConfig);
+                tcsetattr(fd, TCSAFLUSH, &Posix_CommConfig);
                 break;
 
             /*even parity*/
             case PAR_EVEN:
                 Posix_CommConfig.c_cflag&=(~PARODD);
                 Posix_CommConfig.c_cflag|=PARENB;
-                tcsetattr(Posix_File->handle(), TCSAFLUSH, &Posix_CommConfig);
+                tcsetattr(fd, TCSAFLUSH, &Posix_CommConfig);
                 break;
 
             /*odd parity*/
             case PAR_ODD:
                 Posix_CommConfig.c_cflag|=(PARENB|PARODD);
-                tcsetattr(Posix_File->handle(), TCSAFLUSH, &Posix_CommConfig);
+                tcsetattr(fd, TCSAFLUSH, &Posix_CommConfig);
                 break;
         }
     }
@@ -720,7 +715,7 @@ void Posix_QextSerialPort::setStopBits(StopBitsType stopBits)
             case STOP_1:
                 Settings.StopBits=stopBits;
                 Posix_CommConfig.c_cflag&=(~CSTOPB);
-                tcsetattr(Posix_File->handle(), TCSAFLUSH, &Posix_CommConfig);
+                tcsetattr(fd, TCSAFLUSH, &Posix_CommConfig);
                 break;
 
             /*1.5 stop bits*/
@@ -736,7 +731,7 @@ void Posix_QextSerialPort::setStopBits(StopBitsType stopBits)
                 else {
                     Settings.StopBits=stopBits;
                     Posix_CommConfig.c_cflag|=CSTOPB;
-                    tcsetattr(Posix_File->handle(), TCSAFLUSH, &Posix_CommConfig);
+                    tcsetattr(fd, TCSAFLUSH, &Posix_CommConfig);
                 }
                 break;
         }
@@ -770,20 +765,20 @@ void Posix_QextSerialPort::setFlowControl(FlowType flow)
             case FLOW_OFF:
                 Posix_CommConfig.c_cflag&=(~CRTSCTS);
                 Posix_CommConfig.c_iflag&=(~(IXON|IXOFF|IXANY));
-                tcsetattr(Posix_File->handle(), TCSAFLUSH, &Posix_CommConfig);
+                tcsetattr(fd, TCSAFLUSH, &Posix_CommConfig);
                 break;
 
             /*software (XON/XOFF) flow control*/
             case FLOW_XONXOFF:
                 Posix_CommConfig.c_cflag&=(~CRTSCTS);
                 Posix_CommConfig.c_iflag|=(IXON|IXOFF|IXANY);
-                tcsetattr(Posix_File->handle(), TCSAFLUSH, &Posix_CommConfig);
+                tcsetattr(fd, TCSAFLUSH, &Posix_CommConfig);
                 break;
 
             case FLOW_HARDWARE:
                 Posix_CommConfig.c_cflag|=CRTSCTS;
                 Posix_CommConfig.c_iflag&=(~(IXON|IXOFF|IXANY));
-                tcsetattr(Posix_File->handle(), TCSAFLUSH, &Posix_CommConfig);
+                tcsetattr(fd, TCSAFLUSH, &Posix_CommConfig);
                 break;
         }
     }
@@ -814,9 +809,9 @@ void Posix_QextSerialPort::setTimeout(long millisec)
     Posix_Copy_Timeout.tv_sec = millisec / 1000;
     Posix_Copy_Timeout.tv_usec = millisec % 1000;
     if (isOpen()) {
-        tcgetattr(Posix_File->handle(), &Posix_CommConfig);
+        tcgetattr(fd, &Posix_CommConfig);
         Posix_CommConfig.c_cc[VTIME] = millisec/100;
-        tcsetattr(Posix_File->handle(), TCSAFLUSH, &Posix_CommConfig);
+        tcsetattr(fd, TCSAFLUSH, &Posix_CommConfig);
     }
     UNLOCK_MUTEX();
 }
@@ -834,15 +829,14 @@ bool Posix_QextSerialPort::open(OpenMode mode)
     	return isOpen();
     if (!isOpen()) {
         /*open the port*/
-        Posix_File->setFileName(port);
-        qDebug("Trying to open File");
-        if (Posix_File->open(QIODevice::ReadWrite|QIODevice::Unbuffered)) {
-            qDebug("Opened File succesfully");
+        qDebug("trying to open file");
+        if ((fd = ::open(port.toAscii() ,O_RDWR | O_NOCTTY | O_NDELAY)) != -1) {
+            qDebug("file opened succesfully");
             /*set open mode*/
             QIODevice::open(mode);
 
             /*configure port settings*/
-            tcgetattr(Posix_File->handle(), &Posix_CommConfig);
+            tcgetattr(fd, & Posix_CommConfig);
 
             /*set up other port settings*/
             Posix_CommConfig.c_cflag|=CREAD|CLOCAL;
@@ -861,9 +855,9 @@ bool Posix_QextSerialPort::open(OpenMode mode)
             setStopBits(Settings.StopBits);
             setFlowControl(Settings.FlowControl);
             setTimeout(Settings.Timeout_Millisec);
-            tcsetattr(Posix_File->handle(), TCSAFLUSH, &Posix_CommConfig);
+            tcsetattr(fd, TCSAFLUSH, &Posix_CommConfig);
         } else {
-            qDebug("Could not open File! Error code : %d", Posix_File->error());
+            qDebug("could not open file: %s", strerror(errno));
         }
     }
     UNLOCK_MUTEX();
@@ -874,11 +868,15 @@ bool Posix_QextSerialPort::open(OpenMode mode)
 \fn void Posix_QextSerialPort::close()
 Closes a serial port.  This function has no effect if the serial port associated with the class
 is not currently open.
+
+\note you should ensure that file is not closed using isOpen() before calling this function.
 */
 void Posix_QextSerialPort::close()
 {
     LOCK_MUTEX();
-    Posix_File->close();
+	flush();
+    if (::close(fd))
+    	qWarning("can not close file");
     QIODevice::close();
     UNLOCK_MUTEX();
 }
@@ -891,9 +889,8 @@ associated with the class is not currently open.
 void Posix_QextSerialPort::flush()
 {
     LOCK_MUTEX();
-    if (isOpen()) {
-        Posix_File->flush();
-    }
+    if (isOpen())
+    	tcflush(fd, TCIOFLUSH);
     UNLOCK_MUTEX();
 }
 
@@ -907,7 +904,7 @@ multithreading situations, use Posix_QextSerialPort::bytesWaiting() instead.
 qint64 Posix_QextSerialPort::size() const
 {
     int numBytes;
-    if (ioctl(Posix_File->handle(), FIONREAD, &numBytes)<0) {
+    if (ioctl(fd, FIONREAD, &numBytes)<0) {
         numBytes=0;
     }
     return (qint64)numBytes;
@@ -923,7 +920,7 @@ qint64 Posix_QextSerialPort::bytesAvailable() const
     LOCK_MUTEX();
     if (isOpen()) {
         int bytesQueued;
-        if (ioctl(Posix_File->handle(), FIONREAD, &bytesQueued) == -1) {
+        if (ioctl(fd, FIONREAD, &bytesQueued) == -1) {
             UNLOCK_MUTEX();
             return (qint64)-1;
         }
@@ -978,14 +975,14 @@ void Posix_QextSerialPort::setDtr(bool set)
     LOCK_MUTEX();
     if (isOpen()) {
         int status;
-        ioctl(Posix_File->handle(), TIOCMGET, &status);
+        ioctl(fd, TIOCMGET, &status);
         if (set) {
             status|=TIOCM_DTR;
         }
         else {
             status&=~TIOCM_DTR;
         }
-        ioctl(Posix_File->handle(), TIOCMSET, &status);
+        ioctl(fd, TIOCMSET, &status);
     }
     UNLOCK_MUTEX();
 }
@@ -1000,14 +997,14 @@ void Posix_QextSerialPort::setRts(bool set)
     LOCK_MUTEX();
     if (isOpen()) {
         int status;
-        ioctl(Posix_File->handle(), TIOCMGET, &status);
+        ioctl(fd, TIOCMGET, &status);
         if (set) {
             status|=TIOCM_RTS;
         }
         else {
             status&=~TIOCM_RTS;
         }
-        ioctl(Posix_File->handle(), TIOCMSET, &status);
+        ioctl(fd, TIOCMSET, &status);
     }
     UNLOCK_MUTEX();
 }
@@ -1040,7 +1037,7 @@ unsigned long Posix_QextSerialPort::lineStatus()
     unsigned long Status=0, Temp=0;
     LOCK_MUTEX();
     if (isOpen()) {
-        ioctl(Posix_File->handle(), TIOCMGET, &Temp);
+        ioctl(fd, TIOCMGET, &Temp);
         if (Temp&TIOCM_CTS) {
             Status|=LS_CTS;
         }
@@ -1083,8 +1080,8 @@ qint64 Posix_QextSerialPort::readData(char * data, qint64 maxSize)
 {
     LOCK_MUTEX();
     int retVal=0;
-    retVal=Posix_File->read(data, maxSize);
-    if (retVal==-1)
+    retVal = ::read(fd, data, maxSize);
+    if (retVal == -1)
         lastErr=E_READ_FAILED;
     UNLOCK_MUTEX();
 
@@ -1103,11 +1100,11 @@ is currently open (use isOpen() function to check if port is open).
 qint64 Posix_QextSerialPort::writeData(const char * data, qint64 maxSize)
 {
     LOCK_MUTEX();
-    int retVal=0;
-    retVal=Posix_File->write(data, maxSize);
-    if (retVal==-1)
-       lastErr=E_WRITE_FAILED;
+    int retVal = 0;
+    retVal = ::write(fd, data, maxSize);
+    if (retVal == -1)
+       lastErr = E_WRITE_FAILED;
     UNLOCK_MUTEX();
     
-    return retVal;
+    return (qint64)retVal;
 }

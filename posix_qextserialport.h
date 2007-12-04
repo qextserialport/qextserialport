@@ -19,7 +19,7 @@ class Posix_QextSerialPort:public QextSerialBase
 	    void init();
 
 	protected:
-	    QFile* Posix_File;
+	    int fd;
 	    struct termios Posix_CommConfig;
 	    struct timeval Posix_Timeout;
 	    struct timeval Posix_Copy_Timeout;
