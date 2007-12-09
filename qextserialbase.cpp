@@ -26,6 +26,9 @@ QextSerialBase::QextSerialBase()
 #elif defined(_TTY_FREEBSD_)
     setPortName("/dev/ttyd1");
 
+#elif defined(_TTY_OPENBSD_)
+    setPortName("/dev/tty00");
+
 #else
     setPortName("/dev/ttyS0");
 #endif

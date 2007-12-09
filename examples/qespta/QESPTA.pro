@@ -10,9 +10,9 @@ INCLUDEPATH += ../..
 QMAKE_LIBDIR += ../../build
 
 
-OBJECTS_DIR    = obj
-MOC_DIR        = moc
-UI_DIR         = uic
+OBJECTS_DIR    = .obj
+MOC_DIR        = .moc
+UI_DIR         = .uic
 CONFIG      += qt thread warn_on debug
 
 

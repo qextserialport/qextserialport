@@ -8,6 +8,7 @@
 #include <QPushButton>
 #include <QSpinBox>
 
+
 QespTest::QespTest(QWidget* parent) 
 	: QWidget(parent)
 
@@ -25,7 +26,7 @@ QespTest::QespTest(QWidget* parent)
 	port->setStopBits(STOP_2);
 	//set timeouts to 500 ms
 	port->setTimeout(500);
-
+	
 	message = new QLineEdit(this);
 
 	// transmit receive

@@ -32,6 +32,7 @@ _TTY_HPUX_       HP-UX           /dev/tty1p0, /dev/tty2p0
 _TTY_SUN_        SunOS/Solaris   /dev/ttya, /dev/ttyb
 _TTY_DIGITAL_    Digital UNIX    /dev/tty01, /dev/tty02
 _TTY_FREEBSD_    FreeBSD         /dev/ttyd0, /dev/ttyd1
+_TTY_OPENBSD_    OpenBSD         /dev/tty00, /dev/tty01
 _TTY_LINUX_      Linux           /dev/ttyS0, /dev/ttyS1
 <none>           Linux           /dev/ttyS0, /dev/ttyS1
 \endverbatim
@@ -133,9 +134,9 @@ Posix_QextSerialPort& Posix_QextSerialPort::operator=(const Posix_QextSerialPort
     lastErr=s.lastErr;
 
     fd = s.fd;
-    memcpy(&Posix_Timeout, &(s.Posix_Timeout), sizeof(struct timeval));
-    memcpy(&Posix_Copy_Timeout, &(s.Posix_Copy_Timeout), sizeof(struct timeval));
-    memcpy(&Posix_CommConfig, &(s.Posix_CommConfig), sizeof(struct termios));
+    memcpy(& Posix_Timeout, &(s.Posix_Timeout), sizeof(struct timeval));
+    memcpy(& Posix_Copy_Timeout, &(s.Posix_Copy_Timeout), sizeof(struct timeval));
+    memcpy(& Posix_CommConfig, &(s.Posix_CommConfig), sizeof(struct termios));
     return *this;
 }
 
@@ -809,9 +810,15 @@ void Posix_QextSerialPort::setTimeout(long millisec)
     Posix_Copy_Timeout.tv_sec = millisec / 1000;
     Posix_Copy_Timeout.tv_usec = millisec % 1000;
     if (isOpen()) {
-        tcgetattr(fd, &Posix_CommConfig);
+        if (millisec == -1)
+        	fcntl(fd, F_SETFL, O_NDELAY);
+        else
+        	//O_SYNC should enable blocking ::write() 
+        	//however this seems not working on Linux 2.6.21 (works on OpenBSD 4.2)
+        	fcntl(fd, F_SETFL, O_SYNC);
+        tcgetattr(fd, & Posix_CommConfig);
         Posix_CommConfig.c_cc[VTIME] = millisec/100;
-        tcsetattr(fd, TCSAFLUSH, &Posix_CommConfig);
+        tcsetattr(fd, TCSAFLUSH, & Posix_CommConfig);
     }
     UNLOCK_MUTEX();
 }
@@ -830,6 +837,7 @@ bool Posix_QextSerialPort::open(OpenMode mode)
     if (!isOpen()) {
         /*open the port*/
         qDebug("trying to open file");
+        //note: linux 2.6.21 seems to ignore O_NDELAY flag
         if ((fd = ::open(port.toAscii() ,O_RDWR | O_NOCTTY | O_NDELAY)) != -1) {
             qDebug("file opened succesfully");
             /*set open mode*/
@@ -843,7 +851,7 @@ bool Posix_QextSerialPort::open(OpenMode mode)
             Posix_CommConfig.c_lflag&=(~(ICANON|ECHO|ECHOE|ECHOK|ECHONL|ISIG));
             Posix_CommConfig.c_iflag&=(~(INPCK|IGNPAR|PARMRK|ISTRIP|ICRNL|IXANY));
             Posix_CommConfig.c_oflag&=(~OPOST);
-            Posix_CommConfig.c_cc[VMIN]=0;
+            Posix_CommConfig.c_cc[VMIN]= 0;
             Posix_CommConfig.c_cc[VINTR] = _POSIX_VDISABLE;
             Posix_CommConfig.c_cc[VQUIT] = _POSIX_VDISABLE;
             Posix_CommConfig.c_cc[VSTART] = _POSIX_VDISABLE;
@@ -905,7 +913,7 @@ qint64 Posix_QextSerialPort::size() const
 {
     int numBytes;
     if (ioctl(fd, FIONREAD, &numBytes)<0) {
-        numBytes=0;
+        numBytes = 0;
     }
     return (qint64)numBytes;
 }
@@ -1079,10 +1087,10 @@ is currently open (use isOpen() function to check if port is open).
 qint64 Posix_QextSerialPort::readData(char * data, qint64 maxSize)
 {
     LOCK_MUTEX();
-    int retVal=0;
+    int retVal = 0;
     retVal = ::read(fd, data, maxSize);
     if (retVal == -1)
-        lastErr=E_READ_FAILED;
+        lastErr = E_READ_FAILED;
     UNLOCK_MUTEX();
 
     return retVal;

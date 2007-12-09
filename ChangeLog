@@ -3,7 +3,7 @@ Change history for QextSerialPort (formerly QwSerialPort):
 fixed functionality, - represent removed or deprecated functionality)
 
 
-Current CVS
+Current CVS (Michal Policht)
   + Added QextSerialEnumerator pre-alpha. Works under W2k and later versions of Windows.
   + Event driven mechanism (alternative to polling) is now available on Windows.
   - Removed default (=0) parameter from open() functions.
@@ -14,6 +14,7 @@ Current CVS
   * setTimeout() now accepts only one parameter.
   * bytesAvailable() on POSIX now shows 0 bytes instead of -1 when no bytes are available.
   * bytesAvailable() is const.
+  * native POSIX file descriptors instead of QFile->handle() calls
 
 Version 1.1 (official release)
 

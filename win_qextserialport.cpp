@@ -970,7 +970,7 @@ void Win_QextSerialPort::monitorCommEvent()
 		//overlap event occured
 		DWORD undefined;
 		if (!GetOverlappedResult(Win_Handle, & overlap, & undefined, false)) {
-			qWarning("Comm event overlapped error %ld", GetLastError());
+			qWarning("CommEvent overlapped error %ld", GetLastError());
 			return;
 		}
 		if (eventMask & EV_RXCHAR) {
@@ -1003,8 +1003,9 @@ void Win_QextSerialPort::terminateCommWait()
 /*!
 \fn void Win_QextSerialPort::setTimeout(ulong millisec);
 Sets the read and write timeouts for the port to millisec milliseconds.
-Setting 0 for both sec and millisec indicates that timeouts are not used for read nor
-write operations. Setting -1 indicates that read and write should return immediately.
+Setting 0 indicates that timeouts are not used for read nor write operations; 
+however read() and write() functions will still block. Set -1 to provide
+non-blocking behaviour (read() and write() will return immediately).
 
 \note this function does nothing in event driven mode.
 */

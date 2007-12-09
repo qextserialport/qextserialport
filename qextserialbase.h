@@ -66,6 +66,7 @@ enum NamingConvention
     SUN_NAMES,
     DIGITAL_NAMES,
     FREEBSD_NAMES,
+    OPENBSD_NAMES,
     LINUX_NAMES
 };
 
