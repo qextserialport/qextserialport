@@ -852,11 +852,16 @@ bool Posix_QextSerialPort::open(OpenMode mode)
             Posix_CommConfig.c_iflag&=(~(INPCK|IGNPAR|PARMRK|ISTRIP|ICRNL|IXANY));
             Posix_CommConfig.c_oflag&=(~OPOST);
             Posix_CommConfig.c_cc[VMIN]= 0;
-            Posix_CommConfig.c_cc[VINTR] = _POSIX_VDISABLE;
-            Posix_CommConfig.c_cc[VQUIT] = _POSIX_VDISABLE;
-            Posix_CommConfig.c_cc[VSTART] = _POSIX_VDISABLE;
-            Posix_CommConfig.c_cc[VSTOP] = _POSIX_VDISABLE;
-            Posix_CommConfig.c_cc[VSUSP] = _POSIX_VDISABLE;
+#ifdef _POSIX_VDISABLE	// Is a disable character available on this system?
+	    // Some systems allow for per-device disable-characters, so get the
+	    //  proper value for the configured device
+	    const long vdisable = fpathconf(fd, _PC_VDISABLE);
+	    Posix_CommConfig.c_cc[VINTR] = vdisable;
+	    Posix_CommConfig.c_cc[VQUIT] = vdisable;
+	    Posix_CommConfig.c_cc[VSTART] = vdisable;
+	    Posix_CommConfig.c_cc[VSTOP] = vdisable;
+	    Posix_CommConfig.c_cc[VSUSP] = vdisable;
+#endif //_POSIX_VDISABLE
             setBaudRate(Settings.BaudRate);
             setDataBits(Settings.DataBits);
             setParity(Settings.Parity);
