@@ -15,6 +15,10 @@ Current CVS (Michal Policht)
   * bytesAvailable() on POSIX now shows 0 bytes instead of -1 when no bytes are available.
   * bytesAvailable() is const.
   * native POSIX file descriptors instead of QFile->handle() calls
+  + POSIX: Save and restore original termios when opening and closing the device
+  * POSIX: Only disable special characters on systems that support it
+  * POSIX: Use cfmakeraw(3) to get a non-canonical termios
+  + POSIX: Call close(2) in close() to actually close the device
 
 Version 1.1 (official release)
 
