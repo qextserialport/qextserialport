@@ -12,8 +12,8 @@ defining _TTY_NOWARN_ (to turn off all warnings) or _TTY_NOWARN_PORT_ (to turn o
 warnings) in the project.  Note that _TTY_NOWARN_ will also turn off portability warnings.
 */
 
-#include <stdio.h>
 #include <fcntl.h>
+#include <stdio.h>
 #include "posix_qextserialport.h"
 
 /*!
@@ -840,11 +840,11 @@ bool Posix_QextSerialPort::open(OpenMode mode)
         //note: linux 2.6.21 seems to ignore O_NDELAY flag
         if ((fd = ::open(port.toAscii() ,O_RDWR | O_NOCTTY | O_NDELAY)) != -1) {
             qDebug("file opened succesfully");
-            /*set open mode*/
-            QIODevice::open(mode);
 
-            /*configure port settings*/
-            tcgetattr(fd, & Posix_CommConfig);
+	    setOpenMode(mode);			// Flag the port as opened
+	    tcgetattr(fd, &old_termios);	// Save the old termios
+	    Posix_CommConfig = old_termios;	// Make a working copy
+	    cfmakeraw(&Posix_CommConfig);	// Enable raw access
 
             /*set up other port settings*/
             Posix_CommConfig.c_cflag|=CREAD|CLOCAL;
@@ -876,16 +876,22 @@ bool Posix_QextSerialPort::open(OpenMode mode)
 \fn void Posix_QextSerialPort::close()
 Closes a serial port.  This function has no effect if the serial port associated with the class
 is not currently open.
-
-\note you should ensure that file is not closed using isOpen() before calling this function.
 */
 void Posix_QextSerialPort::close()
 {
     LOCK_MUTEX();
+    if( isOpen() )
+    {
+	// Force a flush and then restore the original termios
 	flush();
-    if (::close(fd))
-    	qWarning("can not close file");
-    QIODevice::close();
+	// Using both TCSAFLUSH and TCSANOW here discards any pending input
+	tcsetattr(fd, TCSAFLUSH | TCSANOW, &old_termios);   // Restore termios
+	// Be a good QIODevice and call QIODevice::close() before POSIX close()
+	//  so the aboutToClose() signal is emitted at the proper time
+	QIODevice::close();	// Flag the device as closed
+	// QIODevice::close() doesn't actually close the port, so do that here
+	::close(fd);
+    }
     UNLOCK_MUTEX();
 }
 
@@ -898,7 +904,7 @@ void Posix_QextSerialPort::flush()
 {
     LOCK_MUTEX();
     if (isOpen())
-    	tcflush(fd, TCIOFLUSH);
+	tcflush(fd, TCIOFLUSH);
     UNLOCK_MUTEX();
 }
 

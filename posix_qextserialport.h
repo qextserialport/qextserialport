@@ -21,6 +21,7 @@ class Posix_QextSerialPort:public QextSerialBase
 	protected:
 	    int fd;
 	    struct termios Posix_CommConfig;
+	    struct termios old_termios;
 	    struct timeval Posix_Timeout;
 	    struct timeval Posix_Copy_Timeout;
 	
