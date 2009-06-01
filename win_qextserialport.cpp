@@ -3,6 +3,7 @@
 //#include <QCoreApplication>
 //#include <QEvent>
 #include <QReadWriteLock>
+#include <QMutexLocker>
 #include "win_qextserialport.h"
 
 
