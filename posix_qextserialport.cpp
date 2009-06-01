@@ -54,7 +54,7 @@ Copy constructor.
 Posix_QextSerialPort::Posix_QextSerialPort(const Posix_QextSerialPort& s)
  : QextSerialBase(s.port)
 {
-	setOpenMode(s.openMode());
+    setOpenMode(s.openMode());
     port = s.port;
     Settings.BaudRate=s.Settings.BaudRate;
     Settings.DataBits=s.Settings.DataBits;
@@ -124,7 +124,7 @@ Override the = operator.
 */
 Posix_QextSerialPort& Posix_QextSerialPort::operator=(const Posix_QextSerialPort& s)
 {
-   	setOpenMode(s.openMode());
+    setOpenMode(s.openMode());
     port = s.port;
     Settings.BaudRate=s.Settings.BaudRate;
     Settings.DataBits=s.Settings.DataBits;
@@ -142,9 +142,9 @@ Posix_QextSerialPort& Posix_QextSerialPort::operator=(const Posix_QextSerialPort
 
 void Posix_QextSerialPort::init()
 {
-	fd = 0;
-	if (queryMode() == QextSerialBase::EventDriven)
-		qWarning("POSIX doesn't have event driven mechanism implemented yet");
+    fd = 0;
+    if (queryMode() == QextSerialBase::EventDriven)
+        qWarning("POSIX doesn't have event driven mechanism implemented yet");
 }
 
 /*!
@@ -811,11 +811,11 @@ void Posix_QextSerialPort::setTimeout(long millisec)
     Posix_Copy_Timeout.tv_usec = millisec % 1000;
     if (isOpen()) {
         if (millisec == -1)
-        	fcntl(fd, F_SETFL, O_NDELAY);
+            fcntl(fd, F_SETFL, O_NDELAY);
         else
-        	//O_SYNC should enable blocking ::write() 
-        	//however this seems not working on Linux 2.6.21 (works on OpenBSD 4.2)
-        	fcntl(fd, F_SETFL, O_SYNC);
+            //O_SYNC should enable blocking ::write()
+            //however this seems not working on Linux 2.6.21 (works on OpenBSD 4.2)
+            fcntl(fd, F_SETFL, O_SYNC);
         tcgetattr(fd, & Posix_CommConfig);
         Posix_CommConfig.c_cc[VTIME] = millisec/100;
         tcsetattr(fd, TCSAFLUSH, & Posix_CommConfig);
@@ -833,7 +833,7 @@ bool Posix_QextSerialPort::open(OpenMode mode)
 {
     LOCK_MUTEX();
     if (mode == QIODevice::NotOpen)
-    	return isOpen();
+        return isOpen();
     if (!isOpen()) {
         /*open the port*/
         qDebug("trying to open file");
@@ -841,10 +841,10 @@ bool Posix_QextSerialPort::open(OpenMode mode)
         if ((fd = ::open(port.toAscii() ,O_RDWR | O_NOCTTY | O_NDELAY)) != -1) {
             qDebug("file opened succesfully");
 
-	    setOpenMode(mode);			// Flag the port as opened
-	    tcgetattr(fd, &old_termios);	// Save the old termios
-	    Posix_CommConfig = old_termios;	// Make a working copy
-	    cfmakeraw(&Posix_CommConfig);	// Enable raw access
+        setOpenMode(mode);			// Flag the port as opened
+        tcgetattr(fd, &old_termios);	// Save the old termios
+        Posix_CommConfig = old_termios;	// Make a working copy
+        cfmakeraw(&Posix_CommConfig);	// Enable raw access
 
             /*set up other port settings*/
             Posix_CommConfig.c_cflag|=CREAD|CLOCAL;
@@ -853,14 +853,14 @@ bool Posix_QextSerialPort::open(OpenMode mode)
             Posix_CommConfig.c_oflag&=(~OPOST);
             Posix_CommConfig.c_cc[VMIN]= 0;
 #ifdef _POSIX_VDISABLE	// Is a disable character available on this system?
-	    // Some systems allow for per-device disable-characters, so get the
-	    //  proper value for the configured device
-	    const long vdisable = fpathconf(fd, _PC_VDISABLE);
-	    Posix_CommConfig.c_cc[VINTR] = vdisable;
-	    Posix_CommConfig.c_cc[VQUIT] = vdisable;
-	    Posix_CommConfig.c_cc[VSTART] = vdisable;
-	    Posix_CommConfig.c_cc[VSTOP] = vdisable;
-	    Posix_CommConfig.c_cc[VSUSP] = vdisable;
+        // Some systems allow for per-device disable-characters, so get the
+        //  proper value for the configured device
+        const long vdisable = fpathconf(fd, _PC_VDISABLE);
+        Posix_CommConfig.c_cc[VINTR] = vdisable;
+        Posix_CommConfig.c_cc[VQUIT] = vdisable;
+        Posix_CommConfig.c_cc[VSTART] = vdisable;
+        Posix_CommConfig.c_cc[VSTOP] = vdisable;
+        Posix_CommConfig.c_cc[VSUSP] = vdisable;
 #endif //_POSIX_VDISABLE
             setBaudRate(Settings.BaudRate);
             setDataBits(Settings.DataBits);
@@ -887,15 +887,15 @@ void Posix_QextSerialPort::close()
     LOCK_MUTEX();
     if( isOpen() )
     {
-	// Force a flush and then restore the original termios
-	flush();
-	// Using both TCSAFLUSH and TCSANOW here discards any pending input
-	tcsetattr(fd, TCSAFLUSH | TCSANOW, &old_termios);   // Restore termios
-	// Be a good QIODevice and call QIODevice::close() before POSIX close()
-	//  so the aboutToClose() signal is emitted at the proper time
-	QIODevice::close();	// Flag the device as closed
-	// QIODevice::close() doesn't actually close the port, so do that here
-	::close(fd);
+    // Force a flush and then restore the original termios
+    flush();
+    // Using both TCSAFLUSH and TCSANOW here discards any pending input
+    tcsetattr(fd, TCSAFLUSH | TCSANOW, &old_termios);   // Restore termios
+    // Be a good QIODevice and call QIODevice::close() before POSIX close()
+    //  so the aboutToClose() signal is emitted at the proper time
+    QIODevice::close();	// Flag the device as closed
+    // QIODevice::close() doesn't actually close the port, so do that here
+    ::close(fd);
     }
     UNLOCK_MUTEX();
 }
@@ -909,7 +909,7 @@ void Posix_QextSerialPort::flush()
 {
     LOCK_MUTEX();
     if (isOpen())
-	tcflush(fd, TCIOFLUSH);
+    tcflush(fd, TCIOFLUSH);
     UNLOCK_MUTEX();
 }
 
@@ -1124,6 +1124,6 @@ qint64 Posix_QextSerialPort::writeData(const char * data, qint64 maxSize)
     if (retVal == -1)
        lastErr = E_WRITE_FAILED;
     UNLOCK_MUTEX();
-    
+
     return (qint64)retVal;
 }

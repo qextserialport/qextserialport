@@ -31,7 +31,7 @@ This constructor associates the object with the first port on the system, e.g. C
 platforms.  See the other constructor if you need a port other than the first.
 */
 Win_QextSerialPort::Win_QextSerialPort(QextSerialBase::QueryMode mode):
-	QextSerialBase() 
+    QextSerialBase()
 {
     Win_Handle=INVALID_HANDLE_VALUE;
     setQueryMode(mode);
@@ -42,7 +42,7 @@ Win_QextSerialPort::Win_QextSerialPort(QextSerialBase::QueryMode mode):
 Copy constructor.
 */
 Win_QextSerialPort::Win_QextSerialPort(const Win_QextSerialPort& s):
-	QextSerialBase(s.port) 
+    QextSerialBase(s.port)
 {
     Win_Handle=INVALID_HANDLE_VALUE;
     _queryMode = s._queryMode;
@@ -63,7 +63,7 @@ Win_QextSerialPort::Win_QextSerialPort(const Win_QextSerialPort& s):
     memcpy(&Win_CommConfig, &s.Win_CommConfig, sizeof(COMMCONFIG));
     memcpy(&Win_CommTimeouts, &s.Win_CommTimeouts, sizeof(COMMTIMEOUTS));
     if (s.overlapThread->isRunning())
-    	overlapThread->start();
+        overlapThread->start();
 }
 
 /*!
@@ -73,7 +73,7 @@ devName is the name of the device, which is windowsystem-specific,
 e.g."COM2" or "/dev/ttyS0".
 */
 Win_QextSerialPort::Win_QextSerialPort(const QString & name, QextSerialBase::QueryMode mode):
-	QextSerialBase(name) 
+    QextSerialBase(name)
 {
     Win_Handle=INVALID_HANDLE_VALUE;
     setQueryMode(mode);
@@ -85,7 +85,7 @@ Win_QextSerialPort::Win_QextSerialPort(const QString & name, QextSerialBase::Que
 Constructs a port with default name and specified settings.
 */
 Win_QextSerialPort::Win_QextSerialPort(const PortSettings& settings, QextSerialBase::QueryMode mode):
-	QextSerialBase() 
+    QextSerialBase()
 {
     Win_Handle=INVALID_HANDLE_VALUE;
     setBaudRate(settings.BaudRate);
@@ -103,7 +103,7 @@ Win_QextSerialPort::Win_QextSerialPort(const PortSettings& settings, QextSerialB
 Constructs a port with specified name and settings.
 */
 Win_QextSerialPort::Win_QextSerialPort(const QString & name, const PortSettings& settings, QextSerialBase::QueryMode mode):
-	QextSerialBase(name) 
+    QextSerialBase(name)
 {
     Win_Handle=INVALID_HANDLE_VALUE;
     setPortName(name);
@@ -114,19 +114,19 @@ Win_QextSerialPort::Win_QextSerialPort(const QString & name, const PortSettings&
     setFlowControl(settings.FlowControl);
     setTimeout(settings.Timeout_Millisec);
     setQueryMode(mode);
-	init();
+    init();
 }
 
 void Win_QextSerialPort::init()
 {
-	_bytesToWrite = 0;
-	overlap.Internal = 0;
-	overlap.InternalHigh = 0;
-	overlap.Offset = 0;
-	overlap.OffsetHigh = 0;
-	overlap.hEvent = CreateEvent(NULL, true, false, NULL);
-	overlapThread = new Win_QextSerialThread(this);
-	bytesToWriteLock = new QReadWriteLock;
+    _bytesToWrite = 0;
+    overlap.Internal = 0;
+    overlap.InternalHigh = 0;
+    overlap.Offset = 0;
+    overlap.OffsetHigh = 0;
+    overlap.hEvent = CreateEvent(NULL, true, false, NULL);
+    overlapThread = new Win_QextSerialThread(this);
+    bytesToWriteLock = new QReadWriteLock;
 }
 
 /*!
@@ -139,7 +139,7 @@ Win_QextSerialPort::~Win_QextSerialPort() {
     }
     CloseHandle(overlap.hEvent);
     delete overlapThread;
-    delete bytesToWriteLock; 
+    delete bytesToWriteLock;
 }
 
 /*!
@@ -165,7 +165,7 @@ Win_QextSerialPort& Win_QextSerialPort::operator=(const Win_QextSerialPort& s) {
     memcpy(&Win_CommConfig, &s.Win_CommConfig, sizeof(COMMCONFIG));
     memcpy(&Win_CommTimeouts, &s.Win_CommTimeouts, sizeof(COMMTIMEOUTS));
     if (s.overlapThread->isRunning())
-    	overlapThread->start();
+        overlapThread->start();
     return *this;
 }
 
@@ -178,11 +178,11 @@ if the port associated with the class is already open.  The port is also configu
 settings, as stored in the Settings structure.
 */
 bool Win_QextSerialPort::open(OpenMode mode) {
-	unsigned long confSize = sizeof(COMMCONFIG);
-	Win_CommConfig.dwSize = confSize;
-	DWORD dwFlagsAndAttributes = 0;
-	if (queryMode() == QextSerialBase::EventDriven)
-		dwFlagsAndAttributes += FILE_FLAG_OVERLAPPED;
+    unsigned long confSize = sizeof(COMMCONFIG);
+    Win_CommConfig.dwSize = confSize;
+    DWORD dwFlagsAndAttributes = 0;
+    if (queryMode() == QextSerialBase::EventDriven)
+        dwFlagsAndAttributes += FILE_FLAG_OVERLAPPED;
 
     LOCK_MUTEX();
     if (mode == QIODevice::NotOpen)
@@ -211,25 +211,25 @@ bool Win_QextSerialPort::open(OpenMode mode) {
             SetCommConfig(Win_Handle, &Win_CommConfig, sizeof(COMMCONFIG));
 
             //init event driven approach
-			if (queryMode() == QextSerialBase::EventDriven) {
-		        Win_CommTimeouts.ReadIntervalTimeout = MAXDWORD;
-		        Win_CommTimeouts.ReadTotalTimeoutMultiplier = 0;
-		        Win_CommTimeouts.ReadTotalTimeoutConstant = 0;
-				Win_CommTimeouts.WriteTotalTimeoutMultiplier = 0;
-				Win_CommTimeouts.WriteTotalTimeoutConstant = 0;
-				SetCommTimeouts(Win_Handle, &Win_CommTimeouts);
-            	if (!SetCommMask( Win_Handle, EV_TXEMPTY | EV_RXCHAR | EV_DSR)) {
-            		qWarning("failed to set Comm Mask. Error code: %ld", GetLastError());
-					UNLOCK_MUTEX();
-            		return false;
-            	}
-            	overlapThread->start();
+            if (queryMode() == QextSerialBase::EventDriven) {
+                Win_CommTimeouts.ReadIntervalTimeout = MAXDWORD;
+                Win_CommTimeouts.ReadTotalTimeoutMultiplier = 0;
+                Win_CommTimeouts.ReadTotalTimeoutConstant = 0;
+                Win_CommTimeouts.WriteTotalTimeoutMultiplier = 0;
+                Win_CommTimeouts.WriteTotalTimeoutConstant = 0;
+                SetCommTimeouts(Win_Handle, &Win_CommTimeouts);
+                if (!SetCommMask( Win_Handle, EV_TXEMPTY | EV_RXCHAR | EV_DSR)) {
+                    qWarning("failed to set Comm Mask. Error code: %ld", GetLastError());
+                    UNLOCK_MUTEX();
+                    return false;
+                }
+                overlapThread->start();
             }
-			QIODevice::open(mode);
+            QIODevice::open(mode);
         }
     } else {
-		UNLOCK_MUTEX();
-    	return false;
+        UNLOCK_MUTEX();
+        return false;
     }
     UNLOCK_MUTEX();
     return isOpen();
@@ -240,21 +240,21 @@ bool Win_QextSerialPort::open(OpenMode mode) {
 Closes a serial port.  This function has no effect if the serial port associated with the class
 is not currently open.
 */
-void Win_QextSerialPort::close() 
+void Win_QextSerialPort::close()
 {
     LOCK_MUTEX();
 
     if (isOpen()) {
-		flush();
-		if (overlapThread->isRunning()) {
-			overlapThread->stop();
-			if (QThread::currentThread() != overlapThread)
-				overlapThread->wait();
-		}
+        flush();
+        if (overlapThread->isRunning()) {
+            overlapThread->stop();
+            if (QThread::currentThread() != overlapThread)
+                overlapThread->wait();
+        }
         if (CloseHandle(Win_Handle))
             Win_Handle = INVALID_HANDLE_VALUE;
-		_bytesToWrite = 0;
-		QIODevice::close();
+        _bytesToWrite = 0;
+        QIODevice::close();
     }
 
     UNLOCK_MUTEX();
@@ -353,32 +353,32 @@ is currently open (use isOpen() function to check if port is open).
 qint64 Win_QextSerialPort::readData(char *data, qint64 maxSize)
 {
     DWORD retVal;
-	
+
     LOCK_MUTEX();
-    
+
     retVal = 0;
-	if (queryMode() == QextSerialBase::EventDriven) {
-		OVERLAPPED overlapRead;
-		overlapRead.Internal = 0;
-		overlapRead.InternalHigh = 0;
-		overlapRead.Offset = 0;
-		overlapRead.OffsetHigh = 0;
-		overlapRead.hEvent = CreateEvent(NULL, true, false, NULL);
-		if (!ReadFile(Win_Handle, (void*)data, (DWORD)maxSize, & retVal, & overlapRead)) {
-			if (GetLastError() == ERROR_IO_PENDING)
-				GetOverlappedResult(Win_Handle, & overlapRead, & retVal, true);
-			else {
-	        	lastErr = E_READ_FAILED;
-	        	retVal = (DWORD)-1;
-			}
-		}
-		CloseHandle(overlapRead.hEvent);
-	} else if (!ReadFile(Win_Handle, (void*)data, (DWORD)maxSize, & retVal, NULL)) {
+    if (queryMode() == QextSerialBase::EventDriven) {
+        OVERLAPPED overlapRead;
+        overlapRead.Internal = 0;
+        overlapRead.InternalHigh = 0;
+        overlapRead.Offset = 0;
+        overlapRead.OffsetHigh = 0;
+        overlapRead.hEvent = CreateEvent(NULL, true, false, NULL);
+        if (!ReadFile(Win_Handle, (void*)data, (DWORD)maxSize, & retVal, & overlapRead)) {
+            if (GetLastError() == ERROR_IO_PENDING)
+                GetOverlappedResult(Win_Handle, & overlapRead, & retVal, true);
+            else {
+                lastErr = E_READ_FAILED;
+                retVal = (DWORD)-1;
+            }
+        }
+        CloseHandle(overlapRead.hEvent);
+    } else if (!ReadFile(Win_Handle, (void*)data, (DWORD)maxSize, & retVal, NULL)) {
         lastErr = E_READ_FAILED;
         retVal = (DWORD)-1;
     }
 
-	UNLOCK_MUTEX();
+    UNLOCK_MUTEX();
 
     return (qint64)retVal;
 }
@@ -394,30 +394,30 @@ is currently open (use isOpen() function to check if port is open).
 */
 qint64 Win_QextSerialPort::writeData(const char *data, qint64 maxSize)
 {
-	DWORD retVal;
-	
+    DWORD retVal;
+
     LOCK_MUTEX();
 
     retVal = 0;
     if (queryMode() == QextSerialBase::EventDriven) {
-    	bytesToWriteLock->lockForWrite();
-    	_bytesToWrite += maxSize;
-    	bytesToWriteLock->unlock();
-		overlapWrite.Internal = 0;
-		overlapWrite.InternalHigh = 0;
-		overlapWrite.Offset = 0;
-		overlapWrite.OffsetHigh = 0;
-		overlapWrite.hEvent = CreateEvent(NULL, true, false, NULL);
-		if (!WriteFile(Win_Handle, (void*)data, (DWORD)maxSize, & retVal, & overlapWrite)) {
-			lastErr = E_WRITE_FAILED;
-			retVal = (DWORD)-1;
-	   	} else
-	   		retVal = maxSize;
+        bytesToWriteLock->lockForWrite();
+        _bytesToWrite += maxSize;
+        bytesToWriteLock->unlock();
+        overlapWrite.Internal = 0;
+        overlapWrite.InternalHigh = 0;
+        overlapWrite.Offset = 0;
+        overlapWrite.OffsetHigh = 0;
+        overlapWrite.hEvent = CreateEvent(NULL, true, false, NULL);
+        if (!WriteFile(Win_Handle, (void*)data, (DWORD)maxSize, & retVal, & overlapWrite)) {
+            lastErr = E_WRITE_FAILED;
+            retVal = (DWORD)-1;
+        } else
+            retVal = maxSize;
     } else if (!WriteFile(Win_Handle, (void*)data, (DWORD)maxSize, & retVal, NULL)) {
-		lastErr = E_WRITE_FAILED;
-		retVal = (DWORD)-1;
-   	}
-   	
+        lastErr = E_WRITE_FAILED;
+        retVal = (DWORD)-1;
+    }
+
     UNLOCK_MUTEX();
 
     return (qint64)retVal;
@@ -948,62 +948,62 @@ ulong Win_QextSerialPort::lineStatus(void) {
 
 bool Win_QextSerialPort::waitForReadyRead(int msecs)
 {
-	//@todo implement
-	return false;
+    //@todo implement
+    return false;
 }
 
 qint64 Win_QextSerialPort::bytesToWrite() const
 {
-	return _bytesToWrite;
+    return _bytesToWrite;
 }
 
 void Win_QextSerialPort::monitorCommEvent()
 {
-	DWORD eventMask = 0;
+    DWORD eventMask = 0;
 
-	ResetEvent(overlap.hEvent);
-	if (!WaitCommEvent(Win_Handle, & eventMask, & overlap))
-		if (GetLastError() != ERROR_IO_PENDING)
-			qCritical("WaitCommEvent error %ld\n", GetLastError());
+    ResetEvent(overlap.hEvent);
+    if (!WaitCommEvent(Win_Handle, & eventMask, & overlap))
+        if (GetLastError() != ERROR_IO_PENDING)
+            qCritical("WaitCommEvent error %ld\n", GetLastError());
 
-	if (WaitForSingleObject(overlap.hEvent, INFINITE) == WAIT_OBJECT_0) {
-		//overlap event occured
-		DWORD undefined;
-		if (!GetOverlappedResult(Win_Handle, & overlap, & undefined, false)) {
-			qWarning("CommEvent overlapped error %ld", GetLastError());
-			return;
-		}
-		if (eventMask & EV_RXCHAR) {
-			if (sender() != this)
-				emit readyRead();
-		}
-		if (eventMask & EV_TXEMPTY) {
-			DWORD numBytes;
-			GetOverlappedResult(Win_Handle, & overlapWrite, & numBytes, true);
-			bytesToWriteLock->lockForWrite();
-			if (sender() != this)
-				emit bytesWritten(bytesToWrite());
-			_bytesToWrite = 0;
-			bytesToWriteLock->unlock();
-		}
-		if (eventMask & EV_DSR)
-			if (lineStatus() & LS_DSR)
-				emit dsrChanged(true);
-			else
-				emit dsrChanged(false);
-	}
+    if (WaitForSingleObject(overlap.hEvent, INFINITE) == WAIT_OBJECT_0) {
+        //overlap event occured
+        DWORD undefined;
+        if (!GetOverlappedResult(Win_Handle, & overlap, & undefined, false)) {
+            qWarning("CommEvent overlapped error %ld", GetLastError());
+            return;
+        }
+        if (eventMask & EV_RXCHAR) {
+            if (sender() != this)
+                emit readyRead();
+        }
+        if (eventMask & EV_TXEMPTY) {
+            DWORD numBytes;
+            GetOverlappedResult(Win_Handle, & overlapWrite, & numBytes, true);
+            bytesToWriteLock->lockForWrite();
+            if (sender() != this)
+                emit bytesWritten(bytesToWrite());
+            _bytesToWrite = 0;
+            bytesToWriteLock->unlock();
+        }
+        if (eventMask & EV_DSR)
+            if (lineStatus() & LS_DSR)
+                emit dsrChanged(true);
+            else
+                emit dsrChanged(false);
+    }
 }
 
 void Win_QextSerialPort::terminateCommWait()
 {
-	SetCommMask(Win_Handle, 0);
+    SetCommMask(Win_Handle, 0);
 }
 
 
 /*!
 \fn void Win_QextSerialPort::setTimeout(ulong millisec);
 Sets the read and write timeouts for the port to millisec milliseconds.
-Setting 0 indicates that timeouts are not used for read nor write operations; 
+Setting 0 indicates that timeouts are not used for read nor write operations;
 however read() and write() functions will still block. Set -1 to provide
 non-blocking behaviour (read() and write() will return immediately).
 
@@ -1013,39 +1013,39 @@ void Win_QextSerialPort::setTimeout(long millisec) {
     LOCK_MUTEX();
     Settings.Timeout_Millisec = millisec;
 
-	if (millisec == -1) {
-		Win_CommTimeouts.ReadIntervalTimeout = MAXDWORD;
-		Win_CommTimeouts.ReadTotalTimeoutConstant = 0;
-	} else {
-		Win_CommTimeouts.ReadIntervalTimeout = millisec;
-		Win_CommTimeouts.ReadTotalTimeoutConstant = millisec;
-	}
-	Win_CommTimeouts.ReadTotalTimeoutMultiplier = 0;
-	Win_CommTimeouts.WriteTotalTimeoutMultiplier = millisec;
-	Win_CommTimeouts.WriteTotalTimeoutConstant = 0;
-	if (queryMode() != QextSerialBase::EventDriven)
-      	SetCommTimeouts(Win_Handle, &Win_CommTimeouts);
+    if (millisec == -1) {
+        Win_CommTimeouts.ReadIntervalTimeout = MAXDWORD;
+        Win_CommTimeouts.ReadTotalTimeoutConstant = 0;
+    } else {
+        Win_CommTimeouts.ReadIntervalTimeout = millisec;
+        Win_CommTimeouts.ReadTotalTimeoutConstant = millisec;
+    }
+    Win_CommTimeouts.ReadTotalTimeoutMultiplier = 0;
+    Win_CommTimeouts.WriteTotalTimeoutMultiplier = millisec;
+    Win_CommTimeouts.WriteTotalTimeoutConstant = 0;
+    if (queryMode() != QextSerialBase::EventDriven)
+        SetCommTimeouts(Win_Handle, &Win_CommTimeouts);
 
     UNLOCK_MUTEX();
 }
 
 
 Win_QextSerialThread::Win_QextSerialThread(Win_QextSerialPort * qesp):
-	QThread()
+    QThread()
 {
-	this->qesp = qesp;
-	terminate = false;
+    this->qesp = qesp;
+    terminate = false;
 }
 
 void Win_QextSerialThread::stop()
 {
-	terminate = true;
-	qesp->terminateCommWait();
+    terminate = true;
+    qesp->terminateCommWait();
 }
 
 void Win_QextSerialThread::run()
 {
-	while (!terminate)
-		qesp->monitorCommEvent();
-	terminate = false;
+    while (!terminate)
+        qesp->monitorCommEvent();
+    terminate = false;
 }
