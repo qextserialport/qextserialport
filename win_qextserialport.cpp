@@ -192,6 +192,7 @@ bool Win_QextSerialPort::open(OpenMode mode) {
         Win_Handle=CreateFileA(port.toAscii(), GENERIC_READ|GENERIC_WRITE,
                               FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, OPEN_EXISTING, dwFlagsAndAttributes, NULL);
         if (Win_Handle!=INVALID_HANDLE_VALUE) {
+            QIODevice::open(mode);
             /*configure port settings*/
             GetCommConfig(Win_Handle, &Win_CommConfig, &confSize);
             GetCommState(Win_Handle, &(Win_CommConfig.dcb));
@@ -224,7 +225,6 @@ bool Win_QextSerialPort::open(OpenMode mode) {
                 }
                 overlapThread->start();
             }
-            QIODevice::open(mode);
         }
     } else {
         return false;
