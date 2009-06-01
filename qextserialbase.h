@@ -11,10 +11,6 @@
 #define _TTY_NOWARN_PORT_
 #endif
 
-/*macros for thread support*/
-#define LOCK_MUTEX() mutex->lock()
-#define UNLOCK_MUTEX() mutex->unlock()
-
 /*macros for warning and debug messages*/
 #ifdef _TTY_NOWARN_PORT_
 #define TTY_PORTABILITY_WARNING(s)
