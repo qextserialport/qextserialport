@@ -5,6 +5,7 @@
  */
 
 #include "qextserialenumerator.h"
+#include <QDebug>
 
 #ifdef _TTY_WIN_
 
@@ -126,6 +127,141 @@
 
 #endif /*_TTY_WIN_*/
 
+    //#ifdef _TTY_POSIX_
+
+#ifdef Q_OS_MAC
+#include <IOKit/serial/IOSerialKeys.h>
+#include <CoreFoundation/CFNumber.h>
+#include <sys/param.h>
+
+// static
+void QextSerialEnumerator::scanPortsOSX(QList<QextPortInfo> & infoList)
+{
+    io_iterator_t serialPortIterator = 0;
+    kern_return_t kernResult = KERN_FAILURE;
+    CFMutableDictionaryRef matchingDictionary;
+
+    // first try to get any serialbsd devices, then try any USBCDC devices
+    if( !(matchingDictionary = IOServiceMatching(kIOSerialBSDServiceValue) ) ) {
+        qWarning("IOServiceMatching returned a NULL dictionary.");
+        return;
+    }
+    CFDictionaryAddValue(matchingDictionary, CFSTR(kIOSerialBSDTypeKey), CFSTR(kIOSerialBSDAllTypes));
+
+    // then create the iterator with all the matching devices
+    if( IOServiceGetMatchingServices(kIOMasterPortDefault, matchingDictionary, &serialPortIterator) != KERN_SUCCESS ) {
+        qCritical() << "IOServiceGetMatchingServices failed, returned" << kernResult;
+        return;
+    }
+    iterateServicesOSX(serialPortIterator, infoList);
+    IOObjectRelease(serialPortIterator);
+    serialPortIterator = 0;
+
+    if( !(matchingDictionary = IOServiceNameMatching("AppleUSBCDC")) ) {
+        qWarning("IOServiceNameMatching returned a NULL dictionary.");
+        return;
+    }
+
+    if( IOServiceGetMatchingServices(kIOMasterPortDefault, matchingDictionary, &serialPortIterator) != KERN_SUCCESS ) {
+        qCritical() << "IOServiceGetMatchingServices failed, returned" << kernResult;
+        return;
+    }
+    iterateServicesOSX(serialPortIterator, infoList);
+    IOObjectRelease(serialPortIterator);
+}
+
+void QextSerialEnumerator::iterateServicesOSX(io_object_t service, QList<QextPortInfo> & infoList)
+{
+    // Iterate through all modems found.
+    io_object_t usbService;
+    while( ( usbService = IOIteratorNext(service) ) )
+    {
+        QextPortInfo info;
+        info.vendorID = 0;
+        info.productID = 0;
+        getServiceDetailsOSX( usbService, &info );
+        infoList.append(info);
+    }
+}
+
+bool QextSerialEnumerator::getServiceDetailsOSX( io_object_t service, QextPortInfo* portInfo )
+{
+    bool retval = true;
+    CFTypeRef bsdPathAsCFString = NULL;
+    CFTypeRef productNameAsCFString = NULL;
+    CFTypeRef vendorIdAsCFNumber = NULL;
+    CFTypeRef productIdAsCFNumber = NULL;
+    // check the name of the modem's callout device
+    bsdPathAsCFString = IORegistryEntryCreateCFProperty(service, CFSTR(kIOCalloutDeviceKey),
+                                                        kCFAllocatorDefault, 0);
+
+    // wander up the hierarchy until we find the level that can give us the
+    // vendor/product IDs and the product name, if available
+    io_registry_entry_t parent;
+    kern_return_t kernResult = IORegistryEntryGetParentEntry(service, kIOServicePlane, &parent);
+    while( kernResult == KERN_SUCCESS && !vendorIdAsCFNumber && !productIdAsCFNumber )
+    {
+        if(!productNameAsCFString)
+            productNameAsCFString = IORegistryEntrySearchCFProperty(parent,
+                                                                    kIOServicePlane,
+                                                                    CFSTR("Product Name"),
+                                                                    kCFAllocatorDefault, 0);
+        vendorIdAsCFNumber = IORegistryEntrySearchCFProperty(parent,
+                                                             kIOServicePlane,
+                                                             CFSTR(kUSBVendorID),
+                                                             kCFAllocatorDefault, 0);
+        productIdAsCFNumber = IORegistryEntrySearchCFProperty(parent,
+                                                              kIOServicePlane,
+                                                              CFSTR(kUSBProductID),
+                                                              kCFAllocatorDefault, 0);
+        io_registry_entry_t oldparent = parent;
+        kernResult = IORegistryEntryGetParentEntry(parent, kIOServicePlane, &parent);
+        IOObjectRelease(oldparent);
+    }
+
+    io_string_t ioPathName;
+    IORegistryEntryGetPath( service, kIOServicePlane, ioPathName );
+    portInfo->physName = ioPathName;
+
+    if( bsdPathAsCFString )
+    {
+        char path[MAXPATHLEN];
+        if( CFStringGetCString((CFStringRef)bsdPathAsCFString, path,
+                               PATH_MAX, kCFStringEncodingUTF8) )
+            portInfo->portName = path;
+        CFRelease(bsdPathAsCFString);
+    }
+
+    if(productNameAsCFString)
+    {
+        char productName[MAXPATHLEN];
+        if( CFStringGetCString((CFStringRef)productNameAsCFString, productName,
+                               PATH_MAX, kCFStringEncodingUTF8) )
+            portInfo->friendName = productName;
+        CFRelease(productNameAsCFString);
+    }
+
+    if(vendorIdAsCFNumber)
+    {
+        SInt32 vID;
+        if(CFNumberGetValue((CFNumberRef)vendorIdAsCFNumber, kCFNumberSInt32Type, &vID))
+            portInfo->vendorID = vID;
+        CFRelease(vendorIdAsCFNumber);
+    }
+
+    if(productIdAsCFNumber)
+    {
+        SInt32 pID;
+        if(CFNumberGetValue((CFNumberRef)productIdAsCFNumber, kCFNumberSInt32Type, &pID))
+            portInfo->productID = pID;
+        CFRelease(productIdAsCFNumber);
+    }
+    IOObjectRelease(service);
+    return retval;
+}
+#endif // Q_OS_MAC
+
+//#endif // _TTY_POSIX_
 
 //static
 QList<QextPortInfo> QextSerialEnumerator::getPorts()
@@ -142,15 +278,19 @@ QList<QextPortInfo> QextSerialEnumerator::getPorts()
         // Handle windows 9x and NT4 specially
         if (vi.dwMajorVersion < 5) {
             qCritical("Enumeration for this version of Windows is not implemented yet");
-/*			if (vi.dwPlatformId == VER_PLATFORM_WIN32_NT)
+        /*if (vi.dwPlatformId == VER_PLATFORM_WIN32_NT)
                 EnumPortsWNt4(ports);
             else
                 EnumPortsW9x(ports);*/
-        } else	//w2k or later
+        } else  //w2k or later
             setupAPIScan(ports);
     #endif /*_TTY_WIN_*/
     #ifdef _TTY_POSIX_
-        qCritical("Enumeration for POSIX systems is not implemented yet.");
+        #ifdef Q_OS_MAC
+            scanPortsOSX(ports);
+        #else
+            qCritical("Enumeration for POSIX systems is not implemented yet.");
+        #endif /* Q_OS_MAC */
     #endif /*_TTY_POSIX_*/
 
     return ports;

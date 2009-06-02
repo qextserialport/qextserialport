@@ -16,15 +16,20 @@
     #include <setupapi.h>
 #endif /*_TTY_WIN_*/
 
+#ifdef Q_OS_MAC
+    #include <IOKit/usb/IOUSBLib.h>
+#endif
 
 /*!
  * Structure containing port information.
  */
 struct QextPortInfo {
-    QString portName;		///< Port name.
-    QString physName;		///< Physical name.
-    QString friendName;		///< Friendly name.
-    QString enumName;		///< Enumerator name.
+    QString portName;   ///< Port name.
+    QString physName;   ///< Physical name.
+    QString friendName; ///< Friendly name.
+    QString enumName;   ///< Enumerator name.
+    int vendorID;       ///< Vendor ID.
+    int productID;      ///< Product ID
 };
 
 
@@ -48,26 +53,46 @@ class QextSerialEnumerator
 
             /*!
              * Get specific property from registry.
-             * 	\param devInfo pointer to the device information set that contains the interface
-             * 		and its underlying device. Returned by SetupDiGetClassDevs() function.
-             * 	\param devData pointer to an SP_DEVINFO_DATA structure that defines the device instance.
-             * 		this is returned by SetupDiGetDeviceInterfaceDetail() function.
-             * 	\param property registry property. One of defined SPDRP_* constants.
-             * 	\return property string.
+             * \param devInfo pointer to the device information set that contains the interface
+             *    and its underlying device. Returned by SetupDiGetClassDevs() function.
+             * \param devData pointer to an SP_DEVINFO_DATA structure that defines the device instance.
+             *    this is returned by SetupDiGetDeviceInterfaceDetail() function.
+             * \param property registry property. One of defined SPDRP_* constants.
+             * \return property string.
              */
             static QString getDeviceProperty(HDEVINFO devInfo, PSP_DEVINFO_DATA devData, DWORD property);
 
             /*!
              * Search for serial ports using setupapi.
-             * 	\param infoList list with result.
+             *  \param infoList list with result.
              */
             static void setupAPIScan(QList<QextPortInfo> & infoList);
         #endif /*_TTY_WIN_*/
 
+        #ifdef _TTY_POSIX_
+            #ifdef Q_OS_MAC
+            private:
+              /*!
+               * Search for serial ports using IOKit.
+               *    \param infoList list with result.
+               */
+              static void scanPortsOSX(QList<QextPortInfo> & infoList);
+              static void iterateServicesOSX(io_object_t service, QList<QextPortInfo> & infoList);
+              static bool getServiceDetailsOSX( io_object_t service, QextPortInfo* portInfo );
+
+            #else // Q_OS_MAC
+              /*!
+               * Search for serial ports on unix.
+               *    \param infoList list with result.
+               */
+              // static void scanPortsNix(QList<QextPortInfo> & infoList);
+            #endif // Q_OS_MAC
+        #endif /* _TTY_POSIX_ */
+
     public:
         /*!
          * Get list of ports.
-         * 	\return list of ports currently available in the system.
+         *  \return list of ports currently available in the system.
          */
         static QList<QextPortInfo> getPorts();
 };
