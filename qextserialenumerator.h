@@ -15,6 +15,7 @@
 #ifdef _TTY_WIN_
     #include <windows.h>
     #include <setupapi.h>
+    #include <dbt.h>
 #endif /*_TTY_WIN_*/
 
 #ifdef Q_OS_MAC
@@ -49,8 +50,10 @@ Q_OBJECT
     public:
         QextSerialEnumerator( );
         ~QextSerialEnumerator( );
-    private:
+
         #ifdef _TTY_WIN_
+            LRESULT onDeviceChangeWin( WPARAM wParam, LPARAM lParam );
+            private:
             /*!
              * Get value of specified property from the registry.
              * 	\param key handle to an open key.
@@ -75,6 +78,12 @@ Q_OBJECT
              *  \param infoList list with result.
              */
             static void setupAPIScan(QList<QextPortInfo> & infoList);
+            void setUpNotificationWin( QMainWindow* win );
+            static bool getDeviceDetailsWin( QextPortInfo* portInfo, HDEVINFO devInfo,
+                                  PSP_DEVINFO_DATA devData, WPARAM wParam = DBT_DEVICEARRIVAL );
+            static void enumerateDevicesWin( HDEVINFO devInfo, GUID* guidDev,
+                                                                   QList<QextPortInfo>* infoList );
+            HDEVNOTIFY notificationHandle;
         #endif /*_TTY_WIN_*/
 
         #ifdef _TTY_POSIX_
