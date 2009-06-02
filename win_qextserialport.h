@@ -49,7 +49,7 @@ class Win_QextSerialPort: public QextSerialBase
         HANDLE threadStartEvent;
         HANDLE threadTerminateEvent;
         OVERLAPPED overlap;
-        OVERLAPPED overlapWrite;
+        QList<OVERLAPPED*> overlappedWrites;
         COMMCONFIG Win_CommConfig;
         COMMTIMEOUTS Win_CommTimeouts;
         QReadWriteLock * bytesToWriteLock;	///< @todo maybe move to QextSerialBase.
