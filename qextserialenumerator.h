@@ -10,6 +10,7 @@
 
 #include <QString>
 #include <QList>
+#include <QMainWindow>
 
 #ifdef _TTY_WIN_
     #include <windows.h>
@@ -38,9 +39,16 @@ struct QextPortInfo {
  *
  * Windows implementation is based on Zach Gorman's work from
  * <a href="http://www.codeproject.com">The Code Project</a> (http://www.codeproject.com/system/setupdi.asp).
+ *
+ * OS X implementation, see
+ * http://developer.apple.com/documentation/DeviceDrivers/Conceptual/AccessingHardware/AH_Finding_Devices/chapter_4_section_2.html
  */
-class QextSerialEnumerator
+class QextSerialEnumerator : public QObject
 {
+Q_OBJECT
+    public:
+        QextSerialEnumerator( );
+        ~QextSerialEnumerator( );
     private:
         #ifdef _TTY_WIN_
             /*!
@@ -80,6 +88,14 @@ class QextSerialEnumerator
               static void iterateServicesOSX(io_object_t service, QList<QextPortInfo> & infoList);
               static bool getServiceDetailsOSX( io_object_t service, QextPortInfo* portInfo );
 
+              void setUpNotificationOSX( );
+              void onDeviceDiscoveredOSX( io_object_t service );
+              void onDeviceTerminatedOSX( io_object_t service );
+              friend void deviceDiscoveredCallbackOSX( void *ctxt, io_iterator_t serialPortIterator );
+              friend void deviceTerminatedCallbackOSX( void *ctxt, io_iterator_t serialPortIterator );
+
+              IONotificationPortRef notificationPortRef;
+
             #else // Q_OS_MAC
               /*!
                * Search for serial ports on unix.
@@ -95,6 +111,11 @@ class QextSerialEnumerator
          *  \return list of ports currently available in the system.
          */
         static QList<QextPortInfo> getPorts();
+        void setUpNotifications( QMainWindow* win = 0 );
+
+    signals:
+        void deviceDiscovered( const QextPortInfo & info );
+        void deviceRemoved( const QextPortInfo & info );
 };
 
 #endif /*_QEXTSERIALENUMERATOR_H_*/
