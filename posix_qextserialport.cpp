@@ -16,6 +16,7 @@ warnings) in the project.  Note that _TTY_NOWARN_ will also turn off portability
 #include <stdio.h>
 #include "posix_qextserialport.h"
 #include <QMutexLocker>
+#include <QDebug>
 
 /*!
 \fn Posix_QextSerialPort::Posix_QextSerialPort()
@@ -144,8 +145,9 @@ Posix_QextSerialPort& Posix_QextSerialPort::operator=(const Posix_QextSerialPort
 void Posix_QextSerialPort::init()
 {
     fd = 0;
+    readNotifier = 0;
     if (queryMode() == QextSerialBase::EventDriven)
-        qWarning("POSIX doesn't have event driven mechanism implemented yet");
+        qWarning("POSIX doesn't have event driven mechanism for writes implemented yet - reads are OK.");
 }
 
 /*!
@@ -830,16 +832,15 @@ bool Posix_QextSerialPort::open(OpenMode mode)
     if (mode == QIODevice::NotOpen)
         return isOpen();
     if (!isOpen()) {
-        /*open the port*/
-        qDebug("trying to open file");
+        qDebug() << "trying to open file" << port.toAscii();
         //note: linux 2.6.21 seems to ignore O_NDELAY flag
         if ((fd = ::open(port.toAscii() ,O_RDWR | O_NOCTTY | O_NDELAY)) != -1) {
             qDebug("file opened succesfully");
 
-        setOpenMode(mode);			// Flag the port as opened
-        tcgetattr(fd, &old_termios);	// Save the old termios
-        Posix_CommConfig = old_termios;	// Make a working copy
-        cfmakeraw(&Posix_CommConfig);	// Enable raw access
+            setOpenMode(mode);              // Flag the port as opened
+            tcgetattr(fd, &old_termios);    // Save the old termios
+            Posix_CommConfig = old_termios; // Make a working copy
+            cfmakeraw(&Posix_CommConfig);   // Enable raw access
 
             /*set up other port settings*/
             Posix_CommConfig.c_cflag|=CREAD|CLOCAL;
@@ -847,15 +848,15 @@ bool Posix_QextSerialPort::open(OpenMode mode)
             Posix_CommConfig.c_iflag&=(~(INPCK|IGNPAR|PARMRK|ISTRIP|ICRNL|IXANY));
             Posix_CommConfig.c_oflag&=(~OPOST);
             Posix_CommConfig.c_cc[VMIN]= 0;
-#ifdef _POSIX_VDISABLE	// Is a disable character available on this system?
-        // Some systems allow for per-device disable-characters, so get the
-        //  proper value for the configured device
-        const long vdisable = fpathconf(fd, _PC_VDISABLE);
-        Posix_CommConfig.c_cc[VINTR] = vdisable;
-        Posix_CommConfig.c_cc[VQUIT] = vdisable;
-        Posix_CommConfig.c_cc[VSTART] = vdisable;
-        Posix_CommConfig.c_cc[VSTOP] = vdisable;
-        Posix_CommConfig.c_cc[VSUSP] = vdisable;
+#ifdef _POSIX_VDISABLE  // Is a disable character available on this system?
+            // Some systems allow for per-device disable-characters, so get the
+            //  proper value for the configured device
+            const long vdisable = fpathconf(fd, _PC_VDISABLE);
+            Posix_CommConfig.c_cc[VINTR] = vdisable;
+            Posix_CommConfig.c_cc[VQUIT] = vdisable;
+            Posix_CommConfig.c_cc[VSTART] = vdisable;
+            Posix_CommConfig.c_cc[VSTOP] = vdisable;
+            Posix_CommConfig.c_cc[VSUSP] = vdisable;
 #endif //_POSIX_VDISABLE
             setBaudRate(Settings.BaudRate);
             setDataBits(Settings.DataBits);
@@ -864,8 +865,13 @@ bool Posix_QextSerialPort::open(OpenMode mode)
             setFlowControl(Settings.FlowControl);
             setTimeout(Settings.Timeout_Millisec);
             tcsetattr(fd, TCSAFLUSH, &Posix_CommConfig);
+
+            if (queryMode() == QextSerialBase::EventDriven) {
+                readNotifier = new QSocketNotifier(fd, QSocketNotifier::Read, this);
+                connect(readNotifier, SIGNAL(activated(int)), this, SIGNAL(readyRead()));
+            }
         } else {
-            qDebug("could not open file: %s", strerror(errno));
+            qDebug() << "could not open file:" << strerror(errno);
         }
     }
     return isOpen();
@@ -881,15 +887,19 @@ void Posix_QextSerialPort::close()
     QMutexLocker lock(mutex);
     if( isOpen() )
     {
-    // Force a flush and then restore the original termios
-    flush();
-    // Using both TCSAFLUSH and TCSANOW here discards any pending input
-    tcsetattr(fd, TCSAFLUSH | TCSANOW, &old_termios);   // Restore termios
-    // Be a good QIODevice and call QIODevice::close() before POSIX close()
-    //  so the aboutToClose() signal is emitted at the proper time
-    QIODevice::close();	// Flag the device as closed
-    // QIODevice::close() doesn't actually close the port, so do that here
-    ::close(fd);
+        // Force a flush and then restore the original termios
+        flush();
+        // Using both TCSAFLUSH and TCSANOW here discards any pending input
+        tcsetattr(fd, TCSAFLUSH | TCSANOW, &old_termios);   // Restore termios
+        // Be a good QIODevice and call QIODevice::close() before POSIX close()
+        //  so the aboutToClose() signal is emitted at the proper time
+        QIODevice::close();	// Flag the device as closed
+        // QIODevice::close() doesn't actually close the port, so do that here
+        ::close(fd);
+        if(readNotifier) {
+            delete readNotifier;
+            readNotifier = 0;
+        }
     }
 }
 

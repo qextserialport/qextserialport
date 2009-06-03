@@ -8,6 +8,7 @@
 #include <sys/time.h>
 #include <sys/ioctl.h>
 #include <sys/select.h>
+#include <QSocketNotifier>
 #include "qextserialbase.h"
 
 class Posix_QextSerialPort:public QextSerialBase
@@ -20,6 +21,7 @@ class Posix_QextSerialPort:public QextSerialBase
 
     protected:
         int fd;
+        QSocketNotifier *readNotifier;
         struct termios Posix_CommConfig;
         struct termios old_termios;
         struct timeval Posix_Timeout;
