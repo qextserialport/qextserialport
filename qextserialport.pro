@@ -10,7 +10,7 @@ CONFIG                 += thread
 CONFIG                  += dll
 #CONFIG                 += staticlib
 
-QT                     -= gui
+!win32:QT               -= gui
 
 OBJECTS_DIR             = build/obj
 MOC_DIR                 = build/moc
@@ -31,7 +31,7 @@ unix:DEFINES           += _TTY_POSIX_
 win32:HEADERS          += win_qextserialport.h
 win32:SOURCES          += win_qextserialport.cpp
 win32:DEFINES          += _TTY_WIN_
-
+win32:DEFINES          += WINVER=0x0501 # needed for mingw to pull in appropriate dbt business
 win32:LIBS             += -lsetupapi
 
 

@@ -12,12 +12,21 @@ QextSerialEnumerator::QextSerialEnumerator( )
 {
     if( !QMetaType::isRegistered( QMetaType::type("QextPortInfo") ) )
         qRegisterMetaType<QextPortInfo>("QextPortInfo");
+#ifdef _TTY_WIN_
+    notificationHandle = 0;
+    notificationWidget = 0;
+#endif // _TTY_WIN_
 }
 
 QextSerialEnumerator::~QextSerialEnumerator( )
 {
 #ifdef Q_OS_MAC
     IONotificationPortDestroy( notificationPortRef );
+#elif (defined _TTY_WIN_)
+    if( notificationHandle )
+        UnregisterDeviceNotification( notificationHandle );
+    if( notificationWidget )
+        delete notificationWidget;
 #endif
 }
 
@@ -126,15 +135,29 @@ QextSerialEnumerator::~QextSerialEnumerator( )
         SetupDiDestroyDeviceInfoList(devInfo);
     }
 
-    void QextSerialEnumerator::setUpNotificationWin( QMainWindow* win )
+    bool QextSerialRegistrationWidget::winEvent( MSG* message, long* result )
     {
+        if ( message->message == WM_DEVICECHANGE ) {
+            qese->onDeviceChangeWin( message->wParam, message->lParam );
+            *result = 1;
+            return true;
+        }
+        return false;
+    }
+
+    void QextSerialEnumerator::setUpNotificationWin( )
+    {
+        if(notificationWidget)
+            return;
+        notificationWidget = new QextSerialRegistrationWidget(this);
+
         DEV_BROADCAST_DEVICEINTERFACE dbh;
         ZeroMemory(&dbh, sizeof(dbh));
         dbh.dbcc_size = sizeof(dbh);
         dbh.dbcc_devicetype = DBT_DEVTYP_DEVICEINTERFACE;
         CopyMemory(&dbh.dbcc_classguid, &GUID_CLASS_COMPORT, sizeof(GUID));
 
-        notificationHandle = RegisterDeviceNotification( win->winId( ), &dbh, DEVICE_NOTIFY_WINDOW_HANDLE );
+        notificationHandle = RegisterDeviceNotification( notificationWidget->winId( ), &dbh, DEVICE_NOTIFY_WINDOW_HANDLE );
         if(!notificationHandle)
             qWarning() << "RegisterDeviceNotification failed:" << GetLastError();
     }
@@ -518,10 +541,10 @@ QList<QextPortInfo> QextSerialEnumerator::getPorts()
     return ports;
 }
 
-void QextSerialEnumerator::setUpNotifications( QMainWindow* win )
+void QextSerialEnumerator::setUpNotifications( )
 {
 #ifdef _TTY_WIN_
-    setUpNotificationWin( win );
+    setUpNotificationWin( );
 #endif
 
 #ifdef _TTY_POSIX_

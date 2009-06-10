@@ -10,7 +10,6 @@
 
 #include <QString>
 #include <QList>
-#include <QMainWindow>
 
 #ifdef _TTY_WIN_
     #include <windows.h>
@@ -34,6 +33,24 @@ struct QextPortInfo {
     int productID;      ///< Product ID
 };
 
+#ifdef _TTY_WIN_
+#include <QWidget>
+class QextSerialEnumerator;
+
+class QextSerialRegistrationWidget : public QWidget
+{
+    Q_OBJECT
+    public:
+        QextSerialRegistrationWidget( QextSerialEnumerator* qese ) {
+            this->qese = qese;
+        }
+        ~QextSerialRegistrationWidget( ) { }
+
+    protected:
+        QextSerialEnumerator* qese;
+        bool winEvent( MSG* message, long* result );
+};
+#endif // _TTY_WIN_
 
 /*!
  * Serial port enumerator. This class provides list of ports available in the system.
@@ -78,11 +95,12 @@ Q_OBJECT
              *  \param infoList list with result.
              */
             static void setupAPIScan(QList<QextPortInfo> & infoList);
-            void setUpNotificationWin( QMainWindow* win );
+            void setUpNotificationWin( );
             static bool getDeviceDetailsWin( QextPortInfo* portInfo, HDEVINFO devInfo,
                                   PSP_DEVINFO_DATA devData, WPARAM wParam = DBT_DEVICEARRIVAL );
             static void enumerateDevicesWin( HDEVINFO devInfo, GUID* guidDev,
                                                                    QList<QextPortInfo>* infoList );
+            QextSerialRegistrationWidget* notificationWidget;
             HDEVNOTIFY notificationHandle;
         #endif /*_TTY_WIN_*/
 
@@ -120,7 +138,7 @@ Q_OBJECT
          *  \return list of ports currently available in the system.
          */
         static QList<QextPortInfo> getPorts();
-        void setUpNotifications( QMainWindow* win = 0 );
+        void setUpNotifications( );
 
     signals:
         void deviceDiscovered( const QextPortInfo & info );
