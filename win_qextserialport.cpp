@@ -251,6 +251,14 @@ void Win_QextSerialPort::close()
             Win_Handle = INVALID_HANDLE_VALUE;
         _bytesToWrite = 0;
         QIODevice::close();
+        if(!overlappedWrites.isEmpty()) {
+            foreach(OVERLAPPED* o, overlappedWrites) {
+                CancelIo(o->hEvent);
+                CloseHandle(o->hEvent);
+            }
+            qDeleteAll(overlappedWrites);
+            overlappedWrites.clear();
+        }
     }
 }
 
