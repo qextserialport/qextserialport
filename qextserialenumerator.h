@@ -10,6 +10,7 @@
 
 #include <QString>
 #include <QList>
+#include <QObject>
 
 #ifdef _TTY_WIN_
     #include <windows.h>

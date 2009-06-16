@@ -549,7 +549,6 @@ void QextSerialEnumerator::setUpNotifications( )
 
 #ifdef _TTY_POSIX_
 #ifdef Q_OS_MAC
-    (void)win;
     setUpNotificationOSX( );
 #else
     qCritical("Notifications for *Nix/FreeBSD are not implemented yet");
