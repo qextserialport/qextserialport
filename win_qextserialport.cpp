@@ -242,6 +242,7 @@ void Win_QextSerialPort::close()
     QMutexLocker lock(mutex);
     if (isOpen()) {
         flush();
+        QIODevice::close(); // mark ourselves as closed
         if (overlapThread->isRunning()) {
             overlapThread->stop();
             if (QThread::currentThread() != overlapThread)
@@ -250,13 +251,12 @@ void Win_QextSerialPort::close()
         if (CloseHandle(Win_Handle))
             Win_Handle = INVALID_HANDLE_VALUE;
         _bytesToWrite = 0;
-        QIODevice::close();
+
         if(!overlappedWrites.isEmpty()) {
             foreach(OVERLAPPED* o, overlappedWrites) {
-                CancelIo(o->hEvent);
                 CloseHandle(o->hEvent);
+                delete o;
             }
-            qDeleteAll(overlappedWrites);
             overlappedWrites.clear();
         }
     }
@@ -1013,7 +1013,8 @@ void Win_QextSerialPort::monitorCommEvent()
 
 void Win_QextSerialPort::terminateCommWait()
 {
-    SetCommMask(Win_Handle, 0);
+    CancelIo(Win_Handle);       // clean up any outstanding IO
+    SetCommMask(Win_Handle, 0); // stop blocking on comm events
 }
 
 
