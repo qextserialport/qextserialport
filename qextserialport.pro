@@ -16,14 +16,11 @@ OBJECTS_DIR             = build/obj
 MOC_DIR                 = build/moc
 DEPENDDIR               = .
 INCLUDEDIR              = .
-HEADERS                 = qextserialbase.h \
-                          qextserialport.h \
+HEADERS                 = qextserialport.h \
                           qextserialenumerator.h
-SOURCES                 = qextserialbase.cpp \
-                          qextserialport.cpp \
+SOURCES                 = qextserialport.cpp \
                           qextserialenumerator.cpp
 
-unix:HEADERS           += posix_qextserialport.h
 unix:SOURCES           += posix_qextserialport.cpp
 unix:DEFINES           += _TTY_POSIX_
 macx: LIBS             += -framework IOKit
