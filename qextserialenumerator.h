@@ -35,6 +35,7 @@ struct QextPortInfo {
 };
 
 #ifdef _TTY_WIN_
+#ifdef QT_GUI_LIB
 #include <QWidget>
 class QextSerialEnumerator;
 
@@ -51,6 +52,7 @@ class QextSerialRegistrationWidget : public QWidget
         QextSerialEnumerator* qese;
         bool winEvent( MSG* message, long* result );
 };
+#endif // QT_GUI_LIB
 #endif // _TTY_WIN_
 
 /*!
@@ -87,6 +89,8 @@ class QextSerialRegistrationWidget : public QWidget
 
   OS X implementation, see
   http://developer.apple.com/documentation/DeviceDrivers/Conceptual/AccessingHardware/AH_Finding_Devices/chapter_4_section_2.html
+
+  \author Michal Policht, Liam Staskawicz
 */
 class QextSerialEnumerator : public QObject
 {
@@ -127,7 +131,9 @@ Q_OBJECT
                                   PSP_DEVINFO_DATA devData, WPARAM wParam = DBT_DEVICEARRIVAL );
             static void enumerateDevicesWin( HDEVINFO devInfo, GUID* guidDev,
                                                                    QList<QextPortInfo>* infoList );
+            #ifdef QT_GUI_LIB
             QextSerialRegistrationWidget* notificationWidget;
+            #endif
             HDEVNOTIFY notificationHandle;
         #endif /*_TTY_WIN_*/
 

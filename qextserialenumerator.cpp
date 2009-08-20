@@ -1,12 +1,10 @@
-/**
- * @file qextserialenumerator.cpp
- * @author Michał Policht
- * @see QextSerialEnumerator
- */
+
+
 
 #include "qextserialenumerator.h"
 #include <QDebug>
 #include <QMetaType>
+#include <QRegExp>
 
 QextSerialEnumerator::QextSerialEnumerator( )
 {
@@ -14,7 +12,9 @@ QextSerialEnumerator::QextSerialEnumerator( )
         qRegisterMetaType<QextPortInfo>("QextPortInfo");
 #ifdef _TTY_WIN_
     notificationHandle = 0;
+    #ifdef QT_GUI_LIB
     notificationWidget = 0;
+    #endif
 #endif // _TTY_WIN_
 }
 
@@ -25,8 +25,10 @@ QextSerialEnumerator::~QextSerialEnumerator( )
 #elif (defined _TTY_WIN_)
     if( notificationHandle )
         UnregisterDeviceNotification( notificationHandle );
+    #ifdef QT_GUI_LIB
     if( notificationWidget )
         delete notificationWidget;
+    #endif
 #endif
 }
 
@@ -139,6 +141,7 @@ QextSerialEnumerator::~QextSerialEnumerator( )
         SetupDiDestroyDeviceInfoList(devInfo);
     }
 
+#ifdef QT_GUI_LIB
     bool QextSerialRegistrationWidget::winEvent( MSG* message, long* result )
     {
         if ( message->message == WM_DEVICECHANGE ) {
@@ -148,9 +151,11 @@ QextSerialEnumerator::~QextSerialEnumerator( )
         }
         return false;
     }
+#endif
 
     void QextSerialEnumerator::setUpNotificationWin( )
     {
+        #ifdef QT_GUI_LIB
         if(notificationWidget)
             return;
         notificationWidget = new QextSerialRegistrationWidget(this);
@@ -164,6 +169,9 @@ QextSerialEnumerator::~QextSerialEnumerator( )
         notificationHandle = RegisterDeviceNotification( notificationWidget->winId( ), &dbh, DEVICE_NOTIFY_WINDOW_HANDLE );
         if(!notificationHandle)
             qWarning() << "RegisterDeviceNotification failed:" << GetLastError();
+        #else
+        qWarning("QextSerialEnumerator: GUI not enabled - can't register for device notifications.");
+        #endif // QT_GUI_LIB
     }
 
     LRESULT QextSerialEnumerator::onDeviceChangeWin( WPARAM wParam, LPARAM lParam )
