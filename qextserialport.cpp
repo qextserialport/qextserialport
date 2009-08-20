@@ -8,7 +8,6 @@
 #endif
 
 /*!
-\fn QextSerialPort::QextSerialPort()
 Default constructor.  Note that the name of the device used by a QextSerialPort constructed with
 this constructor will be determined by #defined constants, or lack thereof - the default behavior
 is the same as _TTY_LINUX_.  Possible naming conventions and their associated constants are:
@@ -73,7 +72,6 @@ QextSerialPort::QextSerialPort()
 }
 
 /*!
-\fn QextSerialPort::QextSerialPort(const QString & name)
 Construct a port and assign it to the device specified by the name parameter.
 */
 QextSerialPort::QextSerialPort(const QString & name)
@@ -85,7 +83,6 @@ QextSerialPort::QextSerialPort(const QString & name)
 }
 
 /*!
-\fn QextSerialPort::QextSerialPort(const QString & name)
 Constructs a serial port attached to the port specified by name.
 name is the name of the device, which is windowsystem-specific,
 e.g."COM1" or "/dev/ttyS0".
@@ -100,7 +97,6 @@ QextSerialPort::QextSerialPort(const QString & name, QextSerialPort::QueryMode m
 }
 
 /*!
-\fn QextSerialPort::QextSerialPort(const PortSettings& settings)
 Constructs a port with default name and specified settings.
 */
 QextSerialPort::QextSerialPort(const PortSettings& settings, QextSerialPort::QueryMode mode)
@@ -118,7 +114,6 @@ QextSerialPort::QextSerialPort(const PortSettings& settings, QextSerialPort::Que
 }
 
 /*!
-\fn QextSerialPort::QextSerialPort(const QString & name, const PortSettings& settings)
 Constructs a port with specified name and settings.
 */
 QextSerialPort::QextSerialPort(const QString & name, const PortSettings& settings, QextSerialPort::QueryMode mode)
@@ -137,7 +132,6 @@ QextSerialPort::QextSerialPort(const QString & name, const PortSettings& setting
 }
 
 /*!
-\fn void QextSerialPort::construct()
 Common constructor function for setting up default port settings.
 (115200 Baud, 8N1, Hardware flow control where supported, otherwise no flow control, and 0 ms timeout).
 */
@@ -160,7 +154,6 @@ void QextSerialPort::setQueryMode(QueryMode mechanism)
 }
 
 /*!
-\fn void QextSerialPort::setPortName(const QString & name)
 Sets the name of the device associated with the object, e.g. "COM1", or "/dev/ttyS0".
 */
 void QextSerialPort::setPortName(const QString & name)
@@ -177,7 +170,6 @@ void QextSerialPort::setPortName(const QString & name)
 }
 
 /*!
-\fn QString QextSerialPort::portName() const
 Returns the name set by setPortName().
 */
 QString QextSerialPort::portName() const
@@ -186,7 +178,6 @@ QString QextSerialPort::portName() const
 }
 
 /*!
-\fn BaudRateType QextSerialPort::baudRate(void) const
 Returns the baud rate of the serial port.  For a list of possible return values see
 the definition of the enum BaudRateType.
 */
@@ -196,7 +187,6 @@ BaudRateType QextSerialPort::baudRate(void) const
 }
 
 /*!
-\fn DataBitsType QextSerialPort::dataBits() const
 Returns the number of data bits used by the port.  For a list of possible values returned by
 this function, see the definition of the enum DataBitsType.
 */
@@ -206,7 +196,6 @@ DataBitsType QextSerialPort::dataBits() const
 }
 
 /*!
-\fn ParityType QextSerialPort::parity() const
 Returns the type of parity used by the port.  For a list of possible values returned by
 this function, see the definition of the enum ParityType.
 */
@@ -216,7 +205,6 @@ ParityType QextSerialPort::parity() const
 }
 
 /*!
-\fn StopBitsType QextSerialPort::stopBits() const
 Returns the number of stop bits used by the port.  For a list of possible return values, see
 the definition of the enum StopBitsType.
 */
@@ -226,7 +214,6 @@ StopBitsType QextSerialPort::stopBits() const
 }
 
 /*!
-\fn FlowType QextSerialPort::flowControl() const
 Returns the type of flow control used by the port.  For a list of possible values returned
 by this function, see the definition of the enum FlowType.
 */
@@ -236,7 +223,6 @@ FlowType QextSerialPort::flowControl() const
 }
 
 /*!
-\fn bool QextSerialPort::isSequential() const
 Returns true if device is sequential, otherwise returns false. Serial port is sequential device
 so this function always returns true. Check QIODevice::isSequential() documentation for more
 information.
@@ -247,7 +233,6 @@ bool QextSerialPort::isSequential() const
 }
 
 /*!
-\fn bool QextSerialPort::atEnd() const
 This function will return true if the input buffer is empty (or on error), and false otherwise.
 Call QextSerialPort::lastError() for error information.
 */
@@ -257,7 +242,6 @@ bool QextSerialPort::atEnd() const
 }
 
 /*!
-\fn qint64 QextSerialPort::readLine(char * data, qint64 maxSize)
 This function will read a line of buffered input from the port, stopping when either maxSize bytes
 have been read, the port has no more data available, or a newline is encountered.
 The value returned is the length of the string that was read.
@@ -303,7 +287,6 @@ qint64 QextSerialPort::readLine(char * data, qint64 maxSize)
 //}
 
 /*!
-\fn QextSerialPort::~QextSerialPort()
 Standard destructor.
 */
 QextSerialPort::~QextSerialPort()

@@ -54,14 +54,40 @@ class QextSerialRegistrationWidget : public QWidget
 #endif // _TTY_WIN_
 
 /*!
- * Serial port enumerator. This class provides list of ports available in the system.
- *
- * Windows implementation is based on Zach Gorman's work from
- * <a href="http://www.codeproject.com">The Code Project</a> (http://www.codeproject.com/system/setupdi.asp).
- *
- * OS X implementation, see
- * http://developer.apple.com/documentation/DeviceDrivers/Conceptual/AccessingHardware/AH_Finding_Devices/chapter_4_section_2.html
- */
+  Provides list of ports available in the system.
+
+  \section Usage
+  To poll the system for a list of connected devices, simply use getPorts().  Each
+  QextPortInfo structure will populated with information about the corresponding device.
+
+  \b Example
+  \code
+  QList<QextPortInfo> ports = QextSerialEnumerator::getPorts();
+  foreach( QextPortInfo port, ports ) {
+      // inspect port...
+  }
+  \endcode
+
+  To enable event-driven notification of device connection events, first call
+  setUpNotifications() and then connect to the deviceDiscovered() and deviceRemoved()
+  signals.  Event-driven behavior is currently available only on Windows and OS X.
+
+  \b Example
+  \code
+  QextSerialEnumerator* enumerator = new QextSerialEnumerator();
+  connect(enumerator, SIGNAL(deviceDiscovered(const QextPortInfo &)),
+             myClass, SLOT(onDeviceDiscovered(const QextPortInfo &)));
+  connect(enumerator, SIGNAL(deviceRemoved(const QextPortInfo &)),
+             myClass, SLOT(onDeviceRemoved(const QextPortInfo &)));
+  \endcode
+
+  \section Credits
+  Windows implementation is based on Zach Gorman's work from
+  <a href="http://www.codeproject.com">The Code Project</a> (http://www.codeproject.com/system/setupdi.asp).
+
+  OS X implementation, see
+  http://developer.apple.com/documentation/DeviceDrivers/Conceptual/AccessingHardware/AH_Finding_Devices/chapter_4_section_2.html
+*/
 class QextSerialEnumerator : public QObject
 {
 Q_OBJECT
@@ -135,14 +161,31 @@ Q_OBJECT
 
     public:
         /*!
-         * Get list of ports.
-         *  \return list of ports currently available in the system.
-         */
+          Get list of ports.
+          \return list of ports currently available in the system.
+        */
         static QList<QextPortInfo> getPorts();
+        /*!
+          Enable event-driven notifications of board discovery/removal.
+        */
         void setUpNotifications( );
 
     signals:
+        /*!
+          A new device has been connected to the system.
+
+          setUpNotifications() must be called first to enable event-driven device notifications.
+          Currently only implemented on Windows and OS X.
+          \param info The device that has been discovered.
+        */
         void deviceDiscovered( const QextPortInfo & info );
+        /*!
+          A device has been disconnected from the system.
+
+          setUpNotifications() must be called first to enable event-driven device notifications.
+          Currently only implemented on Windows and OS X.
+          \param info The device that was disconnected.
+        */
         void deviceRemoved( const QextPortInfo & info );
 };
 
