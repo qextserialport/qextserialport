@@ -61,7 +61,7 @@ QextSerialEnumerator::~QextSerialEnumerator( )
         DWORD size = 0;
         DWORD type;
         RegQueryValueEx(key, property, NULL, NULL, NULL, & size);
-        BYTE buff[size];
+        BYTE* buff = new BYTE[size];
         QString result;
         if( RegQueryValueEx(key, property, NULL, &type, buff, & size) == ERROR_SUCCESS ) {
             // might not be terminated...let QString terminate in this case
@@ -71,6 +71,7 @@ QextSerialEnumerator::~QextSerialEnumerator( )
             result = TCHARToQStringN(buff, size);
         }
         RegCloseKey(key);
+        delete [] buff;
         return result;
     }
 
@@ -79,10 +80,12 @@ QextSerialEnumerator::~QextSerialEnumerator( )
     {
         DWORD buffSize = 0;
         SetupDiGetDeviceRegistryProperty(devInfo, devData, property, NULL, NULL, 0, & buffSize);
-        BYTE buff[buffSize];
+        BYTE* buff = new BYTE[buffSize];
         if (!SetupDiGetDeviceRegistryProperty(devInfo, devData, property, NULL, buff, buffSize, NULL))
             qCritical("Can not obtain property: %ld from registry", property);
-        return TCHARToQString(buff);
+        QString result = TCHARToQString(buff);
+        delete [] buff;
+        return result;
     }
 
     //static
