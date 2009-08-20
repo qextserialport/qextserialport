@@ -1,61 +1,19 @@
 
-/*!
-\class Posix_QextSerialPort
-\version 1.0.0
-\author Stefan Sander
-\author Michal Policht
-
-A cross-platform serial port class.
-This class encapsulates the POSIX portion of QextSerialPort.  The user will be notified of errors
-and possible portability conflicts at run-time by default - this behavior can be turned off by
-defining _TTY_NOWARN_ (to turn off all warnings) or _TTY_NOWARN_PORT_ (to turn off portability
-warnings) in the project.  Note that _TTY_NOWARN_ will also turn off portability warnings.
-*/
 
 #include <fcntl.h>
 #include <stdio.h>
-#include "posix_qextserialport.h"
+#include "qextserialport.h"
 #include <QMutexLocker>
 #include <QDebug>
 
 /*!
-\fn Posix_QextSerialPort::Posix_QextSerialPort()
-Default constructor.  Note that the name of the device used by a QextSerialPort constructed with
-this constructor will be determined by #defined constants, or lack thereof - the default behavior
-is the same as _TTY_LINUX_.  Possible naming conventions and their associated constants are:
-
-\verbatim
-
-Constant         Used By         Naming Convention
-----------       -------------   ------------------------
-_TTY_WIN_        Windows         COM1, COM2
-_TTY_IRIX_       SGI/IRIX        /dev/ttyf1, /dev/ttyf2
-_TTY_HPUX_       HP-UX           /dev/tty1p0, /dev/tty2p0
-_TTY_SUN_        SunOS/Solaris   /dev/ttya, /dev/ttyb
-_TTY_DIGITAL_    Digital UNIX    /dev/tty01, /dev/tty02
-_TTY_FREEBSD_    FreeBSD         /dev/ttyd0, /dev/ttyd1
-_TTY_OPENBSD_    OpenBSD         /dev/tty00, /dev/tty01
-_TTY_LINUX_      Linux           /dev/ttyS0, /dev/ttyS1
-<none>           Linux           /dev/ttyS0, /dev/ttyS1
-\endverbatim
-
-This constructor assigns the device name to the name of the first port on the specified system.
-See the other constructors if you need to open a different port.
-*/
-Posix_QextSerialPort::Posix_QextSerialPort(QextSerialBase::QueryMode mode)
-: QextSerialBase()
-{
-    setQueryMode(mode);
-    init();
-}
-
-/*!
-\fn Posix_QextSerialPort::Posix_QextSerialPort(const Posix_QextSerialPort&)
+\fn QextSerialPort::QextSerialPort(const QextSerialPort&)
 Copy constructor.
 */
-Posix_QextSerialPort::Posix_QextSerialPort(const Posix_QextSerialPort& s)
- : QextSerialBase(s.port)
+QextSerialPort::QextSerialPort(const QextSerialPort& s)
+    : QIODevice()
 {
+    construct();
     setOpenMode(s.openMode());
     port = s.port;
     Settings.BaudRate=s.Settings.BaudRate;
@@ -66,66 +24,19 @@ Posix_QextSerialPort::Posix_QextSerialPort(const Posix_QextSerialPort& s)
     lastErr=s.lastErr;
 
     fd = s.fd;
+    readNotifier = 0;
     memcpy(&Posix_Timeout, &s.Posix_Timeout, sizeof(struct timeval));
     memcpy(&Posix_Copy_Timeout, &s.Posix_Copy_Timeout, sizeof(struct timeval));
     memcpy(&Posix_CommConfig, &s.Posix_CommConfig, sizeof(struct termios));
 }
 
 /*!
-\fn Posix_QextSerialPort::Posix_QextSerialPort(const QString & name)
-Constructs a serial port attached to the port specified by name.
-name is the name of the device, which is windowsystem-specific,
-e.g."COM1" or "/dev/ttyS0".
-*/
-Posix_QextSerialPort::Posix_QextSerialPort(const QString & name, QextSerialBase::QueryMode mode)
- : QextSerialBase(name)
-{
-    setQueryMode(mode);
-    init();
-}
-
-/*!
-\fn Posix_QextSerialPort::Posix_QextSerialPort(const PortSettings& settings)
-Constructs a port with default name and specified settings.
-*/
-Posix_QextSerialPort::Posix_QextSerialPort(const PortSettings& settings, QextSerialBase::QueryMode mode)
- : QextSerialBase()
-{
-    setBaudRate(settings.BaudRate);
-    setDataBits(settings.DataBits);
-    setParity(settings.Parity);
-    setStopBits(settings.StopBits);
-    setFlowControl(settings.FlowControl);
-
-    setTimeout(settings.Timeout_Millisec);
-    setQueryMode(mode);
-    init();
-}
-
-/*!
-\fn Posix_QextSerialPort::Posix_QextSerialPort(const QString & name, const PortSettings& settings)
-Constructs a port with specified name and settings.
-*/
-Posix_QextSerialPort::Posix_QextSerialPort(const QString & name, const PortSettings& settings, QextSerialBase::QueryMode mode)
- : QextSerialBase(name)
-{
-    setBaudRate(settings.BaudRate);
-    setDataBits(settings.DataBits);
-    setParity(settings.Parity);
-    setStopBits(settings.StopBits);
-    setFlowControl(settings.FlowControl);
-
-    setTimeout(settings.Timeout_Millisec);
-    setQueryMode(mode);
-    init();
-}
-
-/*!
-\fn Posix_QextSerialPort& Posix_QextSerialPort::operator=(const Posix_QextSerialPort& s)
+\fn QextSerialPort& QextSerialPort::operator=(const QextSerialPort& s)
 Override the = operator.
 */
-Posix_QextSerialPort& Posix_QextSerialPort::operator=(const Posix_QextSerialPort& s)
+QextSerialPort& QextSerialPort::operator=(const QextSerialPort& s)
 {
+    construct();
     setOpenMode(s.openMode());
     port = s.port;
     Settings.BaudRate=s.Settings.BaudRate;
@@ -136,33 +47,30 @@ Posix_QextSerialPort& Posix_QextSerialPort::operator=(const Posix_QextSerialPort
     lastErr=s.lastErr;
 
     fd = s.fd;
+    readNotifier = 0;
     memcpy(& Posix_Timeout, &(s.Posix_Timeout), sizeof(struct timeval));
     memcpy(& Posix_Copy_Timeout, &(s.Posix_Copy_Timeout), sizeof(struct timeval));
     memcpy(& Posix_CommConfig, &(s.Posix_CommConfig), sizeof(struct termios));
     return *this;
 }
 
-void Posix_QextSerialPort::init()
+void QextSerialPort::platformSpecificInit()
 {
     fd = 0;
     readNotifier = 0;
-    if (queryMode() == QextSerialBase::EventDriven)
+    if (queryMode() == QextSerialPort::EventDriven)
         qWarning("POSIX doesn't have event driven mechanism for writes implemented yet - reads are OK.");
 }
 
 /*!
-\fn Posix_QextSerialPort::~Posix_QextSerialPort()
+\fn QextSerialPort::~QextSerialPort()
 Standard destructor.
 */
-Posix_QextSerialPort::~Posix_QextSerialPort()
-{
-    if (isOpen()) {
-        close();
-    }
-}
+void QextSerialPort::platformSpecificDestruct()
+{}
 
 /*!
-\fn void Posix_QextSerialPort::setBaudRate(BaudRateType baudRate)
+\fn void QextSerialPort::setBaudRate(BaudRateType baudRate)
 Sets the baud rate of the serial port.  Note that not all rates are applicable on
 all platforms.  The following table shows translations of the various baud rate
 constants on Windows(including NT/2000) and POSIX platforms.  Speeds marked with an *
@@ -200,7 +108,7 @@ BAUD1800.
    BAUD256000          256000      115200
 \endverbatim
 */
-void Posix_QextSerialPort::setBaudRate(BaudRateType baudRate)
+void QextSerialPort::setBaudRate(BaudRateType baudRate)
 {
     QMutexLocker lock(mutex);
     if (Settings.BaudRate!=baudRate) {
@@ -237,7 +145,7 @@ void Posix_QextSerialPort::setBaudRate(BaudRateType baudRate)
 
             /*50 baud*/
             case BAUD50:
-                TTY_PORTABILITY_WARNING("Posix_QextSerialPort Portability Warning: Windows does not support 50 baud operation.");
+                TTY_PORTABILITY_WARNING("QextSerialPort Portability Warning: Windows does not support 50 baud operation.");
 #ifdef CBAUD
                 Posix_CommConfig.c_cflag&=(~CBAUD);
                 Posix_CommConfig.c_cflag|=B50;
@@ -249,7 +157,7 @@ void Posix_QextSerialPort::setBaudRate(BaudRateType baudRate)
 
             /*75 baud*/
             case BAUD75:
-                TTY_PORTABILITY_WARNING("Posix_QextSerialPort Portability Warning: Windows does not support 75 baud operation.");
+                TTY_PORTABILITY_WARNING("QextSerialPort Portability Warning: Windows does not support 75 baud operation.");
 #ifdef CBAUD
                 Posix_CommConfig.c_cflag&=(~CBAUD);
                 Posix_CommConfig.c_cflag|=B75;
@@ -272,7 +180,7 @@ void Posix_QextSerialPort::setBaudRate(BaudRateType baudRate)
 
             /*134.5 baud*/
             case BAUD134:
-                TTY_PORTABILITY_WARNING("Posix_QextSerialPort Portability Warning: Windows does not support 134.5 baud operation.");
+                TTY_PORTABILITY_WARNING("QextSerialPort Portability Warning: Windows does not support 134.5 baud operation.");
 #ifdef CBAUD
                 Posix_CommConfig.c_cflag&=(~CBAUD);
                 Posix_CommConfig.c_cflag|=B134;
@@ -284,7 +192,7 @@ void Posix_QextSerialPort::setBaudRate(BaudRateType baudRate)
 
             /*150 baud*/
             case BAUD150:
-                TTY_PORTABILITY_WARNING("Posix_QextSerialPort Portability Warning: Windows does not support 150 baud operation.");
+                TTY_PORTABILITY_WARNING("QextSerialPort Portability Warning: Windows does not support 150 baud operation.");
 #ifdef CBAUD
                 Posix_CommConfig.c_cflag&=(~CBAUD);
                 Posix_CommConfig.c_cflag|=B150;
@@ -296,7 +204,7 @@ void Posix_QextSerialPort::setBaudRate(BaudRateType baudRate)
 
             /*200 baud*/
             case BAUD200:
-                TTY_PORTABILITY_WARNING("Posix_QextSerialPort Portability Warning: Windows does not support 200 baud operation.");
+                TTY_PORTABILITY_WARNING("QextSerialPort Portability Warning: Windows does not support 200 baud operation.");
 #ifdef CBAUD
                 Posix_CommConfig.c_cflag&=(~CBAUD);
                 Posix_CommConfig.c_cflag|=B200;
@@ -341,7 +249,7 @@ void Posix_QextSerialPort::setBaudRate(BaudRateType baudRate)
 
             /*1800 baud*/
             case BAUD1800:
-                TTY_PORTABILITY_WARNING("Posix_QextSerialPort Portability Warning: Windows and IRIX do not support 1800 baud operation.");
+                TTY_PORTABILITY_WARNING("QextSerialPort Portability Warning: Windows and IRIX do not support 1800 baud operation.");
 #ifdef CBAUD
                 Posix_CommConfig.c_cflag&=(~CBAUD);
                 Posix_CommConfig.c_cflag|=B1800;
@@ -386,7 +294,7 @@ void Posix_QextSerialPort::setBaudRate(BaudRateType baudRate)
 
             /*14400 baud*/
             case BAUD14400:
-                TTY_WARNING("Posix_QextSerialPort: POSIX does not support 14400 baud operation.  Switching to 9600 baud.");
+                TTY_WARNING("QextSerialPort: POSIX does not support 14400 baud operation.  Switching to 9600 baud.");
 #ifdef CBAUD
                 Posix_CommConfig.c_cflag&=(~CBAUD);
                 Posix_CommConfig.c_cflag|=B9600;
@@ -420,7 +328,7 @@ void Posix_QextSerialPort::setBaudRate(BaudRateType baudRate)
 
             /*56000 baud*/
             case BAUD56000:
-                TTY_WARNING("Posix_QextSerialPort: POSIX does not support 56000 baud operation.  Switching to 38400 baud.");
+                TTY_WARNING("QextSerialPort: POSIX does not support 56000 baud operation.  Switching to 38400 baud.");
 #ifdef CBAUD
                 Posix_CommConfig.c_cflag&=(~CBAUD);
                 Posix_CommConfig.c_cflag|=B38400;
@@ -443,14 +351,14 @@ void Posix_QextSerialPort::setBaudRate(BaudRateType baudRate)
 
             /*76800 baud*/
             case BAUD76800:
-                TTY_PORTABILITY_WARNING("Posix_QextSerialPort Portability Warning: Windows and some POSIX systems do not support 76800 baud operation.");
+                TTY_PORTABILITY_WARNING("QextSerialPort Portability Warning: Windows and some POSIX systems do not support 76800 baud operation.");
 #ifdef CBAUD
                 Posix_CommConfig.c_cflag&=(~CBAUD);
 
 #ifdef B76800
                 Posix_CommConfig.c_cflag|=B76800;
 #else
-                TTY_WARNING("Posix_QextSerialPort: Posix_QextSerialPort was compiled without 76800 baud support.  Switching to 57600 baud.");
+                TTY_WARNING("QextSerialPort: QextSerialPort was compiled without 76800 baud support.  Switching to 57600 baud.");
                 Posix_CommConfig.c_cflag|=B57600;
 #endif //B76800
 #else  //CBAUD
@@ -458,7 +366,7 @@ void Posix_QextSerialPort::setBaudRate(BaudRateType baudRate)
                 cfsetispeed(&Posix_CommConfig, B76800);
                 cfsetospeed(&Posix_CommConfig, B76800);
 #else
-                TTY_WARNING("Posix_QextSerialPort: Posix_QextSerialPort was compiled without 76800 baud support.  Switching to 57600 baud.");
+                TTY_WARNING("QextSerialPort: QextSerialPort was compiled without 76800 baud support.  Switching to 57600 baud.");
                 cfsetispeed(&Posix_CommConfig, B57600);
                 cfsetospeed(&Posix_CommConfig, B57600);
 #endif //B76800
@@ -478,7 +386,7 @@ void Posix_QextSerialPort::setBaudRate(BaudRateType baudRate)
 
             /*128000 baud*/
             case BAUD128000:
-                TTY_WARNING("Posix_QextSerialPort: POSIX does not support 128000 baud operation.  Switching to 115200 baud.");
+                TTY_WARNING("QextSerialPort: POSIX does not support 128000 baud operation.  Switching to 115200 baud.");
 #ifdef CBAUD
                 Posix_CommConfig.c_cflag&=(~CBAUD);
                 Posix_CommConfig.c_cflag|=B115200;
@@ -490,7 +398,7 @@ void Posix_QextSerialPort::setBaudRate(BaudRateType baudRate)
 
             /*256000 baud*/
             case BAUD256000:
-                TTY_WARNING("Posix_QextSerialPort: POSIX does not support 256000 baud operation.  Switching to 115200 baud.");
+                TTY_WARNING("QextSerialPort: POSIX does not support 256000 baud operation.  Switching to 115200 baud.");
 #ifdef CBAUD
                 Posix_CommConfig.c_cflag&=(~CBAUD);
                 Posix_CommConfig.c_cflag|=B115200;
@@ -505,7 +413,7 @@ void Posix_QextSerialPort::setBaudRate(BaudRateType baudRate)
 }
 
 /*!
-\fn void Posix_QextSerialPort::setDataBits(DataBitsType dataBits)
+\fn void QextSerialPort::setDataBits(DataBitsType dataBits)
 Sets the number of data bits used by the serial port.  Possible values of dataBits are:
 \verbatim
     DATA_5      5 data bits
@@ -522,7 +430,7 @@ This function is subject to the following restrictions:
     8 data bits cannot be used with space parity on POSIX systems.
 
 */
-void Posix_QextSerialPort::setDataBits(DataBitsType dataBits)
+void QextSerialPort::setDataBits(DataBitsType dataBits)
 {
     QMutexLocker lock(mutex);
     if (Settings.DataBits!=dataBits) {
@@ -540,7 +448,7 @@ void Posix_QextSerialPort::setDataBits(DataBitsType dataBits)
             /*5 data bits*/
             case DATA_5:
                 if (Settings.StopBits==STOP_2) {
-                    TTY_WARNING("Posix_QextSerialPort: 5 Data bits cannot be used with 2 stop bits.");
+                    TTY_WARNING("QextSerialPort: 5 Data bits cannot be used with 2 stop bits.");
                 }
                 else {
                     Settings.DataBits=dataBits;
@@ -553,7 +461,7 @@ void Posix_QextSerialPort::setDataBits(DataBitsType dataBits)
             /*6 data bits*/
             case DATA_6:
                 if (Settings.StopBits==STOP_1_5) {
-                    TTY_WARNING("Posix_QextSerialPort: 6 Data bits cannot be used with 1.5 stop bits.");
+                    TTY_WARNING("QextSerialPort: 6 Data bits cannot be used with 1.5 stop bits.");
                 }
                 else {
                     Settings.DataBits=dataBits;
@@ -566,7 +474,7 @@ void Posix_QextSerialPort::setDataBits(DataBitsType dataBits)
             /*7 data bits*/
             case DATA_7:
                 if (Settings.StopBits==STOP_1_5) {
-                    TTY_WARNING("Posix_QextSerialPort: 7 Data bits cannot be used with 1.5 stop bits.");
+                    TTY_WARNING("QextSerialPort: 7 Data bits cannot be used with 1.5 stop bits.");
                 }
                 else {
                     Settings.DataBits=dataBits;
@@ -579,7 +487,7 @@ void Posix_QextSerialPort::setDataBits(DataBitsType dataBits)
             /*8 data bits*/
             case DATA_8:
                 if (Settings.StopBits==STOP_1_5) {
-                    TTY_WARNING("Posix_QextSerialPort: 8 Data bits cannot be used with 1.5 stop bits.");
+                    TTY_WARNING("QextSerialPort: 8 Data bits cannot be used with 1.5 stop bits.");
                 }
                 else {
                     Settings.DataBits=dataBits;
@@ -593,7 +501,7 @@ void Posix_QextSerialPort::setDataBits(DataBitsType dataBits)
 }
 
 /*!
-\fn void Posix_QextSerialPort::setParity(ParityType parity)
+\fn void QextSerialPort::setParity(ParityType parity)
 Sets the parity associated with the serial port.  The possible values of parity are:
 \verbatim
     PAR_SPACE       Space Parity
@@ -612,7 +520,7 @@ POSIX systems support space parity only if tricked into doing so, and only with
    fewer than 8 data bits.  Use space parity very carefully with POSIX systems.
 
 */
-void Posix_QextSerialPort::setParity(ParityType parity)
+void QextSerialPort::setParity(ParityType parity)
 {
     QMutexLocker lock(mutex);
     if (Settings.Parity!=parity) {
@@ -628,7 +536,7 @@ void Posix_QextSerialPort::setParity(ParityType parity)
             /*space parity*/
             case PAR_SPACE:
                 if (Settings.DataBits==DATA_8) {
-                    TTY_PORTABILITY_WARNING("Posix_QextSerialPort:  Space parity is only supported in POSIX with 7 or fewer data bits");
+                    TTY_PORTABILITY_WARNING("QextSerialPort:  Space parity is only supported in POSIX with 7 or fewer data bits");
                 }
                 else {
 
@@ -659,7 +567,7 @@ void Posix_QextSerialPort::setParity(ParityType parity)
 
             /*mark parity - WINDOWS ONLY*/
             case PAR_MARK:
-                TTY_WARNING("Posix_QextSerialPort: Mark parity is not supported by POSIX.");
+                TTY_WARNING("QextSerialPort: Mark parity is not supported by POSIX.");
                 break;
 
             /*no parity*/
@@ -685,7 +593,7 @@ void Posix_QextSerialPort::setParity(ParityType parity)
 }
 
 /*!
-\fn void Posix_QextSerialPort::setStopBits(StopBitsType stopBits)
+\fn void QextSerialPort::setStopBits(StopBitsType stopBits)
 Sets the number of stop bits used by the serial port.  Possible values of stopBits are:
 \verbatim
     STOP_1      1 stop bit
@@ -700,7 +608,7 @@ This function is subject to the following restrictions:
     POSIX does not support 1.5 stop bits.
 
 */
-void Posix_QextSerialPort::setStopBits(StopBitsType stopBits)
+void QextSerialPort::setStopBits(StopBitsType stopBits)
 {
     QMutexLocker lock(mutex);
     if (Settings.StopBits!=stopBits) {
@@ -721,13 +629,13 @@ void Posix_QextSerialPort::setStopBits(StopBitsType stopBits)
 
             /*1.5 stop bits*/
             case STOP_1_5:
-                TTY_WARNING("Posix_QextSerialPort: 1.5 stop bit operation is not supported by POSIX.");
+                TTY_WARNING("QextSerialPort: 1.5 stop bit operation is not supported by POSIX.");
                 break;
 
             /*two stop bits*/
             case STOP_2:
                 if (Settings.DataBits==DATA_5) {
-                    TTY_WARNING("Posix_QextSerialPort: 2 stop bits cannot be used with 5 data bits");
+                    TTY_WARNING("QextSerialPort: 2 stop bits cannot be used with 5 data bits");
                 }
                 else {
                     Settings.StopBits=stopBits;
@@ -740,7 +648,7 @@ void Posix_QextSerialPort::setStopBits(StopBitsType stopBits)
 }
 
 /*!
-\fn void Posix_QextSerialPort::setFlowControl(FlowType flow)
+\fn void QextSerialPort::setFlowControl(FlowType flow)
 Sets the flow control used by the port.  Possible values of flow are:
 \verbatim
     FLOW_OFF            No flow control
@@ -752,7 +660,7 @@ FLOW_HARDWARE may not be supported on all versions of UNIX.  In cases where it i
 unsupported, FLOW_HARDWARE is the same as FLOW_OFF.
 
 */
-void Posix_QextSerialPort::setFlowControl(FlowType flow)
+void QextSerialPort::setFlowControl(FlowType flow)
 {
     QMutexLocker lock(mutex);
     if (Settings.FlowControl!=flow) {
@@ -785,7 +693,7 @@ void Posix_QextSerialPort::setFlowControl(FlowType flow)
 }
 
 /*!
-\fn void Posix_QextSerialPort::setTimeout(ulong sec);
+\fn void QextSerialPort::setTimeout(ulong sec);
 Sets the read and write timeouts for the port to millisec milliseconds.
 Note that this is a per-character timeout, i.e. the port will wait this long for each
 individual character, not for the whole read operation.  This timeout also applies to the
@@ -801,7 +709,7 @@ so for example a 550-millisecond timeout will be seen as 550 milliseconds on POS
 the purpose of detecting available bytes in the read buffer.
 
 */
-void Posix_QextSerialPort::setTimeout(long millisec)
+void QextSerialPort::setTimeout(long millisec)
 {
     QMutexLocker lock(mutex);
     Settings.Timeout_Millisec = millisec;
@@ -821,12 +729,12 @@ void Posix_QextSerialPort::setTimeout(long millisec)
 }
 
 /*!
-\fn bool Posix_QextSerialPort::open(OpenMode mode)
+\fn bool QextSerialPort::open(OpenMode mode)
 Opens the serial port associated to this class.
 This function has no effect if the port associated with the class is already open.
 The port is also configured to the current settings, as stored in the Settings structure.
 */
-bool Posix_QextSerialPort::open(OpenMode mode)
+bool QextSerialPort::open(OpenMode mode)
 {
     QMutexLocker lock(mutex);
     if (mode == QIODevice::NotOpen)
@@ -866,7 +774,7 @@ bool Posix_QextSerialPort::open(OpenMode mode)
             setTimeout(Settings.Timeout_Millisec);
             tcsetattr(fd, TCSAFLUSH, &Posix_CommConfig);
 
-            if (queryMode() == QextSerialBase::EventDriven) {
+            if (queryMode() == QextSerialPort::EventDriven) {
                 readNotifier = new QSocketNotifier(fd, QSocketNotifier::Read, this);
                 connect(readNotifier, SIGNAL(activated(int)), this, SIGNAL(readyRead()));
             }
@@ -878,11 +786,11 @@ bool Posix_QextSerialPort::open(OpenMode mode)
 }
 
 /*!
-\fn void Posix_QextSerialPort::close()
+\fn void QextSerialPort::close()
 Closes a serial port.  This function has no effect if the serial port associated with the class
 is not currently open.
 */
-void Posix_QextSerialPort::close()
+void QextSerialPort::close()
 {
     QMutexLocker lock(mutex);
     if( isOpen() )
@@ -904,11 +812,11 @@ void Posix_QextSerialPort::close()
 }
 
 /*!
-\fn void Posix_QextSerialPort::flush()
+\fn void QextSerialPort::flush()
 Flushes all pending I/O to the serial port.  This function has no effect if the serial port
 associated with the class is not currently open.
 */
-void Posix_QextSerialPort::flush()
+void QextSerialPort::flush()
 {
     QMutexLocker lock(mutex);
     if (isOpen())
@@ -916,13 +824,13 @@ void Posix_QextSerialPort::flush()
 }
 
 /*!
-\fn qint64 Posix_QextSerialPort::size() const
+\fn qint64 QextSerialPort::size() const
 This function will return the number of bytes waiting in the receive queue of the serial port.
 It is included primarily to provide a complete QIODevice interface, and will not record errors
 in the lastErr member (because it is const).  This function is also not thread-safe - in
-multithreading situations, use Posix_QextSerialPort::bytesWaiting() instead.
+multithreading situations, use QextSerialPort::bytesWaiting() instead.
 */
-qint64 Posix_QextSerialPort::size() const
+qint64 QextSerialPort::size() const
 {
     int numBytes;
     if (ioctl(fd, FIONREAD, &numBytes)<0) {
@@ -932,11 +840,11 @@ qint64 Posix_QextSerialPort::size() const
 }
 
 /*!
-\fn qint64 Posix_QextSerialPort::bytesAvailable()
+\fn qint64 QextSerialPort::bytesAvailable()
 Returns the number of bytes waiting in the port's receive queue.  This function will return 0 if
 the port is not currently open, or -1 on error.
 */
-qint64 Posix_QextSerialPort::bytesAvailable() const
+qint64 QextSerialPort::bytesAvailable() const
 {
     QMutexLocker lock(mutex);
     if (isOpen()) {
@@ -950,22 +858,22 @@ qint64 Posix_QextSerialPort::bytesAvailable() const
 }
 
 /*!
-\fn void Posix_QextSerialPort::ungetChar(char)
+\fn void QextSerialPort::ungetChar(char)
 This function is included to implement the full QIODevice interface, and currently has no
 purpose within this class.  This function is meaningless on an unbuffered device and currently
 only prints a warning message to that effect.
 */
-void Posix_QextSerialPort::ungetChar(char)
+void QextSerialPort::ungetChar(char)
 {
     /*meaningless on unbuffered sequential device - return error and print a warning*/
-    TTY_WARNING("Posix_QextSerialPort: ungetChar() called on an unbuffered sequential device - operation is meaningless");
+    TTY_WARNING("QextSerialPort: ungetChar() called on an unbuffered sequential device - operation is meaningless");
 }
 
 /*!
-\fn void Posix_QextSerialPort::translateError(ulong error)
+\fn void QextSerialPort::translateError(ulong error)
 Translates a system-specific error code to a QextSerialPort error code.  Used internally.
 */
-void Posix_QextSerialPort::translateError(ulong error)
+void QextSerialPort::translateError(ulong error)
 {
     switch (error) {
         case EBADF:
@@ -984,11 +892,11 @@ void Posix_QextSerialPort::translateError(ulong error)
 }
 
 /*!
-\fn void Posix_QextSerialPort::setDtr(bool set)
+\fn void QextSerialPort::setDtr(bool set)
 Sets DTR line to the requested state (high by default).  This function will have no effect if
 the port associated with the class is not currently open.
 */
-void Posix_QextSerialPort::setDtr(bool set)
+void QextSerialPort::setDtr(bool set)
 {
     QMutexLocker lock(mutex);
     if (isOpen()) {
@@ -1005,11 +913,11 @@ void Posix_QextSerialPort::setDtr(bool set)
 }
 
 /*!
-\fn void Posix_QextSerialPort::setRts(bool set)
+\fn void QextSerialPort::setRts(bool set)
 Sets RTS line to the requested state (high by default).  This function will have no effect if
 the port associated with the class is not currently open.
 */
-void Posix_QextSerialPort::setRts(bool set)
+void QextSerialPort::setRts(bool set)
 {
     QMutexLocker lock(mutex);
     if (isOpen()) {
@@ -1026,7 +934,7 @@ void Posix_QextSerialPort::setRts(bool set)
 }
 
 /*!
-\fn unsigned long Posix_QextSerialPort::lineStatus()
+\fn unsigned long QextSerialPort::lineStatus()
 returns the line status as stored by the port function.  This function will retrieve the states
 of the following lines: DCD, CTS, DSR, and RI.  On POSIX systems, the following additional lines
 can be monitored: DTR, RTS, Secondary TXD, and Secondary RXD.  The value returned is an unsigned
@@ -1048,7 +956,7 @@ LS_SR       Secondary RXD (POSIX only)
 
 This function will return 0 if the port associated with the class is not currently open.
 */
-unsigned long Posix_QextSerialPort::lineStatus()
+unsigned long QextSerialPort::lineStatus()
 {
     unsigned long Status=0, Temp=0;
     QMutexLocker lock(mutex);
@@ -1083,7 +991,7 @@ unsigned long Posix_QextSerialPort::lineStatus()
 }
 
 /*!
-\fn qint64 Posix_QextSerialPort::readData(char * data, qint64 maxSize)
+\fn qint64 QextSerialPort::readData(char * data, qint64 maxSize)
 Reads a block of data from the serial port.  This function will read at most maxSize bytes from
 the serial port and place them in the buffer pointed to by data.  Return value is the number of
 bytes actually read, or -1 on error.
@@ -1091,7 +999,7 @@ bytes actually read, or -1 on error.
 \warning before calling this function ensure that serial port associated with this class
 is currently open (use isOpen() function to check if port is open).
 */
-qint64 Posix_QextSerialPort::readData(char * data, qint64 maxSize)
+qint64 QextSerialPort::readData(char * data, qint64 maxSize)
 {
     QMutexLocker lock(mutex);
     int retVal = 0;
@@ -1103,7 +1011,7 @@ qint64 Posix_QextSerialPort::readData(char * data, qint64 maxSize)
 }
 
 /*!
-\fn qint64 Posix_QextSerialPort::writeData(const char * data, qint64 maxSize)
+\fn qint64 QextSerialPort::writeData(const char * data, qint64 maxSize)
 Writes a block of data to the serial port.  This function will write maxSize bytes
 from the buffer pointed to by data to the serial port.  Return value is the number
 of bytes actually written, or -1 on error.
@@ -1111,7 +1019,7 @@ of bytes actually written, or -1 on error.
 \warning before calling this function ensure that serial port associated with this class
 is currently open (use isOpen() function to check if port is open).
 */
-qint64 Posix_QextSerialPort::writeData(const char * data, qint64 maxSize)
+qint64 QextSerialPort::writeData(const char * data, qint64 maxSize)
 {
     QMutexLocker lock(mutex);
     int retVal = 0;
