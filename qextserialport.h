@@ -130,7 +130,9 @@ struct PortSettings
 #include <sys/select.h>
 #include <QSocketNotifier>
 #elif (defined _TTY_WIN_)
-
+#include <windows.h>
+#include <QThread>
+#include <QReadWriteLock>
 #endif
 
 /*!
@@ -237,6 +239,11 @@ class QextSerialPort: public QIODevice
         void setRts(bool set=true);
         ulong lineStatus();
 
+#ifdef _TTY_WIN_
+        virtual qint64 bytesToWrite() const;
+        virtual bool waitForReadyRead(int msecs);  ///< @todo implement.
+#endif
+
     protected:
         QMutex* mutex;
         QString port;
@@ -252,8 +259,22 @@ class QextSerialPort: public QIODevice
         struct termios old_termios;
         struct timeval Posix_Timeout;
         struct timeval Posix_Copy_Timeout;
-#elif (defined _TTY_WIN_
+#elif (defined _TTY_WIN_)
+        friend class Win_QextSerialThread;
 
+        HANDLE Win_Handle;
+        HANDLE threadStartEvent;
+        HANDLE threadTerminateEvent;
+        OVERLAPPED overlap;
+        QList<OVERLAPPED*> overlappedWrites;
+        COMMCONFIG Win_CommConfig;
+        COMMTIMEOUTS Win_CommTimeouts;
+        QReadWriteLock * bytesToWriteLock;  ///< @todo maybe move to QextSerialBase.
+        qint64 _bytesToWrite;  ///< @todo maybe move to QextSerialBase (and implement in POSIX).
+        Win_QextSerialThread * overlapThread; ///< @todo maybe move to QextSerialBase (and implement in POSIX).
+
+        void monitorCommEvent();
+        void terminateCommWait();
 #endif
 
         void construct(); // common construction
@@ -281,5 +302,31 @@ class QextSerialPort: public QIODevice
         void dsrChanged(bool status);
 
 };
+
+#ifdef _TTY_WIN_
+class Win_QextSerialThread: public QThread
+{
+    QextSerialPort * qesp;
+    bool terminate;
+
+    public:
+        /*!
+         * Constructor.
+         *
+         * \param qesp valid serial port object.
+         */
+        Win_QextSerialThread(QextSerialPort * qesp);
+
+        /*!
+         * Stop the thread.
+         */
+        void stop();
+
+    protected:
+        //overriden
+        virtual void run();
+
+};
+#endif
 
 #endif

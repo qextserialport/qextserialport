@@ -3,6 +3,10 @@
 #include <stdio.h>
 #include "qextserialport.h"
 
+#ifdef _TTY_WIN_
+#include <QRegExp>
+#endif
+
 /*!
 \fn QextSerialPort::QextSerialPort()
 Default constructor.  Note that the name of the device used by a QextSerialPort constructed with
@@ -108,7 +112,6 @@ QextSerialPort::QextSerialPort(const PortSettings& settings, QextSerialPort::Que
     setParity(settings.Parity);
     setStopBits(settings.StopBits);
     setFlowControl(settings.FlowControl);
-
     setTimeout(settings.Timeout_Millisec);
     setQueryMode(mode);
     platformSpecificInit();
@@ -128,7 +131,6 @@ QextSerialPort::QextSerialPort(const QString & name, const PortSettings& setting
     setParity(settings.Parity);
     setStopBits(settings.StopBits);
     setFlowControl(settings.FlowControl);
-
     setTimeout(settings.Timeout_Millisec);
     setQueryMode(mode);
     platformSpecificInit();

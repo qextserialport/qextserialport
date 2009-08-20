@@ -1,15 +1,11 @@
 PROJECT                 = qextserialport
 TEMPLATE                = lib
 
-CONFIG                 += debug_and_release
-
-CONFIG                 += qt
-CONFIG                 += warn_on
-CONFIG                 += thread
-
+CONFIG                 += qt warn_on thread debug_and_release
 CONFIG                  += dll
 #CONFIG                 += staticlib
 
+# event driven device enumeration on windows requires the gui module
 !win32:QT               -= gui
 
 OBJECTS_DIR             = build/obj
@@ -25,11 +21,9 @@ unix:SOURCES           += posix_qextserialport.cpp
 unix:DEFINES           += _TTY_POSIX_
 macx: LIBS             += -framework IOKit
 
-
-win32:HEADERS          += win_qextserialport.h
 win32:SOURCES          += win_qextserialport.cpp
 win32:DEFINES          += _TTY_WIN_
-win32:DEFINES          += WINVER=0x0501 # needed for mingw to pull in appropriate dbt business
+win32:DEFINES          += WINVER=0x0501 # needed for mingw to pull in appropriate dbt business...probably a better way to do this
 win32:LIBS             += -lsetupapi
 
 
@@ -44,4 +38,4 @@ CONFIG(debug, debug|release) {
     TARGET = qextserialport
 }
 
-unix:VERSION            = 1.2.0
+VERSION            = 1.2.0
