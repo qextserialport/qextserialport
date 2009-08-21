@@ -267,6 +267,29 @@ qint64 QextSerialPort::readLine(char * data, qint64 maxSize)
     return (pData-data);
 }
 
+QString QextSerialPort::errorString()
+{
+    switch(lastErr)
+    {
+        case E_NO_ERROR: return "No Error has occurred";
+        case E_INVALID_FD: return "Invalid file descriptor (port was not opened correctly)";
+        case E_NO_MEMORY: return "Unable to allocate memory tables (POSIX)";
+        case E_CAUGHT_NON_BLOCKED_SIGNAL: return "Caught a non-blocked signal (POSIX)";
+        case E_PORT_TIMEOUT: return "Operation timed out (POSIX)";
+        case E_INVALID_DEVICE: return "The file opened by the port is not a valid device";
+        case E_BREAK_CONDITION: return "The port detected a break condition";
+        case E_FRAMING_ERROR: return "The port detected a framing error (usually caused by incorrect baud rate settings)";
+        case E_IO_ERROR: return "There was an I/O error while communicating with the port";
+        case E_BUFFER_OVERRUN: return "Character buffer overrun";
+        case E_RECEIVE_OVERFLOW: return "Receive buffer overflow";
+        case E_RECEIVE_PARITY_ERROR: return "The port detected a parity error in the received data";
+        case E_TRANSMIT_OVERFLOW: return "Transmit buffer overflow";
+        case E_READ_FAILED: return "General read operation failure";
+        case E_WRITE_FAILED: return "General write operation failure";
+        default: return QString("Unknown error: %1").arg(lastErr);
+    }
+}
+
 ///*!
 //Copy constructor.
 //

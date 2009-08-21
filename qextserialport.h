@@ -157,7 +157,7 @@ void MyClass::onDataAvailable() {
     if( avail > 0 ) {
         QByteArray usbdata;
         usbdata.resize(avail);
-        int read = usbPort->read(usbdata.data(), usbdata.size());
+        int read = port->read(usbdata.data(), usbdata.size());
         if( read > 0 ) {
             processNewData(usbdata);
         }
@@ -263,6 +263,7 @@ class QextSerialPort: public QIODevice
         void setDtr(bool set=true);
         void setRts(bool set=true);
         ulong lineStatus();
+        QString errorString();
 
 #ifdef _TTY_WIN_
         virtual qint64 bytesToWrite() const;
