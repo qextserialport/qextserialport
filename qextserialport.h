@@ -136,20 +136,45 @@ struct PortSettings
 #endif
 
 /*!
-\author Stefan Sander, Michal Policht, Brandon Fosdick, Liam Staskawicz
-
-A cross-platform serial port class.
-This class encapsulates a serial port on both POSIX and Windows systems.  The user will be
-notified of errors and possible portability conflicts at run-time by default - this behavior can
-be turned off by defining _TTY_NOWARN_ (to turn off all warnings) or _TTY_NOWARN_PORT_ (to turn
-off portability warnings) in the project.
-
-You may choose from polling or event driven API. For details check setQueryMode() documentation.
+Encapsulates a serial port on both POSIX and Windows systems.
 
 \note
+Be sure to check the full list of members, as QIODevice provides quite a lot of
+functionality for QextSerialPort.
+
+\section Usage
+QextSerialPort offers both a polling and event driven API.  Event driven is typically easier
+to use, since you never have to worry about checking for new data.
+
+\b Example
+\code
+QextSerialPort* port = new QextSerialPort("COM1", QextSerialPort::EventDriven);
+connect(port, SIGNAL(readyRead()), myClass, SLOT(onDataAvailable()));
+port->open();
+
+void MyClass::onDataAvailable() {
+    int avail = port->bytesAvailable();
+    if( avail > 0 ) {
+        QByteArray usbdata;
+        usbdata.resize(avail);
+        int read = usbPort->read(usbdata.data(), usbdata.size());
+        if( read > 0 ) {
+            processNewData(usbdata);
+        }
+    }
+}
+\endcode
+
+\section Compatibility
+The user will be notified of errors and possible portability conflicts at run-time
+by default - this behavior can be turned off by defining _TTY_NOWARN_
+(to turn off all warnings) or _TTY_NOWARN_PORT_ (to turn off portability warnings) in the project.
+
 On Windows NT/2000/XP this class uses Win32 serial port functions by default.  The user may
-select POSIX behavior under NT, 2000, or XP ONLY by defining _TTY_POSIX_ in the project. I can
-make no guarantees as to the quality of POSIX support under NT/2000 however.
+select POSIX behavior under NT, 2000, or XP ONLY by defining _TTY_POSIX_ in the project.
+No guarantees are made as to the quality of POSIX support under NT/2000 however.
+
+\author Stefan Sander, Michal Policht, Brandon Fosdick, Liam Staskawicz
 */
 class QextSerialPort: public QIODevice
 {
