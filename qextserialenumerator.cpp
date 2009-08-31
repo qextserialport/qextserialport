@@ -226,14 +226,7 @@ QextSerialEnumerator::~QextSerialEnumerator( )
         portInfo->enumName = getDeviceProperty(devInfo, devData, SPDRP_ENUMERATOR_NAME);
         QString hardwareIDs = getDeviceProperty(devInfo, devData, SPDRP_HARDWAREID);
         HKEY devKey = SetupDiOpenDevRegKey(devInfo, devData, DICS_FLAG_GLOBAL, 0, DIREG_DEV, KEY_READ);
-        portInfo->portName = getRegKeyValue(devKey, TEXT("PortName"));
-        QRegExp rx("COM(\\d+)");
-        if(portInfo->portName.contains(rx))
-        {
-            int portnum = rx.cap(1).toInt();
-            if(portnum > 9)
-                portInfo->portName.prepend("\\\\.\\"); // COM ports greater than 9 need \\.\ prepended
-        }
+        portInfo->portName = QextSerialPort::fullPortNameWin( getRegKeyValue(devKey, TEXT("PortName")) );
         QRegExp idRx("VID_(\\w+)&PID_(\\w+)&");
         if( hardwareIDs.toUpper().contains(idRx) )
         {

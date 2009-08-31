@@ -268,6 +268,7 @@ class QextSerialPort: public QIODevice
 #ifdef _TTY_WIN_
         virtual qint64 bytesToWrite() const;
         virtual bool waitForReadyRead(int msecs);  ///< @todo implement.
+        static QString fullPortNameWin(const QString & name);
 #endif
 
     protected:

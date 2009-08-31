@@ -158,16 +158,27 @@ Sets the name of the device associated with the object, e.g. "COM1", or "/dev/tt
 */
 void QextSerialPort::setPortName(const QString & name)
 {
-    port = name;
+
     #ifdef Q_OS_WIN
-    QRegExp rx("COM(\\d+)");
-    if(port.contains(rx)) {
-      int portnum = rx.cap(1).toInt();
-      if(portnum > 9)
-        port.prepend("\\\\.\\"); // COM ports greater than 9 need \\.\ prepended
-    }
+    port = fullPortNameWin( name );
+    #else
+    port = name;
     #endif
 }
+
+#ifdef Q_OS_WIN
+QString QextSerialPort::fullPortNameWin(const QString & name)
+{
+    QRegExp rx("^COM(\\d+)");
+    QString fullName(name);
+    if(fullName.contains(rx)) {
+        int portnum = rx.cap(1).toInt();
+        if(portnum > 9) // COM ports greater than 9 need \\.\ prepended
+            fullName.prepend("\\\\.\\");
+    }
+    return fullName;
+}
+#endif
 
 /*!
 Returns the name set by setPortName().
