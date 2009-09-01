@@ -39,9 +39,9 @@ QextSerialEnumerator::~QextSerialEnumerator( )
     #include "qextserialport.h"
 
 
-    //this is serial port GUID
-    #ifndef GUID_CLASS_COMPORT
-        DEFINE_GUID(GUID_CLASS_COMPORT, 0x86e0d1e0L, 0x8089, 0x11d0, 0x9c, 0xe4, 0x08, 0x00, 0x3e, 0x30, 0x1f, 0x73);
+    // see http://msdn.microsoft.com/en-us/library/ms791134.aspx for list of GUID classes
+    #ifndef GUID_DEVCLASS_PORTS
+        DEFINE_GUID(GUID_DEVCLASS_PORTS, 0x4D36E978, 0xE325, 0x11CE, 0xBF, 0xC1, 0x08, 0x00, 0x2B, 0xE1, 0x03, 0x18 );
     #endif
 
     /* Gordon Schumacher's macros for TCHAR -> QString conversions and vice versa */
@@ -102,10 +102,10 @@ QextSerialEnumerator::~QextSerialEnumerator( )
             qCritical() << "SetupDiGetClassDevs failed:" << GetLastError();
             return;
         }
-        enumerateDevicesWin( devInfo, guidDev, &infoList );
+        enumerateDevicesWin( devInfo, &GUID_DEVCLASS_PORTS, &infoList );
     }
 
-    void QextSerialEnumerator::enumerateDevicesWin( HDEVINFO devInfo, GUID* guidDev, QList<QextPortInfo>* infoList )
+    void QextSerialEnumerator::enumerateDevicesWin( HDEVINFO devInfo, const GUID* guidDev, QList<QextPortInfo>* infoList )
     {
         //enumerate the devices
         bool ok = true;
@@ -192,7 +192,7 @@ QextSerialEnumerator::~QextSerialEnumerator( )
                 //qDebug() << "devname:" << devId;
 
                 DWORD dwFlag = DBT_DEVICEARRIVAL == wParam ? (DIGCF_ALLCLASSES | DIGCF_PRESENT) : DIGCF_ALLCLASSES;
-                HDEVINFO hDevInfo = SetupDiGetClassDevs(&GUID_CLASS_COMPORT,NULL,NULL,dwFlag);
+                HDEVINFO hDevInfo = SetupDiGetClassDevs(&GUID_DEVCLASS_PORTS,NULL,NULL,dwFlag);
                 SP_DEVINFO_DATA spDevInfoData;
                 spDevInfoData.cbSize = sizeof(SP_DEVINFO_DATA);
 
