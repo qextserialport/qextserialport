@@ -94,10 +94,7 @@ QextSerialEnumerator::~QextSerialEnumerator( )
     //static
     void QextSerialEnumerator::setupAPIScan(QList<QextPortInfo> & infoList)
     {
-        HDEVINFO devInfo = INVALID_HANDLE_VALUE;
-        GUID * guidDev = (GUID *) & GUID_CLASS_COMPORT;
-
-        devInfo = SetupDiGetClassDevs(guidDev, NULL, NULL, DIGCF_PRESENT | DIGCF_DEVICEINTERFACE);
+        HDEVINFO devInfo = SetupDiGetClassDevs(&GUID_DEVCLASS_PORTS, NULL, NULL, DIGCF_PRESENT | DIGCF_DEVICEINTERFACE);
         if(devInfo == INVALID_HANDLE_VALUE) {
             qCritical() << "SetupDiGetClassDevs failed:" << GetLastError();
             return;
@@ -165,7 +162,7 @@ QextSerialEnumerator::~QextSerialEnumerator( )
         ZeroMemory(&dbh, sizeof(dbh));
         dbh.dbcc_size = sizeof(dbh);
         dbh.dbcc_devicetype = DBT_DEVTYP_DEVICEINTERFACE;
-        CopyMemory(&dbh.dbcc_classguid, &GUID_CLASS_COMPORT, sizeof(GUID));
+        CopyMemory(&dbh.dbcc_classguid, &GUID_DEVCLASS_PORTS, sizeof(GUID));
 
         notificationHandle = RegisterDeviceNotification( notificationWidget->winId( ), &dbh, DEVICE_NOTIFY_WINDOW_HANDLE );
         if(!notificationHandle)
