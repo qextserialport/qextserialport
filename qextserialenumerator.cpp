@@ -36,6 +36,7 @@ QextSerialEnumerator::~QextSerialEnumerator( )
 
     #include <objbase.h>
     #include <initguid.h>
+    #include "qextserialport.h"
 
 
     //this is serial port GUID
