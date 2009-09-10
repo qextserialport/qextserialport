@@ -98,7 +98,7 @@ bool QextSerialPort::open(OpenMode mode) {
     if (!isOpen()) {
         /*open the port*/
         Win_Handle=CreateFileA(port.toAscii(), GENERIC_READ|GENERIC_WRITE,
-                              FILE_SHARE_READ|FILE_SHARE_WRITE, NULL, OPEN_EXISTING, dwFlagsAndAttributes, NULL);
+                              0, NULL, OPEN_EXISTING, dwFlagsAndAttributes, NULL);
         if (Win_Handle!=INVALID_HANDLE_VALUE) {
             QIODevice::open(mode);
             /*configure port settings*/
