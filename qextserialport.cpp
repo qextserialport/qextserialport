@@ -243,41 +243,6 @@ bool QextSerialPort::isSequential() const
     return true;
 }
 
-/*!
-This function will return true if the input buffer is empty (or on error), and false otherwise.
-Call QextSerialPort::lastError() for error information.
-*/
-bool QextSerialPort::atEnd() const
-{
-    return size() != 0;
-}
-
-/*!
-This function will read a line of buffered input from the port, stopping when either maxSize bytes
-have been read, the port has no more data available, or a newline is encountered.
-The value returned is the length of the string that was read.
-*/
-qint64 QextSerialPort::readLine(char * data, qint64 maxSize)
-{
-    qint64 numBytes = bytesAvailable();
-    char* pData = data;
-
-    if (maxSize < 2) //maxSize must be larger than 1
-        return -1;
-
-    /*read a byte at a time for MIN(bytesAvail, maxSize - 1) iterations, or until a newline*/
-    while (pData<(data+numBytes) && --maxSize) {
-        readData(pData, 1);
-        if (*pData++ == '\n') {
-            break;
-        }
-    }
-    *pData='\0';
-
-    /*return size of data read*/
-    return (pData-data);
-}
-
 QString QextSerialPort::errorString()
 {
     switch(lastErr)

@@ -252,10 +252,8 @@ class QextSerialPort: public QIODevice
 
         qint64 size() const;
         qint64 bytesAvailable() const;
-        bool atEnd() const;
 
         void ungetChar(char c);
-        qint64 readLine(char * data, qint64 maxSize);
 
         ulong lastError() const;
         void translateError(ulong error);
