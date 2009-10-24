@@ -185,8 +185,6 @@ class QextSerialPort: public QIODevice
             EventDriven
         };
 
-        QextSerialPort();
-        QextSerialPort(const QString & name);
         QextSerialPort(QueryMode mode = EventDriven);
         QextSerialPort(const QString & name, QueryMode mode = EventDriven);
         QextSerialPort(PortSettings const& s, QueryMode mode = EventDriven);

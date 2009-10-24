@@ -31,14 +31,6 @@ This constructor assigns the device name to the name of the first port on the sp
 See the other constructors if you need to open a different port.
 */
 QextSerialPort::QextSerialPort(QextSerialPort::QueryMode mode)
-    : QIODevice()
-{
-    construct();
-    setQueryMode(mode);
-    platformSpecificInit();
-}
-
-QextSerialPort::QextSerialPort()
  : QIODevice()
 {
 
@@ -68,17 +60,7 @@ QextSerialPort::QextSerialPort()
 #endif
 
     construct();
-    platformSpecificInit();
-}
-
-/*!
-Construct a port and assign it to the device specified by the name parameter.
-*/
-QextSerialPort::QextSerialPort(const QString & name)
- : QIODevice()
-{
-    setPortName(name);
-    construct();
+    setQueryMode(mode);
     platformSpecificInit();
 }
 
