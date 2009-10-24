@@ -120,7 +120,7 @@ struct PortSettings
 
 #include <QIODevice>
 #include <QMutex>
-#ifdef _TTY_POSIX_
+#ifdef Q_OS_UNIX
 #include <stdio.h>
 #include <termios.h>
 #include <errno.h>
@@ -129,7 +129,7 @@ struct PortSettings
 #include <sys/ioctl.h>
 #include <sys/select.h>
 #include <QSocketNotifier>
-#elif (defined _TTY_WIN_)
+#elif (defined Q_OS_WIN)
 #include <windows.h>
 #include <QThread>
 #include <QReadWriteLock>
@@ -171,14 +171,14 @@ by default - this behavior can be turned off by defining _TTY_NOWARN_
 (to turn off all warnings) or _TTY_NOWARN_PORT_ (to turn off portability warnings) in the project.
 
 On Windows NT/2000/XP this class uses Win32 serial port functions by default.  The user may
-select POSIX behavior under NT, 2000, or XP ONLY by defining _TTY_POSIX_ in the project.
+select POSIX behavior under NT, 2000, or XP ONLY by defining Q_OS_UNIX in the project.
 No guarantees are made as to the quality of POSIX support under NT/2000 however.
 
 \author Stefan Sander, Michal Policht, Brandon Fosdick, Liam Staskawicz
 */
 class QextSerialPort: public QIODevice
 {
-    Q_OBJECT;
+    Q_OBJECT
     public:
         enum QueryMode {
             Polling,
@@ -263,7 +263,7 @@ class QextSerialPort: public QIODevice
         ulong lineStatus();
         QString errorString();
 
-#ifdef _TTY_WIN_
+#ifdef Q_OS_WIN
         virtual qint64 bytesToWrite() const;
         virtual bool waitForReadyRead(int msecs);  ///< @todo implement.
         static QString fullPortNameWin(const QString & name);
@@ -277,14 +277,14 @@ class QextSerialPort: public QIODevice
         QueryMode _queryMode;
 
         // platform specific members
-#ifdef _TTY_POSIX_
+#ifdef Q_OS_UNIX
         int fd;
         QSocketNotifier *readNotifier;
         struct termios Posix_CommConfig;
         struct termios old_termios;
         struct timeval Posix_Timeout;
         struct timeval Posix_Copy_Timeout;
-#elif (defined _TTY_WIN_)
+#elif (defined Q_OS_WIN)
         friend class Win_QextSerialThread;
 
         HANDLE Win_Handle;
@@ -328,7 +328,7 @@ class QextSerialPort: public QIODevice
 
 };
 
-#ifdef _TTY_WIN_
+#ifdef Q_OS_WIN
 class Win_QextSerialThread: public QThread
 {
     QextSerialPort * qesp;

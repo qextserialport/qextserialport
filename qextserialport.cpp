@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include "qextserialport.h"
 
-#ifdef _TTY_WIN_
+#ifdef Q_OS_WIN
 #include <QRegExp>
 #endif
 
@@ -16,7 +16,7 @@ is the same as _TTY_LINUX_.  Possible naming conventions and their associated co
 
 Constant         Used By         Naming Convention
 ----------       -------------   ------------------------
-_TTY_WIN_        Windows         COM1, COM2
+Q_OS_WIN        Windows         COM1, COM2
 _TTY_IRIX_       SGI/IRIX        /dev/ttyf1, /dev/ttyf2
 _TTY_HPUX_       HP-UX           /dev/tty1p0, /dev/tty2p0
 _TTY_SUN_        SunOS/Solaris   /dev/ttya, /dev/ttyb
@@ -42,7 +42,7 @@ QextSerialPort::QextSerialPort()
  : QIODevice()
 {
 
-#ifdef _TTY_WIN_
+#ifdef Q_OS_WIN
     setPortName("COM1");
 
 #elif defined(_TTY_IRIX_)

@@ -10,19 +10,19 @@ QextSerialEnumerator::QextSerialEnumerator( )
 {
     if( !QMetaType::isRegistered( QMetaType::type("QextPortInfo") ) )
         qRegisterMetaType<QextPortInfo>("QextPortInfo");
-#ifdef _TTY_WIN_
+#ifdef Q_OS_WIN
     notificationHandle = 0;
     #ifdef QT_GUI_LIB
     notificationWidget = 0;
     #endif
-#endif // _TTY_WIN_
+#endif // Q_OS_WIN
 }
 
 QextSerialEnumerator::~QextSerialEnumerator( )
 {
 #ifdef Q_OS_MAC
     IONotificationPortDestroy( notificationPortRef );
-#elif (defined _TTY_WIN_)
+#elif (defined Q_OS_WIN)
     if( notificationHandle )
         UnregisterDeviceNotification( notificationHandle );
     #ifdef QT_GUI_LIB
@@ -32,7 +32,7 @@ QextSerialEnumerator::~QextSerialEnumerator( )
 #endif
 }
 
-#ifdef _TTY_WIN_
+#ifdef Q_OS_WIN
 
     #include <objbase.h>
     #include <initguid.h>
@@ -236,9 +236,9 @@ QextSerialEnumerator::~QextSerialEnumerator( )
         return true;
     }
 
-#endif /*_TTY_WIN_*/
+#endif /*Q_OS_WIN*/
 
-    #ifdef _TTY_POSIX_
+    #ifdef Q_OS_UNIX
 
 #ifdef Q_OS_MAC
 #include <IOKit/serial/IOSerialKeys.h>
@@ -509,14 +509,14 @@ void QextSerialEnumerator::setUpNotificationOSX( )
 }
 #endif // Q_OS_MAC
 
-#endif // _TTY_POSIX_
+#endif // Q_OS_UNIX
 
 //static
 QList<QextPortInfo> QextSerialEnumerator::getPorts()
 {
     QList<QextPortInfo> ports;
 
-    #ifdef _TTY_WIN_
+    #ifdef Q_OS_WIN
         OSVERSIONINFO vi;
         vi.dwOSVersionInfoSize = sizeof(vi);
         if (!::GetVersionEx(&vi)) {
@@ -532,29 +532,29 @@ QList<QextPortInfo> QextSerialEnumerator::getPorts()
                 EnumPortsW9x(ports);*/
         } else  //w2k or later
             setupAPIScan(ports);
-    #endif /*_TTY_WIN_*/
-    #ifdef _TTY_POSIX_
+    #endif /*Q_OS_WIN*/
+    #ifdef Q_OS_UNIX
         #ifdef Q_OS_MAC
             scanPortsOSX(ports);
         #else
             qCritical("Enumeration for POSIX systems is not implemented yet.");
         #endif /* Q_OS_MAC */
-    #endif /*_TTY_POSIX_*/
+    #endif /*Q_OS_UNIX*/
 
     return ports;
 }
 
 void QextSerialEnumerator::setUpNotifications( )
 {
-#ifdef _TTY_WIN_
+#ifdef Q_OS_WIN
     setUpNotificationWin( );
 #endif
 
-#ifdef _TTY_POSIX_
+#ifdef Q_OS_UNIX
 #ifdef Q_OS_MAC
     setUpNotificationOSX( );
 #else
     qCritical("Notifications for *Nix/FreeBSD are not implemented yet");
 #endif // Q_OS_MAC
-#endif // _TTY_POSIX_
+#endif // Q_OS_UNIX
 }

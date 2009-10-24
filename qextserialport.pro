@@ -18,11 +18,9 @@ SOURCES                 = qextserialport.cpp \
                           qextserialenumerator.cpp
 
 unix:SOURCES           += posix_qextserialport.cpp
-unix:DEFINES           += _TTY_POSIX_
 macx: LIBS             += -framework IOKit
 
 win32:SOURCES          += win_qextserialport.cpp
-win32:DEFINES          += _TTY_WIN_
 win32:DEFINES          += WINVER=0x0501 # needed for mingw to pull in appropriate dbt business...probably a better way to do this
 win32:LIBS             += -lsetupapi
 
