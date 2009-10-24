@@ -66,13 +66,8 @@ QextSerialEnumerator::~QextSerialEnumerator( )
         RegQueryValueEx(key, property, NULL, NULL, NULL, & size);
         BYTE* buff = new BYTE[size];
         QString result;
-        if( RegQueryValueEx(key, property, NULL, &type, buff, & size) == ERROR_SUCCESS ) {
-            // might not be terminated...let QString terminate in this case
-          if( type == REG_SZ || type == REG_MULTI_SZ || type == REG_EXPAND_SZ )
+        if( RegQueryValueEx(key, property, NULL, &type, buff, & size) == ERROR_SUCCESS )
             result = TCHARToQString(buff);
-          else
-            result = TCHARToQStringN(buff, size);
-        }
         RegCloseKey(key);
         delete [] buff;
         return result;
@@ -233,7 +228,7 @@ QextSerialEnumerator::~QextSerialEnumerator( )
 
 #endif /*Q_OS_WIN*/
 
-    #ifdef Q_OS_UNIX
+#ifdef Q_OS_UNIX
 
 #ifdef Q_OS_MAC
 #include <IOKit/serial/IOSerialKeys.h>
