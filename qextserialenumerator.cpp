@@ -180,13 +180,8 @@ QextSerialEnumerator::~QextSerialEnumerator( )
             if( pHdr->dbch_devicetype == DBT_DEVTYP_DEVICEINTERFACE )
             {
                 PDEV_BROADCAST_DEVICEINTERFACE pDevInf = (PDEV_BROADCAST_DEVICEINTERFACE)pHdr;
-                QString devId = TCHARToQString(pDevInf->dbcc_name);
-                // devId: \\?\USB#Vid_04e8&Pid_503b#0002F9A9828E0F06#{a5dcbf10-6530-11d2-901f-00c04fb951ed}
-                devId.remove("\\\\?\\"); // USB#Vid_04e8&Pid_503b#0002F9A9828E0F06#{a5dcbf10-6530-11d2-901f-00c04fb951ed}
-                devId.remove(QRegExp("#\\{(.+)\\}")); // USB#Vid_04e8&Pid_503b#0002F9A9828E0F06
-                devId.replace("#", "\\"); // USB\Vid_04e8&Pid_503b\0002F9A9828E0F06
-                devId = devId.toUpper();
-                //qDebug() << "devname:" << devId;
+                 // delimiters are different across APIs...change to backslash.  ugh.
+                QString deviceID = TCHARToQString(pDevInf->dbcc_name).toUpper().replace("#", "\\");
 
                 DWORD dwFlag = DBT_DEVICEARRIVAL == wParam ? (DIGCF_ALLCLASSES | DIGCF_PRESENT) : DIGCF_ALLCLASSES;
                 HDEVINFO hDevInfo = SetupDiGetClassDevs(&GUID_DEVCLASS_PORTS,NULL,NULL,dwFlag);
@@ -197,9 +192,9 @@ QextSerialEnumerator::~QextSerialEnumerator( )
                 {
                     DWORD nSize=0 ;
                     TCHAR buf[MAX_PATH];
-                    if ( !SetupDiGetDeviceInstanceId(hDevInfo, &spDevInfoData, buf, sizeof(buf), &nSize) )
+                    if ( !SetupDiGetDeviceInstanceId(hDevInfo, &spDevInfoData, buf, MAX_PATH, &nSize) )
                         qDebug() << "SetupDiGetDeviceInstanceId():" << GetLastError();
-                    if( devId == TCHARToQString(buf) ) // we found a match
+                    if (deviceID.contains(TCHARToQString(buf))) // we found a match
                     {
                         QextPortInfo info;
                         getDeviceDetailsWin( &info, hDevInfo, &spDevInfoData, wParam );
