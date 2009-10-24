@@ -3,10 +3,6 @@
 #include <stdio.h>
 #include "qextserialport.h"
 
-#ifdef Q_OS_WIN
-#include <QRegExp>
-#endif
-
 /*!
 Default constructor.  Note that the name of the device used by a QextSerialPort constructed with
 this constructor will be determined by #defined constants, or lack thereof - the default behavior
@@ -140,27 +136,12 @@ Sets the name of the device associated with the object, e.g. "COM1", or "/dev/tt
 */
 void QextSerialPort::setPortName(const QString & name)
 {
-
     #ifdef Q_OS_WIN
     port = fullPortNameWin( name );
     #else
     port = name;
     #endif
 }
-
-#ifdef Q_OS_WIN
-QString QextSerialPort::fullPortNameWin(const QString & name)
-{
-    QRegExp rx("^COM(\\d+)");
-    QString fullName(name);
-    if(fullName.contains(rx)) {
-        int portnum = rx.cap(1).toInt();
-        if(portnum > 9) // COM ports greater than 9 need \\.\ prepended
-            fullName.prepend("\\\\.\\");
-    }
-    return fullName;
-}
-#endif
 
 /*!
 Returns the name set by setPortName().

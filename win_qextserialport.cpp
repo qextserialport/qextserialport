@@ -2,6 +2,7 @@
 
 #include <QMutexLocker>
 #include <QDebug>
+#include <QRegExp>
 #include "qextserialport.h"
 
 /*!
@@ -78,6 +79,17 @@ QextSerialPort& QextSerialPort::operator=(const QextSerialPort& s) {
     return *this;
 }
 
+QString QextSerialPort::fullPortNameWin(const QString & name)
+{
+    QRegExp rx("^COM(\\d+)");
+    QString fullName(name);
+    if(fullName.contains(rx)) {
+        int portnum = rx.cap(1).toInt();
+        if(portnum > 9) // COM ports greater than 9 need \\.\ prepended
+            fullName.prepend("\\\\.\\");
+    }
+    return fullName;
+}
 
 /*!
 Opens a serial port.  Note that this function does not specify which device to open.  If you need
