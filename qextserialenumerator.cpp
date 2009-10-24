@@ -225,7 +225,7 @@ QextSerialEnumerator::~QextSerialEnumerator( )
         QString hardwareIDs = getDeviceProperty(devInfo, devData, SPDRP_HARDWAREID);
         HKEY devKey = SetupDiOpenDevRegKey(devInfo, devData, DICS_FLAG_GLOBAL, 0, DIREG_DEV, KEY_READ);
         portInfo->portName = QextSerialPort::fullPortNameWin( getRegKeyValue(devKey, TEXT("PortName")) );
-        QRegExp idRx("VID_(\\w+)&PID_(\\w+)&");
+        QRegExp idRx("VID_(\\w+)&PID_(\\w+)");
         if( hardwareIDs.toUpper().contains(idRx) )
         {
             bool dummy;
