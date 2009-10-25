@@ -189,8 +189,6 @@ class QextSerialPort: public QIODevice
         QextSerialPort(const QString & name, QueryMode mode = EventDriven);
         QextSerialPort(PortSettings const& s, QueryMode mode = EventDriven);
         QextSerialPort(const QString & name, PortSettings const& s, QueryMode mode = EventDriven);
-        QextSerialPort(const QextSerialPort& s);
-        QextSerialPort& operator=(const QextSerialPort&);
         ~QextSerialPort();
 
         void setPortName(const QString & name);
@@ -294,7 +292,7 @@ class QextSerialPort: public QIODevice
         COMMTIMEOUTS Win_CommTimeouts;
         QReadWriteLock * bytesToWriteLock;  ///< @todo maybe move to QextSerialBase.
         qint64 _bytesToWrite;  ///< @todo maybe move to QextSerialBase (and implement in POSIX).
-        Win_QextSerialThread * overlapThread; ///< @todo maybe move to QextSerialBase (and implement in POSIX).
+        Win_QextSerialThread * overlapThread; ///< @todo maybe use QWinEventNotifier
 
         void monitorCommEvent();
         void terminateCommWait();
@@ -305,6 +303,9 @@ class QextSerialPort: public QIODevice
         void platformSpecificInit();
         qint64 readData(char * data, qint64 maxSize);
         qint64 writeData(const char * data, qint64 maxSize);
+
+    private:
+        Q_DISABLE_COPY(QextSerialPort)
 
     signals:
 //        /**

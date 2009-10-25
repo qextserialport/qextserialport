@@ -229,25 +229,6 @@ QString QextSerialPort::errorString()
     }
 }
 
-///*!
-//Copy constructor.
-//
-//\deprecated
-//*/
-//QextSerialPort::QextSerialPort(const QextSerialPort& s)
-//{}
-//
-///*!
-//\fn QextSerialPort& QextSerialPort::operator=(const QextSerialPort& s)
-//Overrides the = operator.
-//
-//\deprecated
-//*/
-//QextSerialPort& QextSerialPort::operator=(const QextSerialPort& s)
-//{
-//    return (QextSerialPort&)QextBaseType::operator=(s);
-//}
-
 /*!
 Standard destructor.
 */
