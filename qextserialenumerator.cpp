@@ -34,8 +34,8 @@ QextSerialEnumerator::~QextSerialEnumerator( )
 
 
     // see http://msdn.microsoft.com/en-us/library/ms791134.aspx for list of GUID classes
-    #ifndef GUID_DEVCLASS_PORTS
-        DEFINE_GUID(GUID_DEVCLASS_PORTS, 0x86E0D1E0, 0x8089, 0x11D0, 0x9C, 0xE4, 0x08, 0x00, 0x3E, 0x30, 0x1F, 0x73 );
+    #ifndef GUID_DEVINTERFACE_COMPORT
+        DEFINE_GUID(GUID_DEVINTERFACE_COMPORT, 0x86E0D1E0, 0x8089, 0x11D0, 0x9C, 0xE4, 0x08, 0x00, 0x3E, 0x30, 0x1F, 0x73 );
     #endif
     #ifndef GUID_DEVINTERFACE_SERENUM_BUS_ENUMERATOR
         DEFINE_GUID(GUID_DEVINTERFACE_SERENUM_BUS_ENUMERATOR, 0x4D36E978, 0xE325, 0x11CE, 0xBF, 0xC1, 0x08, 0x00, 0x2B, 0xE1, 0x03, 0x18 );
@@ -86,9 +86,9 @@ QextSerialEnumerator::~QextSerialEnumerator( )
     //static
     void QextSerialEnumerator::setupAPIScan(QList<QextPortInfo> & infoList)
     {
-        HDEVINFO devInfo = SetupDiGetClassDevs(&GUID_DEVCLASS_PORTS, NULL, NULL, DIGCF_PRESENT | DIGCF_DEVICEINTERFACE);
+        HDEVINFO devInfo = SetupDiGetClassDevs(&GUID_DEVINTERFACE_COMPORT, NULL, NULL, DIGCF_PRESENT | DIGCF_DEVICEINTERFACE);
         if(devInfo != INVALID_HANDLE_VALUE)
-            enumerateDevicesWin( devInfo, &GUID_DEVCLASS_PORTS, &infoList );
+            enumerateDevicesWin( devInfo, &GUID_DEVINTERFACE_COMPORT, &infoList );
         else
             qCritical() << "SetupDiGetClassDevs failed:" << GetLastError();
 
@@ -155,12 +155,12 @@ QextSerialEnumerator::~QextSerialEnumerator( )
             return;
         notificationWidget = new QextSerialRegistrationWidget(this);
 
-        // first for GUID_DEVCLASS_PORTS
+        // first for GUID_DEVINTERFACE_COMPORT
         DEV_BROADCAST_DEVICEINTERFACE dbh;
         ZeroMemory(&dbh, sizeof(dbh));
         dbh.dbcc_size = sizeof(dbh);
         dbh.dbcc_devicetype = DBT_DEVTYP_DEVICEINTERFACE;
-        CopyMemory(&dbh.dbcc_classguid, &GUID_DEVCLASS_PORTS, sizeof(GUID));
+        CopyMemory(&dbh.dbcc_classguid, &GUID_DEVINTERFACE_COMPORT, sizeof(GUID));
 
         if( RegisterDeviceNotification( notificationWidget->winId( ), &dbh, DEVICE_NOTIFY_WINDOW_HANDLE ) == NULL)
             qWarning() << "RegisterDeviceNotification failed:" << GetLastError();
@@ -186,7 +186,7 @@ QextSerialEnumerator::~QextSerialEnumerator( )
                 QString deviceID = TCHARToQString(pDevInf->dbcc_name).toUpper().replace("#", "\\");
 
                 DWORD dwFlag = DBT_DEVICEARRIVAL == wParam ? (DIGCF_ALLCLASSES | DIGCF_PRESENT) : DIGCF_ALLCLASSES;
-                HDEVINFO hDevInfo = SetupDiGetClassDevs(&GUID_DEVCLASS_PORTS,NULL,NULL,dwFlag);
+                HDEVINFO hDevInfo = SetupDiGetClassDevs(&GUID_DEVINTERFACE_COMPORT,NULL,NULL,dwFlag);
                 SP_DEVINFO_DATA spDevInfoData;
                 spDevInfoData.cbSize = sizeof(SP_DEVINFO_DATA);
 
