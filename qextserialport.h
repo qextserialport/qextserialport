@@ -248,6 +248,7 @@ class QextSerialPort: public QIODevice
 
         qint64 size() const;
         qint64 bytesAvailable() const;
+        QByteArray readAll();
 
         void ungetChar(char c);
 

@@ -152,6 +152,17 @@ QString QextSerialPort::portName() const
 }
 
 /*!
+  Reads all available data from the device, and returns it as a QByteArray.
+  This function has no way of reporting errors; returning an empty QByteArray()
+  can mean either that no data was currently available for reading, or that an error occurred.
+*/
+QByteArray QextSerialPort::readAll()
+{
+    int avail = this->bytesAvailable();
+    return (avail > 0) ? this->read(avail) : QByteArray();
+}
+
+/*!
 Returns the baud rate of the serial port.  For a list of possible return values see
 the definition of the enum BaudRateType.
 */
