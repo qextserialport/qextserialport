@@ -10,11 +10,8 @@ QextSerialEnumerator::QextSerialEnumerator( )
 {
     if( !QMetaType::isRegistered( QMetaType::type("QextPortInfo") ) )
         qRegisterMetaType<QextPortInfo>("QextPortInfo");
-#ifdef Q_OS_WIN
-    notificationHandle = 0;
-    #ifdef QT_GUI_LIB
+#if (defined Q_OS_WIN) && (defined QT_GUI_LIB)
     notificationWidget = 0;
-    #endif
 #endif // Q_OS_WIN
 }
 
@@ -22,13 +19,10 @@ QextSerialEnumerator::~QextSerialEnumerator( )
 {
 #ifdef Q_OS_MAC
     IONotificationPortDestroy( notificationPortRef );
-#elif (defined Q_OS_WIN)
-    if( notificationHandle )
-        UnregisterDeviceNotification( notificationHandle );
-    #ifdef QT_GUI_LIB
+#endif
+#if (defined Q_OS_WIN) && (defined QT_GUI_LIB)
     if( notificationWidget )
         delete notificationWidget;
-    #endif
 #endif
 }
 
@@ -41,7 +35,10 @@ QextSerialEnumerator::~QextSerialEnumerator( )
 
     // see http://msdn.microsoft.com/en-us/library/ms791134.aspx for list of GUID classes
     #ifndef GUID_DEVCLASS_PORTS
-        DEFINE_GUID(GUID_DEVCLASS_PORTS, 0x4D36E978, 0xE325, 0x11CE, 0xBF, 0xC1, 0x08, 0x00, 0x2B, 0xE1, 0x03, 0x18 );
+        DEFINE_GUID(GUID_DEVCLASS_PORTS, 0x86E0D1E0, 0x8089, 0x11D0, 0x9C, 0xE4, 0x08, 0x00, 0x3E, 0x30, 0x1F, 0x73 );
+    #endif
+    #ifndef GUID_DEVINTERFACE_SERENUM_BUS_ENUMERATOR
+        DEFINE_GUID(GUID_DEVINTERFACE_SERENUM_BUS_ENUMERATOR, 0x4D36E978, 0xE325, 0x11CE, 0xBF, 0xC1, 0x08, 0x00, 0x2B, 0xE1, 0x03, 0x18 );
     #endif
 
     /* Gordon Schumacher's macros for TCHAR -> QString conversions and vice versa */
@@ -90,11 +87,16 @@ QextSerialEnumerator::~QextSerialEnumerator( )
     void QextSerialEnumerator::setupAPIScan(QList<QextPortInfo> & infoList)
     {
         HDEVINFO devInfo = SetupDiGetClassDevs(&GUID_DEVCLASS_PORTS, NULL, NULL, DIGCF_PRESENT | DIGCF_DEVICEINTERFACE);
-        if(devInfo == INVALID_HANDLE_VALUE) {
+        if(devInfo != INVALID_HANDLE_VALUE)
+            enumerateDevicesWin( devInfo, &GUID_DEVCLASS_PORTS, &infoList );
+        else
             qCritical() << "SetupDiGetClassDevs failed:" << GetLastError();
-            return;
-        }
-        enumerateDevicesWin( devInfo, &GUID_DEVCLASS_PORTS, &infoList );
+
+        devInfo = SetupDiGetClassDevs(&GUID_DEVINTERFACE_SERENUM_BUS_ENUMERATOR, NULL, NULL, DIGCF_PRESENT | DIGCF_DEVICEINTERFACE);
+        if(devInfo != INVALID_HANDLE_VALUE)
+            enumerateDevicesWin( devInfo, &GUID_DEVINTERFACE_SERENUM_BUS_ENUMERATOR, &infoList );
+        else
+            qCritical() << "SetupDiGetClassDevs failed:" << GetLastError();
     }
 
     void QextSerialEnumerator::enumerateDevicesWin( HDEVINFO devInfo, const GUID* guidDev, QList<QextPortInfo>* infoList )
@@ -153,14 +155,19 @@ QextSerialEnumerator::~QextSerialEnumerator( )
             return;
         notificationWidget = new QextSerialRegistrationWidget(this);
 
+        // first for GUID_DEVCLASS_PORTS
         DEV_BROADCAST_DEVICEINTERFACE dbh;
         ZeroMemory(&dbh, sizeof(dbh));
         dbh.dbcc_size = sizeof(dbh);
         dbh.dbcc_devicetype = DBT_DEVTYP_DEVICEINTERFACE;
         CopyMemory(&dbh.dbcc_classguid, &GUID_DEVCLASS_PORTS, sizeof(GUID));
 
-        notificationHandle = RegisterDeviceNotification( notificationWidget->winId( ), &dbh, DEVICE_NOTIFY_WINDOW_HANDLE );
-        if(!notificationHandle)
+        if( RegisterDeviceNotification( notificationWidget->winId( ), &dbh, DEVICE_NOTIFY_WINDOW_HANDLE ) == NULL)
+            qWarning() << "RegisterDeviceNotification failed:" << GetLastError();
+
+        // now for GUID_DEVINTERFACE_SERENUM_BUS_ENUMERATOR
+        CopyMemory(&dbh.dbcc_classguid, &GUID_DEVINTERFACE_SERENUM_BUS_ENUMERATOR, sizeof(GUID));
+        if( RegisterDeviceNotification( notificationWidget->winId( ), &dbh, DEVICE_NOTIFY_WINDOW_HANDLE ) == NULL)
             qWarning() << "RegisterDeviceNotification failed:" << GetLastError();
         #else
         qWarning("QextSerialEnumerator: GUI not enabled - can't register for device notifications.");

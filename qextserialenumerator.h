@@ -134,7 +134,6 @@ Q_OBJECT
             #ifdef QT_GUI_LIB
             QextSerialRegistrationWidget* notificationWidget;
             #endif
-            HDEVNOTIFY notificationHandle;
         #endif /*Q_OS_WIN*/
 
         #ifdef Q_OS_UNIX
