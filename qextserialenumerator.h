@@ -129,8 +129,8 @@ Q_OBJECT
             void setUpNotificationWin( );
             static bool getDeviceDetailsWin( QextPortInfo* portInfo, HDEVINFO devInfo,
                                   PSP_DEVINFO_DATA devData, WPARAM wParam = DBT_DEVICEARRIVAL );
-            static void enumerateDevicesWin( HDEVINFO devInfo, const GUID* guidDev,
-                                                                   QList<QextPortInfo>* infoList );
+            static void enumerateDevicesWin( const GUID & guidDev, QList<QextPortInfo>* infoList );
+            bool matchAndDispatchChangedDevice(const QString & deviceID, const GUID & guid, WPARAM wParam);
             #ifdef QT_GUI_LIB
             QextSerialRegistrationWidget* notificationWidget;
             #endif

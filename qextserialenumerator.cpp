@@ -4,7 +4,6 @@
 #include "qextserialenumerator.h"
 #include <QDebug>
 #include <QMetaType>
-#include <QRegExp>
 
 QextSerialEnumerator::QextSerialEnumerator( )
 {
@@ -31,14 +30,11 @@ QextSerialEnumerator::~QextSerialEnumerator( )
     #include <objbase.h>
     #include <initguid.h>
     #include "qextserialport.h"
-
+    #include <QRegExp>
 
     // see http://msdn.microsoft.com/en-us/library/ms791134.aspx for list of GUID classes
-    #ifndef GUID_DEVINTERFACE_COMPORT
-        DEFINE_GUID(GUID_DEVINTERFACE_COMPORT, 0x86E0D1E0, 0x8089, 0x11D0, 0x9C, 0xE4, 0x08, 0x00, 0x3E, 0x30, 0x1F, 0x73 );
-    #endif
-    #ifndef GUID_DEVINTERFACE_SERENUM_BUS_ENUMERATOR
-        DEFINE_GUID(GUID_DEVINTERFACE_SERENUM_BUS_ENUMERATOR, 0x4D36E978, 0xE325, 0x11CE, 0xBF, 0xC1, 0x08, 0x00, 0x2B, 0xE1, 0x03, 0x18 );
+    #ifndef GUID_DEVCLASS_PORTS
+        DEFINE_GUID(GUID_DEVCLASS_PORTS, 0x4D36E978, 0xE325, 0x11CE, 0xBF, 0xC1, 0x08, 0x00, 0x2B, 0xE1, 0x03, 0x18 );
     #endif
 
     /* Gordon Schumacher's macros for TCHAR -> QString conversions and vice versa */
@@ -76,8 +72,7 @@ QextSerialEnumerator::~QextSerialEnumerator( )
         DWORD buffSize = 0;
         SetupDiGetDeviceRegistryProperty(devInfo, devData, property, NULL, NULL, 0, & buffSize);
         BYTE* buff = new BYTE[buffSize];
-        if (!SetupDiGetDeviceRegistryProperty(devInfo, devData, property, NULL, buff, buffSize, NULL))
-            qCritical("Can not obtain property: %ld from registry", property);
+        SetupDiGetDeviceRegistryProperty(devInfo, devData, property, NULL, buff, buffSize, NULL);
         QString result = TCHARToQString(buff);
         delete [] buff;
         return result;
@@ -86,54 +81,24 @@ QextSerialEnumerator::~QextSerialEnumerator( )
     //static
     void QextSerialEnumerator::setupAPIScan(QList<QextPortInfo> & infoList)
     {
-        HDEVINFO devInfo = SetupDiGetClassDevs(&GUID_DEVINTERFACE_COMPORT, NULL, NULL, DIGCF_PRESENT | DIGCF_DEVICEINTERFACE);
-        if(devInfo != INVALID_HANDLE_VALUE)
-            enumerateDevicesWin( devInfo, &GUID_DEVINTERFACE_COMPORT, &infoList );
-        else
-            qCritical() << "SetupDiGetClassDevs failed:" << GetLastError();
-
-        devInfo = SetupDiGetClassDevs(&GUID_DEVINTERFACE_SERENUM_BUS_ENUMERATOR, NULL, NULL, DIGCF_PRESENT | DIGCF_DEVICEINTERFACE);
-        if(devInfo != INVALID_HANDLE_VALUE)
-            enumerateDevicesWin( devInfo, &GUID_DEVINTERFACE_SERENUM_BUS_ENUMERATOR, &infoList );
-        else
-            qCritical() << "SetupDiGetClassDevs failed:" << GetLastError();
+        enumerateDevicesWin(GUID_DEVCLASS_PORTS, &infoList);
     }
 
-    void QextSerialEnumerator::enumerateDevicesWin( HDEVINFO devInfo, const GUID* guidDev, QList<QextPortInfo>* infoList )
+    void QextSerialEnumerator::enumerateDevicesWin( const GUID & guid, QList<QextPortInfo>* infoList )
     {
-        //enumerate the devices
-        bool ok = true;
-        SP_DEVICE_INTERFACE_DATA ifcData;
-        ifcData.cbSize = sizeof(SP_DEVICE_INTERFACE_DATA);
-        PSP_DEVICE_INTERFACE_DETAIL_DATA detData = NULL;
-        DWORD detDataPredictedLength;
-        for (DWORD i = 0; ok; i++) {
-            ok = SetupDiEnumDeviceInterfaces(devInfo, NULL, guidDev, i, &ifcData);
-            if (ok)
+        HDEVINFO devInfo;
+        if( (devInfo = SetupDiGetClassDevs(&guid, NULL, NULL, DIGCF_PRESENT)) != INVALID_HANDLE_VALUE)
+        {
+            SP_DEVINFO_DATA devInfoData;
+            devInfoData.cbSize = sizeof(SP_DEVINFO_DATA);
+            for(int i = 0; SetupDiEnumDeviceInfo(devInfo, i, &devInfoData); i++)
             {
-                SP_DEVINFO_DATA devData = {sizeof(SP_DEVINFO_DATA)};
-                //check for required detData size
-                SetupDiGetDeviceInterfaceDetail(devInfo, & ifcData, NULL, 0, &detDataPredictedLength, & devData);
-                detData = (PSP_DEVICE_INTERFACE_DETAIL_DATA)malloc(detDataPredictedLength);
-                detData->cbSize = sizeof(SP_DEVICE_INTERFACE_DETAIL_DATA);
-
-                //check the details
-                if (SetupDiGetDeviceInterfaceDetail(devInfo, &ifcData, detData, detDataPredictedLength, NULL, & devData)) {
-                    // Got a device. Get the details.
-                    QextPortInfo info;
-                    getDeviceDetailsWin( &info, devInfo, &devData );
-                    infoList->append(info);
-                }
-                else
-                    qCritical() << "SetupDiGetDeviceInterfaceDetail failed:" << GetLastError();
-                delete detData;
+                QextPortInfo info;
+                getDeviceDetailsWin( &info, devInfo, &devInfoData );
+                infoList->append(info);
             }
-            else if (GetLastError() != ERROR_NO_MORE_ITEMS) {
-                qCritical() << "SetupDiEnumDeviceInterfaces failed:" << GetLastError();
-                return;
-            }
+            SetupDiDestroyDeviceInfoList(devInfo);
         }
-        SetupDiDestroyDeviceInfoList(devInfo);
     }
 
 #ifdef QT_GUI_LIB
@@ -155,18 +120,11 @@ QextSerialEnumerator::~QextSerialEnumerator( )
             return;
         notificationWidget = new QextSerialRegistrationWidget(this);
 
-        // first for GUID_DEVINTERFACE_COMPORT
         DEV_BROADCAST_DEVICEINTERFACE dbh;
         ZeroMemory(&dbh, sizeof(dbh));
         dbh.dbcc_size = sizeof(dbh);
         dbh.dbcc_devicetype = DBT_DEVTYP_DEVICEINTERFACE;
-        CopyMemory(&dbh.dbcc_classguid, &GUID_DEVINTERFACE_COMPORT, sizeof(GUID));
-
-        if( RegisterDeviceNotification( notificationWidget->winId( ), &dbh, DEVICE_NOTIFY_WINDOW_HANDLE ) == NULL)
-            qWarning() << "RegisterDeviceNotification failed:" << GetLastError();
-
-        // now for GUID_DEVINTERFACE_SERENUM_BUS_ENUMERATOR
-        CopyMemory(&dbh.dbcc_classguid, &GUID_DEVINTERFACE_SERENUM_BUS_ENUMERATOR, sizeof(GUID));
+        CopyMemory(&dbh.dbcc_classguid, &GUID_DEVCLASS_PORTS, sizeof(GUID));
         if( RegisterDeviceNotification( notificationWidget->winId( ), &dbh, DEVICE_NOTIFY_WINDOW_HANDLE ) == NULL)
             qWarning() << "RegisterDeviceNotification failed:" << GetLastError();
         #else
@@ -185,32 +143,41 @@ QextSerialEnumerator::~QextSerialEnumerator( )
                  // delimiters are different across APIs...change to backslash.  ugh.
                 QString deviceID = TCHARToQString(pDevInf->dbcc_name).toUpper().replace("#", "\\");
 
-                DWORD dwFlag = DBT_DEVICEARRIVAL == wParam ? (DIGCF_ALLCLASSES | DIGCF_PRESENT) : DIGCF_ALLCLASSES;
-                HDEVINFO hDevInfo = SetupDiGetClassDevs(&GUID_DEVINTERFACE_COMPORT,NULL,NULL,dwFlag);
-                SP_DEVINFO_DATA spDevInfoData;
-                spDevInfoData.cbSize = sizeof(SP_DEVINFO_DATA);
-
-                for(int i=0; SetupDiEnumDeviceInfo(hDevInfo, i, &spDevInfoData); i++)
-                {
-                    DWORD nSize=0 ;
-                    TCHAR buf[MAX_PATH];
-                    if ( !SetupDiGetDeviceInstanceId(hDevInfo, &spDevInfoData, buf, MAX_PATH, &nSize) )
-                        qDebug() << "SetupDiGetDeviceInstanceId():" << GetLastError();
-                    if (deviceID.contains(TCHARToQString(buf))) // we found a match
-                    {
-                        QextPortInfo info;
-                        getDeviceDetailsWin( &info, hDevInfo, &spDevInfoData, wParam );
-                        if( wParam == DBT_DEVICEARRIVAL )
-                            emit deviceDiscovered(info);
-                        else if( wParam == DBT_DEVICEREMOVECOMPLETE )
-                            emit deviceRemoved(info);
-                        break;
-                    }
-                }
-                SetupDiDestroyDeviceInfoList(hDevInfo);
+                matchAndDispatchChangedDevice(deviceID, GUID_DEVCLASS_PORTS, wParam);
             }
         }
         return 0;
+    }
+
+    bool QextSerialEnumerator::matchAndDispatchChangedDevice(const QString & deviceID, const GUID & guid, WPARAM wParam)
+    {
+        bool rv = false;
+        DWORD dwFlag = (DBT_DEVICEARRIVAL == wParam) ? DIGCF_PRESENT : DIGCF_ALLCLASSES;
+        HDEVINFO devInfo;
+        if( (devInfo = SetupDiGetClassDevs(&guid,NULL,NULL,dwFlag)) != INVALID_HANDLE_VALUE )
+        {
+            SP_DEVINFO_DATA spDevInfoData;
+            spDevInfoData.cbSize = sizeof(SP_DEVINFO_DATA);
+            for(int i=0; SetupDiEnumDeviceInfo(devInfo, i, &spDevInfoData); i++)
+            {
+                DWORD nSize=0 ;
+                TCHAR buf[MAX_PATH];
+                if ( SetupDiGetDeviceInstanceId(devInfo, &spDevInfoData, buf, MAX_PATH, &nSize) &&
+                        deviceID.contains(TCHARToQString(buf))) // we found a match
+                {
+                    rv = true;
+                    QextPortInfo info;
+                    getDeviceDetailsWin( &info, devInfo, &spDevInfoData, wParam );
+                    if( wParam == DBT_DEVICEARRIVAL )
+                        emit deviceDiscovered(info);
+                    else if( wParam == DBT_DEVICEREMOVECOMPLETE )
+                        emit deviceRemoved(info);
+                    break;
+                }
+            }
+            SetupDiDestroyDeviceInfoList(devInfo);
+        }
+        return rv;
     }
 
     bool QextSerialEnumerator::getDeviceDetailsWin( QextPortInfo* portInfo, HDEVINFO devInfo, PSP_DEVINFO_DATA devData, WPARAM wParam )
