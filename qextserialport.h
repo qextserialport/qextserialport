@@ -133,6 +133,7 @@ struct PortSettings
 #include <windows.h>
 #include <QThread>
 #include <QReadWriteLock>
+#include <QtCore/private/qwineventnotifier_p.h>
 #endif
 
 /*!
@@ -261,7 +262,6 @@ class QextSerialPort: public QIODevice
         QString errorString();
 
 #ifdef Q_OS_WIN
-        virtual qint64 bytesToWrite() const;
         virtual bool waitForReadyRead(int msecs);  ///< @todo implement.
         static QString fullPortNameWin(const QString & name);
 #endif
@@ -282,21 +282,13 @@ class QextSerialPort: public QIODevice
         struct timeval Posix_Timeout;
         struct timeval Posix_Copy_Timeout;
 #elif (defined Q_OS_WIN)
-        friend class Win_QextSerialThread;
-
         HANDLE Win_Handle;
-        HANDLE threadStartEvent;
-        HANDLE threadTerminateEvent;
         OVERLAPPED overlap;
-        QList<OVERLAPPED*> overlappedWrites;
         COMMCONFIG Win_CommConfig;
         COMMTIMEOUTS Win_CommTimeouts;
-        QReadWriteLock * bytesToWriteLock;  ///< @todo maybe move to QextSerialBase.
-        qint64 _bytesToWrite;  ///< @todo maybe move to QextSerialBase (and implement in POSIX).
-        Win_QextSerialThread * overlapThread; ///< @todo maybe use QWinEventNotifier
+        QWinEventNotifier *winEventNotifier;
+        DWORD eventMask;
 
-        void monitorCommEvent();
-        void terminateCommWait();
 #endif
 
         void construct(); // common construction
@@ -304,6 +296,11 @@ class QextSerialPort: public QIODevice
         void platformSpecificInit();
         qint64 readData(char * data, qint64 maxSize);
         qint64 writeData(const char * data, qint64 maxSize);
+
+#ifdef Q_OS_WIN
+    private slots:
+        void onWinEvent(HANDLE h);
+#endif
 
     private:
         Q_DISABLE_COPY(QextSerialPort)
@@ -327,31 +324,5 @@ class QextSerialPort: public QIODevice
         void dsrChanged(bool status);
 
 };
-
-#ifdef Q_OS_WIN
-class Win_QextSerialThread: public QThread
-{
-    QextSerialPort * qesp;
-    bool terminate;
-
-    public:
-        /*!
-         * Constructor.
-         *
-         * \param qesp valid serial port object.
-         */
-        Win_QextSerialThread(QextSerialPort * qesp);
-
-        /*!
-         * Stop the thread.
-         */
-        void stop();
-
-    protected:
-        //overriden
-        virtual void run();
-
-};
-#endif
 
 #endif
