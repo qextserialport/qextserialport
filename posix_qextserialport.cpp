@@ -6,52 +6,6 @@
 #include <QMutexLocker>
 #include <QDebug>
 
-/*!
-Copy constructor.
-*/
-QextSerialPort::QextSerialPort(const QextSerialPort& s)
-    : QIODevice()
-{
-    construct();
-    setOpenMode(s.openMode());
-    port = s.port;
-    Settings.BaudRate=s.Settings.BaudRate;
-    Settings.DataBits=s.Settings.DataBits;
-    Settings.Parity=s.Settings.Parity;
-    Settings.StopBits=s.Settings.StopBits;
-    Settings.FlowControl=s.Settings.FlowControl;
-    lastErr=s.lastErr;
-
-    fd = s.fd;
-    readNotifier = 0;
-    memcpy(&Posix_Timeout, &s.Posix_Timeout, sizeof(struct timeval));
-    memcpy(&Posix_Copy_Timeout, &s.Posix_Copy_Timeout, sizeof(struct timeval));
-    memcpy(&Posix_CommConfig, &s.Posix_CommConfig, sizeof(struct termios));
-}
-
-/*!
-Override the = operator.
-*/
-QextSerialPort& QextSerialPort::operator=(const QextSerialPort& s)
-{
-    construct();
-    setOpenMode(s.openMode());
-    port = s.port;
-    Settings.BaudRate=s.Settings.BaudRate;
-    Settings.DataBits=s.Settings.DataBits;
-    Settings.Parity=s.Settings.Parity;
-    Settings.StopBits=s.Settings.StopBits;
-    Settings.FlowControl=s.Settings.FlowControl;
-    lastErr=s.lastErr;
-
-    fd = s.fd;
-    readNotifier = 0;
-    memcpy(& Posix_Timeout, &(s.Posix_Timeout), sizeof(struct timeval));
-    memcpy(& Posix_Copy_Timeout, &(s.Posix_Copy_Timeout), sizeof(struct timeval));
-    memcpy(& Posix_CommConfig, &(s.Posix_CommConfig), sizeof(struct termios));
-    return *this;
-}
-
 void QextSerialPort::platformSpecificInit()
 {
     fd = 0;
