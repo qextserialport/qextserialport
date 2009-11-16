@@ -94,6 +94,7 @@ QextSerialEnumerator::~QextSerialEnumerator( )
             for(int i = 0; SetupDiEnumDeviceInfo(devInfo, i, &devInfoData); i++)
             {
                 QextPortInfo info;
+                info.productID = info.vendorID = 0;
                 getDeviceDetailsWin( &info, devInfo, &devInfoData );
                 infoList->append(info);
             }
@@ -167,6 +168,7 @@ QextSerialEnumerator::~QextSerialEnumerator( )
                 {
                     rv = true;
                     QextPortInfo info;
+                    info.productID = info.vendorID = 0;
                     getDeviceDetailsWin( &info, devInfo, &spDevInfoData, wParam );
                     if( wParam == DBT_DEVICEARRIVAL )
                         emit deviceDiscovered(info);
