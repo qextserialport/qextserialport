@@ -10,8 +10,6 @@ void QextSerialPort::platformSpecificInit()
 {
     fd = 0;
     readNotifier = 0;
-    if (queryMode() == QextSerialPort::EventDriven)
-        qWarning("POSIX doesn't have event driven mechanism for writes implemented yet - reads are OK.");
 }
 
 /*!
@@ -934,8 +932,7 @@ is currently open (use isOpen() function to check if port is open).
 qint64 QextSerialPort::readData(char * data, qint64 maxSize)
 {
     QMutexLocker lock(mutex);
-    int retVal = 0;
-    retVal = ::read(fd, data, maxSize);
+    int retVal = ::read(fd, data, maxSize);
     if (retVal == -1)
         lastErr = E_READ_FAILED;
 
@@ -953,8 +950,7 @@ is currently open (use isOpen() function to check if port is open).
 qint64 QextSerialPort::writeData(const char * data, qint64 maxSize)
 {
     QMutexLocker lock(mutex);
-    int retVal = 0;
-    retVal = ::write(fd, data, maxSize);
+    int retVal = ::write(fd, data, maxSize);
     if (retVal == -1)
        lastErr = E_WRITE_FAILED;
 
