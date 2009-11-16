@@ -263,6 +263,7 @@ class QextSerialPort: public QIODevice
 
 #ifdef Q_OS_WIN
         virtual bool waitForReadyRead(int msecs);  ///< @todo implement.
+        virtual qint64 bytesToWrite() const;
         static QString fullPortNameWin(const QString & name);
 #endif
 
@@ -288,7 +289,9 @@ class QextSerialPort: public QIODevice
         COMMTIMEOUTS Win_CommTimeouts;
         QWinEventNotifier *winEventNotifier;
         DWORD eventMask;
-
+        QList<OVERLAPPED*> pendingWrites;
+        QReadWriteLock* bytesToWriteLock;
+        qint64 _bytesToWrite;
 #endif
 
         void construct(); // common construction
