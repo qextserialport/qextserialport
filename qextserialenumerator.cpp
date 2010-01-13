@@ -514,6 +514,10 @@ void QextSerialEnumerator::setUpNotifications( )
 {
 #ifdef Q_OS_WIN
     setUpNotificationWin( );
+    // setting up notifications doesn't tell us about devices already connected
+    // so get those manually
+    foreach( QextPortInfo port, getPorts() )
+      emit deviceDiscovered( port );
 #endif
 
 #ifdef Q_OS_UNIX

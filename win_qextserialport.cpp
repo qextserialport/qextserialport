@@ -109,22 +109,18 @@ void QextSerialPort::close()
         flush();
         QIODevice::close(); // mark ourselves as closed
         CancelIo(Win_Handle);
-        if (winEventNotifier) {
-            winEventNotifier->setEnabled(false);
-            winEventNotifier->deleteLater();
-            winEventNotifier = 0;
-        }
         if (CloseHandle(Win_Handle))
             Win_Handle = INVALID_HANDLE_VALUE;
+        if (winEventNotifier)
+            winEventNotifier->deleteLater();
+
         _bytesToWrite = 0;
 
-        if(!pendingWrites.isEmpty()) {
-            foreach(OVERLAPPED* o, pendingWrites) {
-                CloseHandle(o->hEvent);
-                delete o;
-            }
-            pendingWrites.clear();
+        foreach(OVERLAPPED* o, pendingWrites) {
+            CloseHandle(o->hEvent);
+            delete o;
         }
+        pendingWrites.clear();
     }
 }
 
