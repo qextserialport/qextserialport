@@ -236,6 +236,7 @@ QString QextSerialPort::errorString()
         case E_TRANSMIT_OVERFLOW: return "Transmit buffer overflow";
         case E_READ_FAILED: return "General read operation failure";
         case E_WRITE_FAILED: return "General write operation failure";
+        case E_FILE_NOT_FOUND: return "The "+this->portName()+" file doesn't exists";
         default: return QString("Unknown error: %1").arg(lastErr);
     }
 }

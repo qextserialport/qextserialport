@@ -47,6 +47,7 @@
 #define E_TRANSMIT_OVERFLOW         12
 #define E_READ_FAILED               13
 #define E_WRITE_FAILED              14
+#define E_FILE_NOT_FOUND            15
 
 enum BaudRateType
 {

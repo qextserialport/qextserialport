@@ -722,6 +722,7 @@ bool QextSerialPort::open(OpenMode mode)
             }
         } else {
             qDebug() << "could not open file:" << strerror(errno);
+            lastErr = E_FILE_NOT_FOUND;
         }
     }
     return isOpen();
