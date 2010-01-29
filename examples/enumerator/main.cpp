@@ -5,17 +5,21 @@
  */
 
 #include <qextserialenumerator.h>
+#include <QList>
+#include <QtDebug>
 
 int main(int argc, char *argv[])
 {
-	QList<QextPortInfo> ports = QextSerialEnumerator::getPorts();
-	printf("List of ports:\n");
-	for (int i = 0; i < ports.size(); i++) {
-		printf("port name: %s\n", ports.at(i).portName.toLocal8Bit().constData());
-		printf("friendly name: %s\n", ports.at(i).friendName.toLocal8Bit().constData());
-		printf("physical name: %s\n", ports.at(i).physName.toLocal8Bit().constData());
-		printf("enumerator name: %s\n", ports.at(i).enumName.toLocal8Bit().constData());
-		printf("===================================\n\n");
-	}
-	return EXIT_SUCCESS;
+    QList<QextPortInfo> ports = QextSerialEnumerator::getPorts();
+    qDebug() << "List of ports:";
+    for (int i = 0; i < ports.size(); i++) {
+        qDebug() << "port name:" << ports.at(i).portName;
+        qDebug() << "friendly name:" << ports.at(i).friendName;
+        qDebug() << "physical name:" << ports.at(i).physName;
+        qDebug() << "enumerator name:" << ports.at(i).enumName;
+        qDebug() << "vendor ID:" << QString::number(ports.at(i).vendorID, 16);
+        qDebug() << "product ID:" << QString::number(ports.at(i).productID, 16);
+        qDebug() << "===================================";
+    }
+    return EXIT_SUCCESS;
 }
