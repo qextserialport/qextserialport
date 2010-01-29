@@ -160,7 +160,7 @@ Q_OBJECT
                * Search for serial ports on unix.
                *    \param infoList list with result.
                */
-              // static void scanPortsNix(QList<QextPortInfo> & infoList);
+              static void scanPortsNix(QList<QextPortInfo> & infoList);
             #endif // Q_OS_MAC
         #endif /* Q_OS_UNIX */
 
