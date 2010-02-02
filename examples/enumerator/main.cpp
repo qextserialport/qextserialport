@@ -10,6 +10,8 @@
 
 int main(int argc, char *argv[])
 {
+    (void)argc;
+    (void)argv;
     QList<QextPortInfo> ports = QextSerialEnumerator::getPorts();
     qDebug() << "List of ports:";
     for (int i = 0; i < ports.size(); i++) {

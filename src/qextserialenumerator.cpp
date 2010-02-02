@@ -5,6 +5,11 @@
 #include <QDebug>
 #include <QMetaType>
 
+#ifdef Q_OS_LINUX
+#include <QStringList>
+#include <QDir>
+#endif
+
 QextSerialEnumerator::QextSerialEnumerator( )
 {
     if( !QMetaType::isRegistered( QMetaType::type("QextPortInfo") ) )
@@ -518,9 +523,10 @@ void scanPortsNix(QList<QextPortInfo> & infoList)
             inf.friendName = "Bluetooth-serial adapter "+str.remove(0, 6);
         }
         inf.enumName = "/dev"; // is there a more helpful name for this?
-        ports << inf;
+        infoList.append(inf);
     }
 #else
+(void)infoList; // unused for now
 qCritical("Enumeration for POSIX systems (except Linux) is not implemented yet.");
 #endif
 }
