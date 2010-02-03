@@ -209,8 +209,6 @@ QextSerialEnumerator::~QextSerialEnumerator( )
 
 #endif /*Q_OS_WIN*/
 
-#ifdef Q_OS_UNIX
-
 #ifdef Q_OS_MAC
 #include <IOKit/serial/IOSerialKeys.h>
 #include <CoreFoundation/CFNumber.h>
@@ -480,7 +478,9 @@ void QextSerialEnumerator::setUpNotificationOSX( )
 }
 #endif // Q_OS_MAC
 
-void scanPortsNix(QList<QextPortInfo> & infoList)
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
+
+void QextSerialEnumerator::scanPortsNix(QList<QextPortInfo> & infoList)
 {
 #ifdef Q_OS_LINUX
     QStringList portNamePrefixes, portNameList;
@@ -531,7 +531,7 @@ qCritical("Enumeration for POSIX systems (except Linux) is not implemented yet."
 #endif
 }
 
-#endif // Q_OS_UNIX
+#endif // defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
 
 //static
 QList<QextPortInfo> QextSerialEnumerator::getPorts()

@@ -156,6 +156,7 @@ Q_OBJECT
               IONotificationPortRef notificationPortRef;
 
             #else // Q_OS_MAC
+            private:
               /*!
                * Search for serial ports on unix.
                *    \param infoList list with result.
