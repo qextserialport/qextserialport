@@ -15,15 +15,20 @@ DEPENDDIR               = .
 INCLUDEDIR              = .
 HEADERS                 = qextserialport.h \
                           qextserialenumerator.h
-SOURCES                 = qextserialport.cpp \
-                          qextserialenumerator.cpp
+SOURCES                 = qextserialport.cpp
 
 unix:SOURCES           += posix_qextserialport.cpp
-macx: LIBS             += -framework IOKit -framework CoreFoundation
+unix:!macx:SOURCES     += qextserialenumerator_unix.cpp
+macx {
+  SOURCES          += qextserialenumerator_osx.cpp
+  LIBS             += -framework IOKit -framework CoreFoundation
+}
 
-win32:SOURCES          += win_qextserialport.cpp
-win32:DEFINES          += WINVER=0x0501 # needed for mingw to pull in appropriate dbt business...probably a better way to do this
-win32:LIBS             += -lsetupapi
+win32 {
+  SOURCES          += win_qextserialport.cpp qextserialenumerator_win.cpp
+  DEFINES          += WINVER=0x0501 # needed for mingw to pull in appropriate dbt business...probably a better way to do this
+  LIBS             += -lsetupapi
+}
 
 CONFIG(debug, debug|release) {
     TARGET = qextserialportd
