@@ -11,6 +11,7 @@
 #include <QString>
 #include <QList>
 #include <QObject>
+#include "qextserialport_global.h"
 
 #ifdef Q_OS_WIN
     #include <windows.h>
@@ -92,7 +93,7 @@ class QextSerialRegistrationWidget : public QWidget
 
   \author Michal Policht, Liam Staskawicz
 */
-class QextSerialEnumerator : public QObject
+class QEXTSERIALPORT_EXPORT QextSerialEnumerator : public QObject
 {
 Q_OBJECT
     public:

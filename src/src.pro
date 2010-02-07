@@ -4,6 +4,7 @@ VERSION                 = 1.2.0
 DESTDIR                 = build
 CONFIG                 += qt warn_on debug_and_release
 CONFIG                  += dll
+DEFINES                 += QEXTSERIALPORT_LIB
 #CONFIG                 += staticlib
 
 # event driven device enumeration on windows requires the gui module
@@ -14,7 +15,8 @@ MOC_DIR                 = tmp
 DEPENDDIR               = .
 INCLUDEDIR              = .
 HEADERS                 = qextserialport.h \
-                          qextserialenumerator.h
+                          qextserialenumerator.h \
+                          qextserialport_global.h
 SOURCES                 = qextserialport.cpp
 
 unix:SOURCES           += posix_qextserialport.cpp
