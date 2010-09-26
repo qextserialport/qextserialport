@@ -1,10 +1,10 @@
 /**
  * @file main.cpp
  * @brief Main file.
- * @author Michał Policht
+ * @author Micha? Policht
  */
 
-#include <qextserialenumerator.h>
+#include <QextSerialEnumerator>
 #include <QList>
 #include <QtDebug>
 

@@ -3,7 +3,7 @@ DEPENDPATH += .
 
 HEADERS += MainWindow.h \
 		MessageWindow.h \
-		QespTest.h
+        QespTest.h
 
 SOURCES += main.cpp \
 		MainWindow.cpp \

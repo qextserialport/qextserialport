@@ -5,7 +5,7 @@
 #define PORTLISTENER_H_
 
 #include <QObject>
-#include "qextserialport.h"
+#include <QextSerialPort>
 
 class PortListener : public QObject
 {

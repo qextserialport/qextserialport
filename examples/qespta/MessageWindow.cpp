@@ -5,12 +5,6 @@
  * @author Micha? Policht
  */
 
-
-/*
-==============
-<INIT>
-==============
-*/
 #include <stdio.h>
 #include "MessageWindow.h"
 #include <QMessageBox>
@@ -19,13 +13,6 @@
 
 const char* MessageWindow::WINDOW_TITLE = "Message Window";
 MessageWindow* MessageWindow::MsgHandler = NULL;
-
-
-/*
-==============
-<CONSTRUCTORS>
-==============
-*/
 
 MessageWindow::MessageWindow(QWidget* parent, Qt::WFlags flags) 
 	: QDockWidget(parent, flags),
@@ -37,27 +24,6 @@ MessageWindow::MessageWindow(QWidget* parent, Qt::WFlags flags)
 
 	MessageWindow::MsgHandler = this;
 }
-
-
-/*
-==============
-<DESTRUCTOR>
-==============
-*/
-
-
-/*
-==============
-<SLOTS>
-==============
-*/
-
-
-/*
-==============
-<METHODS>
-==============
-*/
 
 //static
 QString MessageWindow::QtMsgToQString(QtMsgType type, const char *msg)
@@ -121,13 +87,6 @@ void MessageWindow::postMsgEvent(QtMsgType type, const char* msg)
 	//so post message encapsulated by MessageEvent to the main thread's event queue
     QCoreApplication::postEvent(this, new MessageEvent(qmsg));
 }
-
-
-/*
-==============
-<HELPERS>
-==============
-*/
 
 MessageEvent::MessageEvent(QString & msg):
     QEvent(static_cast<QEvent::Type>(MessageWindow::MessageEventType))

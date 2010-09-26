@@ -1,13 +1,10 @@
 /**
  * @file main.cpp
  * @brief Main file.
- * @author Micha³ Policht
+ * @author Micha? Policht
  */
 
 #include <QApplication>
-#include <qextserialport.h>
-
-#include "defs.h"
 #include "MainWindow.h"
 #include "MessageWindow.h"
 
@@ -20,7 +17,7 @@ int main(int argc, char *argv[])
     //redirect debug messages to the MessageWindow dialog
 	qInstallMsgHandler(MessageWindow::AppendMsgWrapper);
 
-	MainWindow mainWindow(APP_TITLE);
+    MainWindow mainWindow("QextSerialPort Test Application");
 	mainWindow.show();
 	exec = app.exec();
 	return exec;
