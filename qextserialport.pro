@@ -1,7 +1,5 @@
-#
-TEMPLATE = subdirs
-CONFIG   += ordered
-SUBDIRS  = src \
-           examples/enumerator \
-           examples/event
-
+TEMPLATE=subdirs
+CONFIG += ordered
+include(common.pri)
+qextserialport-uselib:SUBDIRS=buildlib
+SUBDIRS+=examples

@@ -277,7 +277,7 @@ purpose within this class.  This function is meaningless on an unbuffered device
 only prints a warning message to that effect.
 */
 void QextSerialPort::ungetChar(char c) {
-
+    Q_UNUSED(c)
     /*meaningless on unbuffered sequential device - return error and print a warning*/
     TTY_WARNING("QextSerialPort: ungetChar() called on an unbuffered sequential device - operation is meaningless");
 }
@@ -778,6 +778,7 @@ ulong QextSerialPort::lineStatus(void) {
 
 bool QextSerialPort::waitForReadyRead(int msecs)
 {
+    Q_UNUSED(msecs)
     //@todo implement
     return false;
 }

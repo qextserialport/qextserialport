@@ -4,7 +4,6 @@
 #include "qextserialenumerator.h"
 #include <QDebug>
 #include <QMetaType>
-
 #include <objbase.h>
 #include <initguid.h>
 #include "qextserialport.h"
@@ -43,8 +42,8 @@ QextSerialEnumerator::~QextSerialEnumerator( )
 #else
     #define QStringToTCHAR(x)     x.local8Bit().constData()
     #define PQStringToTCHAR(x)    x->local8Bit().constData()
-    #define TCHARToQString(x)     QString::fromLocal8Bit((x))
-    #define TCHARToQStringN(x,y)  QString::fromLocal8Bit((x),(y))
+    #define TCHARToQString(x)     QString::fromLocal8Bit((char*)(x))
+    #define TCHARToQStringN(x,y)  QString::fromLocal8Bit((char*)(x),(y))
 #endif /*UNICODE*/
 
 

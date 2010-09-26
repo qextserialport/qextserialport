@@ -2,7 +2,7 @@
  * @file MessageWindow.cpp
  * @brief MessageWindow Implementation.
  * @see MessageWindow.h
- * @author Micha³ Policht
+ * @author Micha? Policht
  */
 
 
@@ -11,7 +11,7 @@
 <INIT>
 ==============
 */
-
+#include <stdio.h>
 #include "MessageWindow.h"
 #include <QMessageBox>
 #include <QCoreApplication>
@@ -90,8 +90,8 @@ void MessageWindow::AppendMsgWrapper(QtMsgType type, const char* msg)
 
 void MessageWindow::customEvent(QEvent* event)
 {
-	if (static_cast<MessageWindow::EventType>(event->type()) == MessageWindow::MessageEvent)
-		msgTextEdit.append(dynamic_cast<MessageEvent::MessageEvent* >(event)->msg);
+    if (static_cast<MessageWindow::EventType>(event->type()) == MessageWindow::MessageEventType)
+        msgTextEdit.append(dynamic_cast<MessageEvent* >(event)->msg);
 }
 
 void MessageWindow::postMsgEvent(QtMsgType type, const char* msg)
@@ -119,7 +119,7 @@ void MessageWindow::postMsgEvent(QtMsgType type, const char* msg)
 	}
 	//it's impossible to change GUI directly from thread other than the main thread 
 	//so post message encapsulated by MessageEvent to the main thread's event queue
-	QCoreApplication::postEvent(this, new MessageEvent::MessageEvent(qmsg));
+    QCoreApplication::postEvent(this, new MessageEvent(qmsg));
 }
 
 
@@ -130,7 +130,7 @@ void MessageWindow::postMsgEvent(QtMsgType type, const char* msg)
 */
 
 MessageEvent::MessageEvent(QString & msg):
-	QEvent(static_cast<QEvent::Type>(MessageWindow::MessageEvent))
+    QEvent(static_cast<QEvent::Type>(MessageWindow::MessageEventType))
 {
 	this->msg = msg;
 }
