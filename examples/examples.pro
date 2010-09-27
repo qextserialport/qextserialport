@@ -1,3 +1,3 @@
 TEMPLATE = subdirs
-SUBDIRS = QESPTA enumerator
+SUBDIRS = qespta enumerator
 win32:SUBDIRS += event
