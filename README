@@ -1,0 +1,34 @@
+1) introduction
+
+    QextSerialPort provides an interface to old fashioned serial ports for
+    Qt-based applications. It currently supports Mac OS X, Windows, Linux,
+    FreeBSD.
+
+    This is Debao's clone. Improvements have been made for the windows 
+    environment. This Clone can theoretically run on other platforms, 
+    but not guaranteed.
+
+    Tested on:
+        * Qt 4.7 / Windows XP / MSVC 2008
+        * Qt 4.7 / Windows XP / MinGW
+    
+2) build
+
+    * qmake
+    * make (or nmake)
+
+    note:
+        If this is an config.pri which contains "QEXTSERIALPORT_LIBRARY = yes" 
+    exists in the project's root dirction, shared library will be generated 
+    before examples are compiled. If config.pri does not exist or does not 
+    contains the line, no shared library will be generated.
+
+3) build documents
+    Run qdoc3 from the doc directory.
+ 
+    * qdoc3 qextserialport.qdocconf
+ 
+4) use
+	Add the following line to your qmake project file:
+    
+    include(pathToPri/qextserialport.pri)
