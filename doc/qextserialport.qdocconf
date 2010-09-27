@@ -1,0 +1,39 @@
+# Run qdoc from the directory that contains this file.
+project = QextSerialPort
+description = QextSerialPort Reference Documentation
+url = http://code.google.com/r/dbzhang800-qextserialport
+
+outputencoding = UTF-8
+language = Cpp
+
+headerdirs = . ../src
+sourcedirs = . ../src
+imagedirs = images
+outputdir = html
+exampledirs = ../example ..
+
+sources.fileextensions = "*.cpp *.qdoc"
+Cpp.ignoretokens = QEXTSERIALPORT_EXPORT 
+
+extraimages.HTML        = logo.png
+
+indexes = $QTDIR/doc/html/qt.index
+
+#HTML.stylesheets        = classic.css
+HTML.postheader         = "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\">\n" \
+                          "<tr>\n" \
+                          "<td align=\"left\" valign=\"top\" width=\"32\">" \
+                          "<img src=\"images/logo.png\" width=\"50\" height=\"40\" align=\"left\" border=\"0\" />"\
+                          "</td>\n" \
+                          "<td class=\"postheader\" valign=\"center\">" \
+                          "<a href=\"index.html\">Home</a> &middot;" \
+                          " <a href=\"classes.html\">All Classes</a> &middot;" \
+                          " <a href=\"functions.html\">All Functions</a> &middot;" \
+                          "</td></tr></table>"
+
+HTML.footer             = "<p /><address><hr /><div align=\"center\">\n" \
+                          "<table width=\"100%\" cellspacing=\"0\" border=\"0\"><tr class=\"address\">\n" \
+                          "<td width=\"40%\" align=\"left\">Copyright &copy; 2010</td>\n" \
+                          "<td width=\"20%\" align=\"center\">Trademarks</td>\n" \
+                          "<td width=\"40%\" align=\"right\"><div align=\"right\">QextSerialPort Manual</div></td>\n" \
+                          "</tr></table></div></address>"

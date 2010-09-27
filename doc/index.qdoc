@@ -1,0 +1,43 @@
+/*!
+    \page index.html
+    \title QextSerialPort Manual
+
+    \section1 Description
+      QextSerialPort provides an interface to old fashioned serial ports for
+      Qt-based applications. It currently supports Mac OS X, Windows, Linux, FreeBSD. 
+        
+    \section1 Classes
+      \list
+      \o \l QextSerialPort encapsulates a serial port on both POSIX and Windows systems.
+      \o \l QextSerialEnumerator enumerates ports currently available in the system.
+      \endlist
+    
+    \section1 Tested platforms
+      \list
+      \o Qt 4.7 / Windows XP / MSVC 2008
+      \o Qt 4.7 / Windows XP / MinGW 
+      \o Qt 4.7 / Linux / gcc
+      \endlist
+    
+    \section1 Examples
+      \list
+      \o \l examples/enumerator
+      \o \l examples/qespta
+      \endlist
+*/
+
+/*!
+  \page classes.html
+  \generatelist classes
+  */
+
+/*!
+  \page functions.html
+  \generatelist functionindex
+*/
+
+/*!
+  \page all-examples.html
+*/
+
+

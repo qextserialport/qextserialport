@@ -7,7 +7,7 @@
 #include <QextSerialEnumerator>
 #include <QList>
 #include <QtDebug>
-
+//! [0]
 int main(int argc, char *argv[])
 {
     (void)argc;
@@ -25,3 +25,4 @@ int main(int argc, char *argv[])
     }
     return EXIT_SUCCESS;
 }
+//! [0]
