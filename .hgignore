@@ -1,0 +1,3 @@
+glob:*.pro.user
+glob:lib/*
+glob:*.orig
