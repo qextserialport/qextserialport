@@ -1,0 +1,9 @@
+/*!
+    \example examples/qespta
+    \title qespta Demo
+
+    The example demonstrates how to use QextSerialPort.
+
+    \snippet examples/qespta/main.cpp 0
+*/
+
