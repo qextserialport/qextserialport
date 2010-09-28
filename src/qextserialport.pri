@@ -21,5 +21,5 @@ qextserialport-uselib:!qextserialport-buildlib {
 
 win32 {
     contains(TEMPLATE, lib):contains(CONFIG, shared):DEFINES += QEXTSERIALPORT_EXPORT
-    else:qextserialport-uselib:DEFINES += QEXTSERIALPORT_IMPORT
+    else:qextserialport-uselib:!qextserialport-static:DEFINES += QEXTSERIALPORT_IMPORT
 }

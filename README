@@ -8,27 +8,25 @@
     environment. This Clone can theoretically run on other platforms, 
     but not guaranteed.
 
+    You can use QexSerailPort in three ways(see config.pri file):
+        * shared library
+        * static library
+        * just include the source files
+    
     Tested on:
         * Qt 4.7 / Windows XP / MSVC 2008
         * Qt 4.7 / Windows XP / MinGW
+        * QT 4.7 / Linux / GCC
     
-2) build
-
+2) build(examples and library if any)
     * qmake
     * make (or nmake)
 
-    note:
-        If this is an config.pri which contains "QEXTSERIALPORT_LIBRARY = yes" 
-    exists in the project's root dirction, shared library will be generated 
-    before examples are compiled. If config.pri does not exist or does not 
-    contains the line, no shared library will be generated.
-
 3) build documents
     Run qdoc3 from the doc directory.
- 
     * qdoc3 qextserialport.qdocconf
  
 4) use
-	Add the following line to your qmake project file:
-    
-    include(pathToPri/qextserialport.pri)
+    No matter which way you selected, all you need is: Add following line to
+    your qmake project file:
+       include(pathToPri/qextserialport.pri)
