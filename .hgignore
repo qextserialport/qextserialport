@@ -30,3 +30,6 @@ lib/*
 *.vcproj
 *.vcproj.*.user
 *.sln
+*.idb
+*.ncb
+*.suo

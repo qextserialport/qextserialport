@@ -30,3 +30,8 @@
     No matter which way you selected, all you need is: Add following line to
     your qmake project file:
        include(pathToPri/qextserialport.pri)
+
+5) for msvc user
+    If you use vcproj instead of nmake, you can try following line:
+        qmake -tp vc -r
+    But this works not well if you use qextserialport as shared or static library.
