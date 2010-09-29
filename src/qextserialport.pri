@@ -15,9 +15,10 @@ qextserialport-uselib:!qextserialport-buildlib {
     win32:SOURCES          += $$PWD/win_qextserialport.cpp \
                               $$PWD/qextserialenumerator_win.cpp
 
-    macx:LIBS              += -framework IOKit -framework CoreFoundation
-    win32:LIBS             += -lsetupapi -ladvapi32 -luser32
 }
+
+macx:LIBS              += -framework IOKit -framework CoreFoundation
+win32:LIBS             += -lsetupapi -ladvapi32 -luser32
 
 win32 {
     contains(TEMPLATE, lib):contains(CONFIG, shared):DEFINES += QEXTSERIALPORT_EXPORT
