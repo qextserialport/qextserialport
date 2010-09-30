@@ -1,4 +1,4 @@
-# Run qdoc from the directory that contains this file.
+# Run qdoc3 from the directory that contains this file.
 project = QextSerialPort
 description = QextSerialPort Reference Documentation
 url = http://code.google.com/r/dbzhang800-qextserialport
@@ -8,18 +8,27 @@ language = Cpp
 
 headerdirs = . ../src
 sourcedirs = . ../src
-imagedirs = images
 outputdir = html
 exampledirs = ../example ..
-
 sources.fileextensions = "*.cpp *.qdoc"
 Cpp.ignoretokens = QEXTSERIALPORT_EXPORT 
 
-extraimages.HTML        = logo.png
-
 indexes = $QTDIR/doc/html/qt.index
 
-#HTML.stylesheets        = classic.css
+qhp.projects            = QextSerialPort
+qhp.QextSerialPort.file            = qextserialport.qhp
+qhp.QextSerialPort.namespace       = com.google.code.qextserialport
+qhp.QextSerialPort.virtualFolder   = qdoc
+qhp.QextSerialPort.indexTitle      = QextSerialPort Reference Documentation
+qhp.QextSerialPort.indexRoot       = 
+qhp.QextSerialPort.extraFiles      = style.css
+
+HTML.stylesheets        = style/style.css #seems not work
+styledirs = .
+styles.HTML = style.css
+imagedirs = images
+extraimages.HTML        = logo.png
+
 HTML.postheader         = "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\">\n" \
                           "<tr>\n" \
                           "<td align=\"left\" valign=\"top\" width=\"32\">" \
