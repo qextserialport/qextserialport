@@ -3,6 +3,7 @@
 #include <QMutexLocker>
 #include <QDebug>
 #include <QRegExp>
+#include <QMetaType>
 #include "qextserialport.h"
 
 void QextSerialPort::platformSpecificInit()
@@ -87,8 +88,9 @@ bool QextSerialPort::open(OpenMode mode) {
                     qWarning() << "failed to set Comm Mask. Error code:", GetLastError();
                     return false;
                 }
-                winEventNotifier = new QWinEventNotifier(overlap.hEvent, this);
-                connect(winEventNotifier, SIGNAL(activated(HANDLE)), this, SLOT(onWinEvent(HANDLE)));
+                winEventNotifier = new QWinEventNotifier(overlap.hEvent);
+				qRegisterMetaType<HANDLE>("HANDLE");
+				connect(winEventNotifier, SIGNAL(activated(HANDLE)), this, SLOT(onWinEvent(HANDLE)), Qt::DirectConnection);
                 WaitCommEvent(Win_Handle, &eventMask, &overlap);
             }
         }
@@ -111,9 +113,10 @@ void QextSerialPort::close()
         CancelIo(Win_Handle);
         if (CloseHandle(Win_Handle))
             Win_Handle = INVALID_HANDLE_VALUE;
-        if (winEventNotifier)
+		if (winEventNotifier){
             winEventNotifier->deleteLater();
-
+            winEventNotifier = 0;
+		}
         _bytesToWrite = 0;
 
         foreach(OVERLAPPED* o, pendingWrites) {
