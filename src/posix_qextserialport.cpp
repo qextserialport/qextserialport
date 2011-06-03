@@ -719,7 +719,7 @@ bool QextSerialPort::open(OpenMode mode)
                 connect(readNotifier, SIGNAL(activated(int)), this, SIGNAL(readyRead()));
             }
         } else {
-            qDebug() << "could not open file:" << strerror(errno);
+            qDebug() << "could not open file:" << QString::fromLocal8Bit(strerror(errno));
             lastErr = E_FILE_NOT_FOUND;
         }
     }
