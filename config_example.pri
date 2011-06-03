@@ -1,15 +1,11 @@
-# This is an config for building and using qextserialport library.
-# You can delete this file if you do not use qextserialport as an 
-# shared or static libaray.
+# This is an example config.pri for building and using qextserialport.
 # 
-# When using the qextserialport, all you need is add following line
-# in your project.pro file:
+# When using the qextserialport, all you need is to add following line
+# in your .pro file:
 #    include(pathToQextserialport/src/qextserialport.pri)
-# no matter your use qextserialport as shatic library, shared library
-# or just include source files in your project.
 #
-# uncomment QEXTSERIALPORT_LIBRARY if you want to use this as library
-# default is shared library, uncomment QEXTSERIALPORT_STATIC if you 
-# want to use static library
-QEXTSERIALPORT_LIBRARY = yes
-#QEXTSERIALPORT_STATIC = yes
+# uncomment the following line if you want to use qextserialport as library
+# QEXTSERIALPORT_LIBRARY = yes
+
+# uncomment the following line too if you want to use it as static library
+# QEXTSERIALPORT_STATIC = yes

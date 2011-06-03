@@ -8,7 +8,8 @@
     environment. This Clone can theoretically run on other platforms, 
     but not guaranteed.
 
-    You can use QexSerailPort in three ways(see config.pri file):
+    You can use QexSerailPort in three ways by writing a config.pri file.
+    (read config_example.pri for reference):
         * shared library
         * static library
         * just include the source files
