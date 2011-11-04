@@ -1,7 +1,30 @@
-
-
-#include <stdio.h>
 #include "qextserialport.h"
+#include "qextserialport_p.h"
+#include <stdio.h>
+
+/*!
+    \internal
+    Common constructor function for setting up default port settings.
+    (115200 Baud, 8N1, Hardware flow control where supported, otherwise no flow control, and 0 ms timeout).
+*/
+QextSerialPortPrivate::QextSerialPortPrivate(QextSerialPort *q)
+    :q_ptr(q)
+{
+    lastErr = E_NO_ERROR;
+    Settings.BaudRate=BAUD115200;
+    Settings.DataBits=DATA_8;
+    Settings.Parity=PAR_NONE;
+    Settings.StopBits=STOP_1;
+    Settings.FlowControl=FLOW_HARDWARE;
+    Settings.Timeout_Millisec=500;
+    mutex = new QMutex( QMutex::Recursive );
+    q->setOpenMode(QIODevice::NotOpen);
+}
+
+QextSerialPortPrivate::~QextSerialPortPrivate()
+{
+    delete mutex;
+}
 
 /*!
     \enum BaudRateType
@@ -42,7 +65,7 @@
     QextSerialPort* port = new QextSerialPort("COM1", QextSerialPort::EventDriven);
     connect(port, SIGNAL(readyRead()), myClass, SLOT(onDataAvailable()));
     port->open();
-    
+
     void MyClass::onDataAvailable() {
         int avail = port->bytesAvailable();
         if( avail > 0 ) {
@@ -60,11 +83,11 @@
     The user will be notified of errors and possible portability conflicts at run-time
     by default - this behavior can be turned off by defining _TTY_NOWARN_
     (to turn off all warnings) or _TTY_NOWARN_PORT_ (to turn off portability warnings) in the project.
-    
+
     On Windows NT/2000/XP this class uses Win32 serial port functions by default.  The user may
     select POSIX behavior under NT, 2000, or XP ONLY by defining Q_OS_UNIX in the project.
     No guarantees are made as to the quality of POSIX support under NT/2000 however.
-    
+
     \bold author: Stefan Sander, Michal Policht, Brandon Fosdick, Liam Staskawicz, Debao Zhang
 */
 
@@ -86,9 +109,9 @@
     Default constructor.  Note that the name of the device used by a QextSerialPort constructed with
     this constructor will be determined by #defined constants, or lack thereof - the default behavior
     is the same as _TTY_LINUX_.  Possible naming conventions and their associated constants are:
-    
+
     \code
-    
+
     Constant         Used By         Naming Convention
     ----------       -------------   ------------------------
     Q_OS_WIN        Windows         COM1, COM2
@@ -101,13 +124,15 @@
     _TTY_LINUX_      Linux           /dev/ttyS0, /dev/ttyS1
     <none>           Linux           /dev/ttyS0, /dev/ttyS1
     \endcode
-    
+
     This constructor assigns the device name to the name of the first port on the specified system.
     See the other constructors if you need to open a different port.
 */
+
 QextSerialPort::QextSerialPort(QextSerialPort::QueryMode mode)
- : QIODevice()
+    : QIODevice(), d_ptr(new QextSerialPortPrivate(this))
 {
+    Q_D(QextSerialPort);
 
 #ifdef Q_OS_WIN
     setPortName("COM1");
@@ -133,10 +158,8 @@ QextSerialPort::QextSerialPort(QextSerialPort::QueryMode mode)
 #else
     setPortName("/dev/ttyS0");
 #endif
-
-    construct();
     setQueryMode(mode);
-    platformSpecificInit();
+    d->platformSpecificInit();
 }
 
 /*!
@@ -145,21 +168,21 @@ QextSerialPort::QextSerialPort(QextSerialPort::QueryMode mode)
     e.g."COM1" or "/dev/ttyS0". \a mode
 */
 QextSerialPort::QextSerialPort(const QString & name, QextSerialPort::QueryMode mode)
-    : QIODevice()
+    : QIODevice(), d_ptr(new QextSerialPortPrivate(this))
 {
-    construct();
+    Q_D(QextSerialPort);
     setQueryMode(mode);
     setPortName(name);
-    platformSpecificInit();
+    d->platformSpecificInit();
 }
 
 /*!
     Constructs a port with default name and specified settings.
 */
 QextSerialPort::QextSerialPort(const PortSettings& settings, QextSerialPort::QueryMode mode)
-    : QIODevice()
+    : QIODevice(), d_ptr(new QextSerialPortPrivate(this))
 {
-    construct();
+    Q_D(QextSerialPort);
     setBaudRate(settings.BaudRate);
     setDataBits(settings.DataBits);
     setParity(settings.Parity);
@@ -167,16 +190,16 @@ QextSerialPort::QextSerialPort(const PortSettings& settings, QextSerialPort::Que
     setFlowControl(settings.FlowControl);
     setTimeout(settings.Timeout_Millisec);
     setQueryMode(mode);
-    platformSpecificInit();
+    d->platformSpecificInit();
 }
 
 /*!
     Constructs a port with specified name and settings.
 */
 QextSerialPort::QextSerialPort(const QString & name, const PortSettings& settings, QextSerialPort::QueryMode mode)
-    : QIODevice()
+    : QIODevice(), d_ptr(new QextSerialPortPrivate(this))
 {
-    construct();
+    Q_D(QextSerialPort);
     setPortName(name);
     setBaudRate(settings.BaudRate);
     setDataBits(settings.DataBits);
@@ -185,25 +208,45 @@ QextSerialPort::QextSerialPort(const QString & name, const PortSettings& setting
     setFlowControl(settings.FlowControl);
     setTimeout(settings.Timeout_Millisec);
     setQueryMode(mode);
-    platformSpecificInit();
+    d->platformSpecificInit();
 }
 
 /*!
-    \internal
-    Common constructor function for setting up default port settings.
-    (115200 Baud, 8N1, Hardware flow control where supported, otherwise no flow control, and 0 ms timeout).
+    Opens a serial port.  Note that this function does not specify which device to open.  If you need
+    to open a device by name, see QextSerialPort::open(const char*).  This function has no effect
+    if the port associated with the class is already open.  The port is also configured to the current
+    settings, as stored in the Settings structure.
 */
-void QextSerialPort::construct()
+bool QextSerialPort::open(OpenMode mode)
 {
-    lastErr = E_NO_ERROR;
-    Settings.BaudRate=BAUD115200;
-    Settings.DataBits=DATA_8;
-    Settings.Parity=PAR_NONE;
-    Settings.StopBits=STOP_1;
-    Settings.FlowControl=FLOW_HARDWARE;
-    Settings.Timeout_Millisec=500;
-    mutex = new QMutex( QMutex::Recursive );
-    setOpenMode(QIODevice::NotOpen);
+    Q_D(QextSerialPort)
+    if (mode != QIODevice::NotOpen && !isOpen())
+        d->open_sys(mode);
+
+    return isOpen();
+}
+
+
+/*!
+    Closes a serial port.  This function has no effect if the serial port associated with the class
+    is not currently open.
+*/
+void QextSerialPort::close()
+{
+    Q_D(QextSerialPort)
+    if (isOpen())
+        d->close_sys();
+}
+
+/*!
+    Flushes all pending I/O to the serial port.  This function has no effect if the serial port
+    associated with the class is not currently open.
+*/
+void QextSerialPort::flush()
+{
+    Q_D(QextSerialPort)
+    if (isOpen())
+        d->flush_sys();
 }
 
 /*!
@@ -230,7 +273,8 @@ void QextSerialPort::construct()
  */
 void QextSerialPort::setQueryMode(QueryMode mode)
 {
-    _queryMode = mode;
+    Q_D(QextSerialPort);
+    d->_queryMode = mode;
 }
 
 /*!
@@ -238,10 +282,11 @@ void QextSerialPort::setQueryMode(QueryMode mode)
 */
 void QextSerialPort::setPortName(const QString & name)
 {
+    Q_D(QextSerialPort)
     #ifdef Q_OS_WIN
-    port = fullPortNameWin( name );
+    d->port = fullPortNameWin( name );
     #else
-    port = name;
+    d->port = name;
     #endif
 }
 
@@ -250,7 +295,8 @@ void QextSerialPort::setPortName(const QString & name)
 */
 QString QextSerialPort::portName() const
 {
-    return port;
+    Q_D(QextSerialPort);
+    return d->port;
 }
 
 /*!
@@ -270,7 +316,8 @@ QByteArray QextSerialPort::readAll()
 */
 BaudRateType QextSerialPort::baudRate(void) const
 {
-    return Settings.BaudRate;
+    Q_D(QextSerialPort);
+    return d->Settings.BaudRate;
 }
 
 /*!
@@ -279,7 +326,8 @@ BaudRateType QextSerialPort::baudRate(void) const
 */
 DataBitsType QextSerialPort::dataBits() const
 {
-    return Settings.DataBits;
+    Q_D(QextSerialPort);
+    return d->Settings.DataBits;
 }
 
 /*!
@@ -288,7 +336,8 @@ DataBitsType QextSerialPort::dataBits() const
 */
 ParityType QextSerialPort::parity() const
 {
-    return Settings.Parity;
+    Q_D(QextSerialPort);
+    return d->Settings.Parity;
 }
 
 /*!
@@ -297,7 +346,8 @@ ParityType QextSerialPort::parity() const
 */
 StopBitsType QextSerialPort::stopBits() const
 {
-    return Settings.StopBits;
+    Q_D(QextSerialPort);
+    return d->Settings.StopBits;
 }
 
 /*!
@@ -306,7 +356,8 @@ StopBitsType QextSerialPort::stopBits() const
 */
 FlowType QextSerialPort::flowControl() const
 {
-    return Settings.FlowControl;
+    Q_D(QextSerialPort);
+    return d->Settings.FlowControl;
 }
 
 /*!
@@ -319,10 +370,46 @@ bool QextSerialPort::isSequential() const
     return true;
 }
 
+ulong QextSerialPort::lastError() const
+{
+    Q_D(QextSerialPort)
+    return d->lastErr;
+}
+
+/*!
+    Returns the line status as stored by the port function.  This function will retrieve the states
+    of the following lines: DCD, CTS, DSR, and RI.  On POSIX systems, the following additional lines
+    can be monitored: DTR, RTS, Secondary TXD, and Secondary RXD.  The value returned is an unsigned
+    long with specific bits indicating which lines are high.  The following constants should be used
+    to examine the states of individual lines:
+
+    \code
+    Mask        Line
+    ------      ----
+    LS_CTS      CTS
+    LS_DSR      DSR
+    LS_DCD      DCD
+    LS_RI       RI
+    LS_RTS      RTS (POSIX only)
+    LS_DTR      DTR (POSIX only)
+    LS_ST       Secondary TXD (POSIX only)
+    LS_SR       Secondary RXD (POSIX only)
+    \endcode
+
+    This function will return 0 if the port associated with the class is not currently open.
+*/
+unsigned long QextSerialPort::lineStatus()
+{
+    Q_D(QextSerialPort)
+    if (isOpen())
+        return d->lineStatus_sys();
+    return 0;
+}
+
 QString QextSerialPort::errorString()
 {
-    switch(lastErr)
-    {
+    Q_D(QextSerialPort)
+    switch(d->lastErr) {
         case E_NO_ERROR: return "No Error has occurred";
         case E_INVALID_FD: return "Invalid file descriptor (port was not opened correctly)";
         case E_NO_MEMORY: return "Unable to allocate memory tables (POSIX)";
@@ -351,6 +438,157 @@ QextSerialPort::~QextSerialPort()
     if (isOpen()) {
         close();
     }
-    platformSpecificDestruct();
-    delete mutex;
+    d_ptr->platformSpecificDestruct();
+    delete d_ptr;
+}
+
+/*!
+    Sets the flow control used by the port.  Possible values of flow are:
+    \code
+        FLOW_OFF            No flow control
+        FLOW_HARDWARE       Hardware (RTS/CTS) flow control
+        FLOW_XONXOFF        Software (XON/XOFF) flow control
+    \endcode
+*/
+void QextSerialPort::setFlowControl(FlowType flow)
+{
+    Q_D(QextSerialPort)
+    d->setFlowControl(flow);
+}
+
+/*!
+    Sets the parity associated with the serial port.  The possible values of parity are:
+    \code
+        PAR_SPACE       Space Parity
+        PAR_MARK        Mark Parity
+        PAR_NONE        No Parity
+        PAR_EVEN        Even Parity
+        PAR_ODD         Odd Parity
+    \endcode
+*/
+void QextSerialPort::setParity(ParityType parity)
+{
+    Q_D(QextSerialPort)
+    d->setParity(parity);
+}
+
+/*!
+    Sets the number of data bits used by the serial port.  Possible values of dataBits are:
+    \code
+        DATA_5      5 data bits
+        DATA_6      6 data bits
+        DATA_7      7 data bits
+        DATA_8      8 data bits
+    \endcode
+
+    \bold note:
+    This function is subject to the following restrictions:
+    \list
+    \o 5 data bits cannot be used with 2 stop bits.
+    \o 1.5 stop bits can only be used with 5 data bits.
+    \o 8 data bits cannot be used with space parity on POSIX systems.
+    \endlist
+    */
+void QextSerialPort::setDataBits(DataBitsType dataBits)
+{
+    Q_D(QextSerialPort)
+    d->setParity(dataBits);
+}
+
+/*!
+    Sets the number of stop bits used by the serial port.  Possible values of stopBits are:
+    \code
+        STOP_1      1 stop bit
+        STOP_1_5    1.5 stop bits
+        STOP_2      2 stop bits
+    \endcode
+
+    \bold note:
+    This function is subject to the following restrictions:
+    \list
+    \o 2 stop bits cannot be used with 5 data bits.
+    \o 1.5 stop bits cannot be used with 6 or more data bits.
+    \o POSIX does not support 1.5 stop bits.
+    \endlist
+*/
+void QextSerialPort::setStopBits(StopBitsType stopBits)
+{
+    Q_D(QextSerialPort)
+    d->setStopBits(stopBits);
+}
+
+/*!
+    Sets the baud rate of the serial port.  Note that not all rates are applicable on
+    all platforms.  The following table shows translations of the various baud rate
+    constants on Windows(including NT/2000) and POSIX platforms.  Speeds marked with an *
+    are speeds that are usable on both Windows and POSIX.
+    \code
+
+      RATE          Windows Speed   POSIX Speed
+      -----------   -------------   -----------
+       BAUD50                 110          50
+       BAUD75                 110          75
+      *BAUD110                110         110
+       BAUD134                110         134.5
+       BAUD150                110         150
+       BAUD200                110         200
+      *BAUD300                300         300
+      *BAUD600                600         600
+      *BAUD1200              1200        1200
+       BAUD1800              1200        1800
+      *BAUD2400              2400        2400
+      *BAUD4800              4800        4800
+      *BAUD9600              9600        9600
+       BAUD14400            14400        9600
+      *BAUD19200            19200       19200
+      *BAUD38400            38400       38400
+       BAUD56000            56000       38400
+      *BAUD57600            57600       57600
+       BAUD76800            57600       76800
+      *BAUD115200          115200      115200
+       BAUD128000          128000      115200
+       BAUD256000          256000      115200
+    \endcode
+*/
+
+void QextSerialPort::setBaudRate(BaudRateType baudRate)
+{
+    Q_D(QextSerialPort)
+    d->setBaudRate(baudRate);
+}
+
+/*!
+    Sets the read and write timeouts for the port to millisec milliseconds.
+    Setting 0 indicates that timeouts are not used for read nor write operations;
+    however read() and write() functions will still block. Set -1 to provide
+    non-blocking behaviour (read() and write() will return immediately).
+
+    \bold note: this function does nothing in event driven mode.
+*/
+void QextSerialPort::setTimeout(long millisec)
+{
+    Q_D(QextSerialPort)
+    d->setTimeout(millisec);
+}
+
+/*!
+    Sets DTR line to the requested state (high by default).  This function will have no effect if
+    the port associated with the class is not currently open.
+*/
+void QextSerialPort::setDtr(bool set)
+{
+    Q_D(QextSerialPort)
+    if (isOpen())
+        d->setDtr_sys(set);
+}
+
+/*!
+    Sets RTS line to the requested state (high by default).  This function will have no effect if
+    the port associated with the class is not currently open.
+*/
+void QextSerialPort::setRts(bool set)
+{
+    Q_D(QextSerialPort)
+    if (isOpen())
+        d->setRts_sys(set);
 }

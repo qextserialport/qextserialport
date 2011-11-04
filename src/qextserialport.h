@@ -1,26 +1,8 @@
-
 #ifndef _QEXTSERIALPORT_H_
 #define _QEXTSERIALPORT_H_
 
+#include <QIODevice>
 #include "qextserialport_global.h"
-
-/*if all warning messages are turned off, flag portability warnings to be turned off as well*/
-#ifdef _TTY_NOWARN_
-#define _TTY_NOWARN_PORT_
-#endif
-
-/*macros for warning and debug messages*/
-#ifdef _TTY_NOWARN_PORT_
-#define TTY_PORTABILITY_WARNING(s)
-#else
-#define TTY_PORTABILITY_WARNING(s) qWarning(s)
-#endif /*_TTY_NOWARN_PORT_*/
-#ifdef _TTY_NOWARN_
-#define TTY_WARNING(s)
-#else
-#define TTY_WARNING(s) qWarning(s)
-#endif /*_TTY_NOWARN_*/
-
 
 /*line status constants*/
 #define LS_CTS  0x01
@@ -52,28 +34,43 @@
 
 enum BaudRateType
 {
-    BAUD50,                //POSIX ONLY
-    BAUD75,                //POSIX ONLY
-    BAUD110,
-    BAUD134,               //POSIX ONLY
-    BAUD150,               //POSIX ONLY
-    BAUD200,               //POSIX ONLY
-    BAUD300,
-    BAUD600,
-    BAUD1200,
-    BAUD1800,              //POSIX ONLY
-    BAUD2400,
-    BAUD4800,
-    BAUD9600,
-    BAUD14400,             //WINDOWS ONLY
-    BAUD19200,
-    BAUD38400,
-    BAUD56000,             //WINDOWS ONLY
-    BAUD57600,
-    BAUD76800,             //POSIX ONLY
-    BAUD115200,
-    BAUD128000,            //WINDOWS ONLY
-    BAUD256000             //WINDOWS ONLY
+#ifdef Q_OS_UNIX
+    BAUD50 = 50,                //POSIX ONLY
+    BAUD75 = 75,                //POSIX ONLY
+#endif
+    BAUD110 = 110,
+#ifdef Q_OS_UNIX
+    BAUD134 = 134,               //POSIX ONLY
+    BAUD150 = 150,               //POSIX ONLY
+    BAUD200 = 200,               //POSIX ONLY
+#endif
+    BAUD300 = 300,
+    BAUD600 = 600,
+    BAUD1200 = 1200,
+#ifdef Q_OS_UNIX
+    BAUD1800 = 1800,              //POSIX ONLY
+#endif
+    BAUD2400 = 2400,
+    BAUD4800 = 4800,
+    BAUD9600 = 9600,
+#ifdef Q_OS_WIN
+    BAUD14400 = 14400,             //WINDOWS ONLY
+#endif
+    BAUD19200 = 19200,
+    BAUD38400 = 38400,
+#ifdef Q_OS_WIN
+    BAUD56000 = 56000,             //WINDOWS ONLY
+#endif
+    BAUD57600 = 57600,
+#ifdef Q_OS_UNIX
+    BAUD76800 = 76800,             //POSIX ONLY
+#endif
+    BAUD115200 = 115200
+#ifdef Q_OS_WIN
+    ,
+    BAUD128000 = 12800,            //WINDOWS ONLY
+    BAUD256000 = 25600             //WINDOWS ONLY
+#endif
 };
 
 enum DataBitsType
@@ -89,14 +86,18 @@ enum ParityType
     PAR_NONE,
     PAR_ODD,
     PAR_EVEN,
+#ifdef Q_OS_WIN
     PAR_MARK,               //WINDOWS ONLY
+#endif
     PAR_SPACE
 };
 
 enum StopBitsType
 {
     STOP_1,
+#ifdef Q_OS_WIN
     STOP_1_5,               //WINDOWS ONLY
+#endif
     STOP_2
 };
 
@@ -120,27 +121,11 @@ struct PortSettings
     long Timeout_Millisec;
 };
 
-#include <QIODevice>
-#include <QMutex>
-#ifdef Q_OS_UNIX
-#include <stdio.h>
-#include <termios.h>
-#include <errno.h>
-#include <unistd.h>
-#include <sys/time.h>
-#include <sys/ioctl.h>
-#include <sys/select.h>
-#include <QSocketNotifier>
-#elif (defined Q_OS_WIN)
-#include <windows.h>
-#include <QThread>
-#include <QReadWriteLock>
-#include <QtCore/private/qwineventnotifier_p.h>
-#endif
-
+class QextSerialPortPrivate;
 class QEXTSERIALPORT_EXPORT QextSerialPort: public QIODevice
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QextSerialPort)
 public:
     enum QueryMode {
         Polling,
@@ -153,94 +138,56 @@ public:
     QextSerialPort(const QString & name, PortSettings const& s, QueryMode mode = EventDriven);
     ~QextSerialPort();
 
-    void setPortName(const QString & name);
     QString portName() const;
-
-    inline QueryMode queryMode() const { return _queryMode; }
-    void setQueryMode(QueryMode mode);
-
-    void setBaudRate(BaudRateType);
+    QueryMode queryMode() const;
     BaudRateType baudRate() const;
-
-    void setDataBits(DataBitsType);
     DataBitsType dataBits() const;
-
-    void setParity(ParityType);
     ParityType parity() const;
-
-    void setStopBits(StopBitsType);
     StopBitsType stopBits() const;
-
-    void setFlowControl(FlowType);
     FlowType flowControl() const;
-
-    void setTimeout(long);
 
     bool open(OpenMode mode);
     bool isSequential() const;
     void close();
     void flush();
-
     qint64 size() const;
     qint64 bytesAvailable() const;
     QByteArray readAll();
 
-    void ungetChar(char c);
-
     ulong lastError() const;
-    void translateError(ulong error);
 
-    void setDtr(bool set=true);
-    void setRts(bool set=true);
     ulong lineStatus();
     QString errorString();
 
 #ifdef Q_OS_WIN
-    virtual bool waitForReadyRead(int msecs);  ///< @todo implement.
-    virtual qint64 bytesToWrite() const;
     static QString fullPortNameWin(const QString & name);
 #endif
 
+public Q_SLOTS:
+    void setPortName(const QString & name);
+    void setQueryMode(QueryMode mode);
+    void setBaudRate(BaudRateType);
+    void setDataBits(DataBitsType);
+    void setParity(ParityType);
+    void setStopBits(StopBitsType);
+    void setFlowControl(FlowType);
+    void setTimeout(long);
+
+    void setDtr(bool set=true);
+    void setRts(bool set=true);
+
 protected:
-    QMutex* mutex;
-    QString port;
-    PortSettings Settings;
-    ulong lastErr;
-    QueryMode _queryMode;
-
-    // platform specific members
-#ifdef Q_OS_UNIX
-    int fd;
-    QSocketNotifier *readNotifier;
-    struct termios Posix_CommConfig;
-    struct termios old_termios;
-    struct timeval Posix_Timeout;
-    struct timeval Posix_Copy_Timeout;
-#elif (defined Q_OS_WIN)
-    HANDLE Win_Handle;
-    OVERLAPPED overlap;
-    COMMCONFIG Win_CommConfig;
-    COMMTIMEOUTS Win_CommTimeouts;
-    QWinEventNotifier *winEventNotifier;
-    DWORD eventMask;
-    QList<OVERLAPPED*> pendingWrites;
-    QReadWriteLock* bytesToWriteLock;
-    qint64 _bytesToWrite;
-#endif
-
-    void construct(); // common construction
-    void platformSpecificDestruct();
-    void platformSpecificInit();
     qint64 readData(char * data, qint64 maxSize);
     qint64 writeData(const char * data, qint64 maxSize);
 
 #ifdef Q_OS_WIN
-private slots:
+private Q_SLOTS:
     void onWinEvent(HANDLE h);
 #endif
 
 private:
     Q_DISABLE_COPY(QextSerialPort)
+    QextSerialPortPrivate * d_ptr;
 
 signals:
     void dsrChanged(bool status);

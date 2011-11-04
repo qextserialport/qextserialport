@@ -1,12 +1,12 @@
-
-
+#include "qextserialport.h"
+#include "qextserialport_p.h"
 #include <fcntl.h>
 #include <stdio.h>
-#include "qextserialport.h"
+
 #include <QMutexLocker>
 #include <QDebug>
 
-void QextSerialPort::platformSpecificInit()
+void QextSerialPortPrivate::platformSpecificInit()
 {
     fd = 0;
     readNotifier = 0;
@@ -15,78 +15,14 @@ void QextSerialPort::platformSpecificInit()
 /*!
     Standard destructor.
 */
-void QextSerialPort::platformSpecificDestruct()
+void QextSerialPortPrivate::platformSpecificDestruct()
 {}
 
-/*!
-    Sets the baud rate of the serial port.  Note that not all rates are applicable on
-    all platforms.  The following table shows translations of the various baud rate
-    constants on Windows(including NT/2000) and POSIX platforms.  Speeds marked with an *
-    are speeds that are usable on both Windows and POSIX.
-    
-    \bold note:
-    BAUD76800 may not be supported on all POSIX systems.  SGI/IRIX systems do not support
-    BAUD1800.
-    
-    \code
-    
-      RATE          Windows Speed   POSIX Speed
-      -----------   -------------   -----------
-       BAUD50                 110          50
-       BAUD75                 110          75
-      *BAUD110                110         110
-       BAUD134                110         134.5
-       BAUD150                110         150
-       BAUD200                110         200
-      *BAUD300                300         300
-      *BAUD600                600         600
-      *BAUD1200              1200        1200
-       BAUD1800              1200        1800
-      *BAUD2400              2400        2400
-      *BAUD4800              4800        4800
-      *BAUD9600              9600        9600
-       BAUD14400            14400        9600
-      *BAUD19200            19200       19200
-      *BAUD38400            38400       38400
-       BAUD56000            56000       38400
-      *BAUD57600            57600       57600
-       BAUD76800            57600       76800
-      *BAUD115200          115200      115200
-       BAUD128000          128000      115200
-       BAUD256000          256000      115200
-    \endcode
-*/
-void QextSerialPort::setBaudRate(BaudRateType baudRate)
+void QextSerialPortPrivate::setBaudRate(BaudRateType baudRate)
 {
     QMutexLocker lock(mutex);
     if (Settings.BaudRate!=baudRate) {
-        switch (baudRate) {
-            case BAUD14400:
-                Settings.BaudRate=BAUD9600;
-                break;
-
-            case BAUD56000:
-                Settings.BaudRate=BAUD38400;
-                break;
-
-            case BAUD76800:
-
-#ifndef B76800
-                Settings.BaudRate=BAUD57600;
-#else
-                Settings.BaudRate=baudRate;
-#endif
-                break;
-
-            case BAUD128000:
-            case BAUD256000:
-                Settings.BaudRate=BAUD115200;
-                break;
-
-            default:
-                Settings.BaudRate=baudRate;
-                break;
-        }
+        Settings.BaudRate=baudRate;
     }
     if (isOpen()) {
         switch (baudRate) {
@@ -240,18 +176,6 @@ void QextSerialPort::setBaudRate(BaudRateType baudRate)
 #endif
                 break;
 
-            /*14400 baud*/
-            case BAUD14400:
-                TTY_WARNING("QextSerialPort: POSIX does not support 14400 baud operation.  Switching to 9600 baud.");
-#ifdef CBAUD
-                Posix_CommConfig.c_cflag&=(~CBAUD);
-                Posix_CommConfig.c_cflag|=B9600;
-#else
-                cfsetispeed(&Posix_CommConfig, B9600);
-                cfsetospeed(&Posix_CommConfig, B9600);
-#endif
-                break;
-
             /*19200 baud*/
             case BAUD19200:
 #ifdef CBAUD
@@ -265,18 +189,6 @@ void QextSerialPort::setBaudRate(BaudRateType baudRate)
 
             /*38400 baud*/
             case BAUD38400:
-#ifdef CBAUD
-                Posix_CommConfig.c_cflag&=(~CBAUD);
-                Posix_CommConfig.c_cflag|=B38400;
-#else
-                cfsetispeed(&Posix_CommConfig, B38400);
-                cfsetospeed(&Posix_CommConfig, B38400);
-#endif
-                break;
-
-            /*56000 baud*/
-            case BAUD56000:
-                TTY_WARNING("QextSerialPort: POSIX does not support 56000 baud operation.  Switching to 38400 baud.");
 #ifdef CBAUD
                 Posix_CommConfig.c_cflag&=(~CBAUD);
                 Posix_CommConfig.c_cflag|=B38400;
@@ -331,31 +243,6 @@ void QextSerialPort::setBaudRate(BaudRateType baudRate)
                 cfsetospeed(&Posix_CommConfig, B115200);
 #endif
                 break;
-
-            /*128000 baud*/
-            case BAUD128000:
-                TTY_WARNING("QextSerialPort: POSIX does not support 128000 baud operation.  Switching to 115200 baud.");
-#ifdef CBAUD
-                Posix_CommConfig.c_cflag&=(~CBAUD);
-                Posix_CommConfig.c_cflag|=B115200;
-#else
-                cfsetispeed(&Posix_CommConfig, B115200);
-                cfsetospeed(&Posix_CommConfig, B115200);
-#endif
-                break;
-
-            /*256000 baud*/
-            case BAUD256000:
-                TTY_WARNING("QextSerialPort: POSIX does not support 256000 baud operation.  Switching to 115200 baud.");
-#ifdef CBAUD
-                Posix_CommConfig.c_cflag&=(~CBAUD);
-                Posix_CommConfig.c_cflag|=B115200;
-#else
-                cfsetispeed(&Posix_CommConfig, B115200);
-                cfsetospeed(&Posix_CommConfig, B115200);
-#endif
-                break;
-        }
         tcsetattr(fd, TCSAFLUSH, &Posix_CommConfig);
     }
 }
@@ -669,97 +556,77 @@ void QextSerialPort::setTimeout(long millisec)
     }
 }
 
-/*!
-   Opens the serial port associated to this class.
-   This function has no effect if the port associated with the class is already open.
-   The port is also configured to the current settings, as stored in the Settings structure.
-*/
-bool QextSerialPort::open(OpenMode mode)
+bool QextSerialPortPrivate::open_sys(QIODevice::OpenMode mode)
 {
     QMutexLocker lock(mutex);
-    if (mode == QIODevice::NotOpen)
-        return isOpen();
-    if (!isOpen()) {
-        qDebug() << "trying to open file" << port.toAscii();
-        //note: linux 2.6.21 seems to ignore O_NDELAY flag
-        if ((fd = ::open(port.toAscii() ,O_RDWR | O_NOCTTY | O_NDELAY)) != -1) {
-            qDebug("file opened succesfully");
+    qDebug() << "trying to open file" << port.toAscii();
+    //note: linux 2.6.21 seems to ignore O_NDELAY flag
+    if ((fd = ::open(port.toAscii() ,O_RDWR | O_NOCTTY | O_NDELAY)) != -1) {
+        qDebug("file opened succesfully");
 
-            setOpenMode(mode);              // Flag the port as opened
-            tcgetattr(fd, &old_termios);    // Save the old termios
-            Posix_CommConfig = old_termios; // Make a working copy
-            cfmakeraw(&Posix_CommConfig);   // Enable raw access
+        QIODevice::open(mode);          // Flag the port as opened
+        tcgetattr(fd, &old_termios);    // Save the old termios
+        Posix_CommConfig = old_termios; // Make a working copy
+        cfmakeraw(&Posix_CommConfig);   // Enable raw access
 
-            /*set up other port settings*/
-            Posix_CommConfig.c_cflag|=CREAD|CLOCAL;
-            Posix_CommConfig.c_lflag&=(~(ICANON|ECHO|ECHOE|ECHOK|ECHONL|ISIG));
-            Posix_CommConfig.c_iflag&=(~(INPCK|IGNPAR|PARMRK|ISTRIP|ICRNL|IXANY));
-            Posix_CommConfig.c_oflag&=(~OPOST);
-            Posix_CommConfig.c_cc[VMIN]= 0;
+        /*set up other port settings*/
+        Posix_CommConfig.c_cflag|=CREAD|CLOCAL;
+        Posix_CommConfig.c_lflag&=(~(ICANON|ECHO|ECHOE|ECHOK|ECHONL|ISIG));
+        Posix_CommConfig.c_iflag&=(~(INPCK|IGNPAR|PARMRK|ISTRIP|ICRNL|IXANY));
+        Posix_CommConfig.c_oflag&=(~OPOST);
+        Posix_CommConfig.c_cc[VMIN]= 0;
 #ifdef _POSIX_VDISABLE  // Is a disable character available on this system?
-            // Some systems allow for per-device disable-characters, so get the
-            //  proper value for the configured device
-            const long vdisable = fpathconf(fd, _PC_VDISABLE);
-            Posix_CommConfig.c_cc[VINTR] = vdisable;
-            Posix_CommConfig.c_cc[VQUIT] = vdisable;
-            Posix_CommConfig.c_cc[VSTART] = vdisable;
-            Posix_CommConfig.c_cc[VSTOP] = vdisable;
-            Posix_CommConfig.c_cc[VSUSP] = vdisable;
+        // Some systems allow for per-device disable-characters, so get the
+        //  proper value for the configured device
+        const long vdisable = fpathconf(fd, _PC_VDISABLE);
+        Posix_CommConfig.c_cc[VINTR] = vdisable;
+        Posix_CommConfig.c_cc[VQUIT] = vdisable;
+        Posix_CommConfig.c_cc[VSTART] = vdisable;
+        Posix_CommConfig.c_cc[VSTOP] = vdisable;
+        Posix_CommConfig.c_cc[VSUSP] = vdisable;
 #endif //_POSIX_VDISABLE
-            setBaudRate(Settings.BaudRate);
-            setDataBits(Settings.DataBits);
-            setParity(Settings.Parity);
-            setStopBits(Settings.StopBits);
-            setFlowControl(Settings.FlowControl);
-            setTimeout(Settings.Timeout_Millisec);
-            tcsetattr(fd, TCSAFLUSH, &Posix_CommConfig);
+        setBaudRate(Settings.BaudRate);
+        setDataBits(Settings.DataBits);
+        setParity(Settings.Parity);
+        setStopBits(Settings.StopBits);
+        setFlowControl(Settings.FlowControl);
+        setTimeout(Settings.Timeout_Millisec);
+        tcsetattr(fd, TCSAFLUSH, &Posix_CommConfig);
 
-            if (queryMode() == QextSerialPort::EventDriven) {
-                readNotifier = new QSocketNotifier(fd, QSocketNotifier::Read, this);
-                connect(readNotifier, SIGNAL(activated(int)), this, SIGNAL(readyRead()));
-            }
-        } else {
-            qDebug() << "could not open file:" << QString::fromLocal8Bit(strerror(errno));
-            lastErr = E_FILE_NOT_FOUND;
+        if (queryMode() == QextSerialPort::EventDriven) {
+            readNotifier = new QSocketNotifier(fd, QSocketNotifier::Read, this);
+            connect(readNotifier, SIGNAL(activated(int)), this, SIGNAL(readyRead()));
         }
-    }
-    return isOpen();
-}
-
-/*!
-    Closes a serial port.  This function has no effect if the serial port associated with the class
-    is not currently open.
-*/
-void QextSerialPort::close()
-{
-    QMutexLocker lock(mutex);
-    if( isOpen() )
-    {
-        // Force a flush and then restore the original termios
-        flush();
-        // Using both TCSAFLUSH and TCSANOW here discards any pending input
-        tcsetattr(fd, TCSAFLUSH | TCSANOW, &old_termios);   // Restore termios
-        // Be a good QIODevice and call QIODevice::close() before POSIX close()
-        //  so the aboutToClose() signal is emitted at the proper time
-        QIODevice::close();	// Flag the device as closed
-        // QIODevice::close() doesn't actually close the port, so do that here
-        ::close(fd);
-        if(readNotifier) {
-            delete readNotifier;
-            readNotifier = 0;
-        }
+        return true;
+    } else {
+        qDebug() << "could not open file:" << QString::fromLocal8Bit(strerror(errno));
+        lastErr = E_FILE_NOT_FOUND;
+        return false;
     }
 }
 
-/*!
-    Flushes all pending I/O to the serial port.  This function has no effect if the serial port
-    associated with the class is not currently open.
-*/
-void QextSerialPort::flush()
+void QextSerialPortPrivate::close_sys()
 {
     QMutexLocker lock(mutex);
-    if (isOpen())
-        tcflush(fd, TCIOFLUSH);
+    // Force a flush and then restore the original termios
+    flush_sys();
+    // Using both TCSAFLUSH and TCSANOW here discards any pending input
+    tcsetattr(fd, TCSAFLUSH | TCSANOW, &old_termios);   // Restore termios
+    // Be a good QIODevice and call QIODevice::close() before POSIX close()
+    //  so the aboutToClose() signal is emitted at the proper time
+    QIODevice::close();	// Flag the device as closed
+    // QIODevice::close() doesn't actually close the port, so do that here
+    ::close(fd);
+    if(readNotifier) {
+        delete readNotifier;
+        readNotifier = 0;
+    }
+}
+
+void QextSerialPortPrivate::flush_sys()
+{
+    QMutexLocker lock(mutex);
+    tcflush(fd, TCIOFLUSH);
 }
 
 /*!
@@ -795,20 +662,9 @@ qint64 QextSerialPort::bytesAvailable() const
 }
 
 /*!
-    This function is included to implement the full QIODevice interface, and currently has no
-    purpose within this class.  This function is meaningless on an unbuffered device and currently
-    only prints a warning message to that effect.
-*/
-void QextSerialPort::ungetChar(char)
-{
-    /*meaningless on unbuffered sequential device - return error and print a warning*/
-    TTY_WARNING("QextSerialPort: ungetChar() called on an unbuffered sequential device - operation is meaningless");
-}
-
-/*!
     Translates a system-specific error code to a QextSerialPort error code.  Used internally.
 */
-void QextSerialPort::translateError(ulong error)
+void QextSerialPortPrivate::translateError(ulong error)
 {
     switch (error) {
         case EBADF:
@@ -826,98 +682,62 @@ void QextSerialPort::translateError(ulong error)
     }
 }
 
-/*!
-    Sets DTR line to the requested state (high by default).  This function will have no effect if
-    the port associated with the class is not currently open.
-*/
-void QextSerialPort::setDtr(bool set)
+void QextSerialPortPrivate::setDtr_sys(bool set)
 {
     QMutexLocker lock(mutex);
-    if (isOpen()) {
-        int status;
-        ioctl(fd, TIOCMGET, &status);
-        if (set) {
-            status|=TIOCM_DTR;
-        }
-        else {
-            status&=~TIOCM_DTR;
-        }
-        ioctl(fd, TIOCMSET, &status);
+    int status;
+    ioctl(fd, TIOCMGET, &status);
+    if (set) {
+        status|=TIOCM_DTR;
     }
+    else {
+        status&=~TIOCM_DTR;
+    }
+    ioctl(fd, TIOCMSET, &status);
 }
 
-/*!
-    Sets RTS line to the requested state (high by default).  This function will have no effect if
-    the port associated with the class is not currently open.
-*/
-void QextSerialPort::setRts(bool set)
+void QextSerialPortPrivate::setRts_sys(bool set)
 {
     QMutexLocker lock(mutex);
-    if (isOpen()) {
-        int status;
-        ioctl(fd, TIOCMGET, &status);
-        if (set) {
-            status|=TIOCM_RTS;
-        }
-        else {
-            status&=~TIOCM_RTS;
-        }
-        ioctl(fd, TIOCMSET, &status);
+    int status;
+    ioctl(fd, TIOCMGET, &status);
+    if (set) {
+        status|=TIOCM_RTS;
     }
+    else {
+        status&=~TIOCM_RTS;
+    }
+    ioctl(fd, TIOCMSET, &status);
 }
 
-/*!
-    Returns the line status as stored by the port function.  This function will retrieve the states
-    of the following lines: DCD, CTS, DSR, and RI.  On POSIX systems, the following additional lines
-    can be monitored: DTR, RTS, Secondary TXD, and Secondary RXD.  The value returned is an unsigned
-    long with specific bits indicating which lines are high.  The following constants should be used
-    to examine the states of individual lines:
-    
-    \code
-    Mask        Line
-    ------      ----
-    LS_CTS      CTS
-    LS_DSR      DSR
-    LS_DCD      DCD
-    LS_RI       RI
-    LS_RTS      RTS (POSIX only)
-    LS_DTR      DTR (POSIX only)
-    LS_ST       Secondary TXD (POSIX only)
-    LS_SR       Secondary RXD (POSIX only)
-    \endcode
-    
-    This function will return 0 if the port associated with the class is not currently open.
-*/
-unsigned long QextSerialPort::lineStatus()
+unsigned long QextSerialPortPrivate::lineStatus_sys()
 {
     unsigned long Status=0, Temp=0;
     QMutexLocker lock(mutex);
-    if (isOpen()) {
-        ioctl(fd, TIOCMGET, &Temp);
-        if (Temp&TIOCM_CTS) {
-            Status|=LS_CTS;
-        }
-        if (Temp&TIOCM_DSR) {
-            Status|=LS_DSR;
-        }
-        if (Temp&TIOCM_RI) {
-            Status|=LS_RI;
-        }
-        if (Temp&TIOCM_CD) {
-            Status|=LS_DCD;
-        }
-        if (Temp&TIOCM_DTR) {
-            Status|=LS_DTR;
-        }
-        if (Temp&TIOCM_RTS) {
-            Status|=LS_RTS;
-        }
-        if (Temp&TIOCM_ST) {
-            Status|=LS_ST;
-        }
-        if (Temp&TIOCM_SR) {
-            Status|=LS_SR;
-        }
+    ioctl(fd, TIOCMGET, &Temp);
+    if (Temp&TIOCM_CTS) {
+        Status|=LS_CTS;
+    }
+    if (Temp&TIOCM_DSR) {
+        Status|=LS_DSR;
+    }
+    if (Temp&TIOCM_RI) {
+        Status|=LS_RI;
+    }
+    if (Temp&TIOCM_CD) {
+        Status|=LS_DCD;
+    }
+    if (Temp&TIOCM_DTR) {
+        Status|=LS_DTR;
+    }
+    if (Temp&TIOCM_RTS) {
+        Status|=LS_RTS;
+    }
+    if (Temp&TIOCM_ST) {
+        Status|=LS_ST;
+    }
+    if (Temp&TIOCM_SR) {
+        Status|=LS_SR;
     }
     return Status;
 }
