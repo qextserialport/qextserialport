@@ -1,7 +1,7 @@
 #ifndef _QEXTSERIALPORT_H_
 #define _QEXTSERIALPORT_H_
 
-#include <QIODevice>
+#include <QtCore/QIODevice>
 #include "qextserialport_global.h"
 
 /*line status constants*/
@@ -62,7 +62,7 @@ enum BaudRateType
     BAUD56000 = 56000,             //WINDOWS ONLY
 #endif
     BAUD57600 = 57600,
-#ifdef Q_OS_UNIX
+#if defined(Q_OS_UNIX) && defined(B76800)
     BAUD76800 = 76800,             //POSIX ONLY
 #endif
     BAUD115200 = 115200
@@ -75,10 +75,10 @@ enum BaudRateType
 
 enum DataBitsType
 {
-    DATA_5,
-    DATA_6,
-    DATA_7,
-    DATA_8
+    DATA_5 = 5,
+    DATA_6 = 6,
+    DATA_7 = 7,
+    DATA_8 = 8
 };
 
 enum ParityType
@@ -150,7 +150,6 @@ public:
     bool isSequential() const;
     void close();
     void flush();
-    qint64 size() const;
     qint64 bytesAvailable() const;
     QByteArray readAll();
 
@@ -180,13 +179,13 @@ protected:
     qint64 readData(char * data, qint64 maxSize);
     qint64 writeData(const char * data, qint64 maxSize);
 
-#ifdef Q_OS_WIN
-private Q_SLOTS:
-    void onWinEvent(HANDLE h);
-#endif
-
 private:
     Q_DISABLE_COPY(QextSerialPort)
+
+#ifdef Q_OS_WIN
+    Q_PRIVATE_SLOT(d_func(), void _q_onWinEvent(HANDLE))
+#endif
+
     QextSerialPortPrivate * d_ptr;
 
 signals:
