@@ -62,7 +62,8 @@ QList<QextPortInfo> QextSerialEnumeratorPrivate::getPorts_sys()
     return infoList;
 }
 
-void QextSerialEnumeratorPrivate::setUpNotifications_sys(bool setup)
+bool QextSerialEnumeratorPrivate::setUpNotifications_sys(bool setup)
 {
     Q_UNUSED(setup)
+    return false;
 }

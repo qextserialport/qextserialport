@@ -197,7 +197,7 @@ void QextSerialEnumeratorPrivate::onDeviceTerminatedOSX( io_object_t service )
   to these notifications once to arm them, and discover any devices that
   are currently connected at the time notifications are setup.
 */
-void QextSerialEnumeratorPrivate::setUpNotifications_sys(bool setup)
+bool QextSerialEnumeratorPrivate::setUpNotifications_sys(bool setup)
 {
     kern_return_t kernResult;
     mach_port_t masterPort;
@@ -209,7 +209,7 @@ void QextSerialEnumeratorPrivate::setUpNotifications_sys(bool setup)
     kernResult = IOMasterPort(MACH_PORT_NULL, &masterPort);
     if (KERN_SUCCESS != kernResult) {
         qDebug() << "IOMasterPort returned:" << kernResult;
-        return;
+        return false;
     }
 
     classesToMatch = IOServiceMatching(kIOSerialBSDServiceValue);
@@ -220,7 +220,7 @@ void QextSerialEnumeratorPrivate::setUpNotifications_sys(bool setup)
 
     if( !(cdcClassesToMatch = IOServiceNameMatching("AppleUSBCDC") ) ) {
         qWarning("couldn't create cdc matching dict");
-        return;
+        return false;
     }
 
     // Retain an additional reference since each call to IOServiceAddMatchingNotification consumes one.
@@ -230,13 +230,13 @@ void QextSerialEnumeratorPrivate::setUpNotifications_sys(bool setup)
     notificationPortRef = IONotificationPortCreate(masterPort);
     if(notificationPortRef == NULL) {
         qDebug("IONotificationPortCreate return a NULL IONotificationPortRef.");
-        return;
+        return false;
     }
 
     notificationRunLoopSource = IONotificationPortGetRunLoopSource(notificationPortRef);
     if (notificationRunLoopSource == NULL) {
         qDebug("IONotificationPortGetRunLoopSource returned NULL CFRunLoopSourceRef.");
-        return;
+        return false;
     }
 
     CFRunLoopAddSource(CFRunLoopGetCurrent(), notificationRunLoopSource, kCFRunLoopDefaultMode);
@@ -245,7 +245,7 @@ void QextSerialEnumeratorPrivate::setUpNotifications_sys(bool setup)
                                                   deviceDiscoveredCallbackOSX, this, &portIterator);
     if (kernResult != KERN_SUCCESS) {
         qDebug() << "IOServiceAddMatchingNotification return:" << kernResult;
-        return;
+        return false;
     }
 
     // arm the callback, and grab any devices that are already connected
@@ -255,7 +255,7 @@ void QextSerialEnumeratorPrivate::setUpNotifications_sys(bool setup)
                                                   deviceDiscoveredCallbackOSX, this, &portIterator);
     if (kernResult != KERN_SUCCESS) {
         qDebug() << "IOServiceAddMatchingNotification return:" << kernResult;
-        return;
+        return false;
     }
 
     // arm the callback, and grab any devices that are already connected
@@ -265,7 +265,7 @@ void QextSerialEnumeratorPrivate::setUpNotifications_sys(bool setup)
                                                   deviceTerminatedCallbackOSX, this, &portIterator);
     if (kernResult != KERN_SUCCESS) {
         qDebug() << "IOServiceAddMatchingNotification return:" << kernResult;
-        return;
+        return false;
     }
 
     // arm the callback, and clear any devices that are terminated
@@ -275,10 +275,11 @@ void QextSerialEnumeratorPrivate::setUpNotifications_sys(bool setup)
                                                   deviceTerminatedCallbackOSX, this, &portIterator);
     if (kernResult != KERN_SUCCESS) {
         qDebug() << "IOServiceAddMatchingNotification return:" << kernResult;
-        return;
+        return false;
     }
 
     // arm the callback, and clear any devices that are terminated
     deviceTerminatedCallbackOSX( this, portIterator );
+    return true;
 }
 
