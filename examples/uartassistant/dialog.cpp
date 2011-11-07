@@ -46,7 +46,7 @@ Dialog::Dialog(QWidget *parent) :
 
     timer = new QTimer(this);
     timer->setInterval(40);
-    PortSettings settings = {BAUD9600, DATA_8, PAR_NONE, STOP_1, FLOW_OFF, 500};
+    PortSettings settings = {BAUD9600, DATA_8, PAR_NONE, STOP_1, FLOW_OFF, 10};
     port = new QextSerialPort(ui->portBox->currentText(), settings, QextSerialPort::Polling);
 
     connect(ui->baudRateBox, SIGNAL(currentIndexChanged(int)), SLOT(onBaudRateChanged(int)));
@@ -54,10 +54,12 @@ Dialog::Dialog(QWidget *parent) :
     connect(ui->dataBitsBox, SIGNAL(currentIndexChanged(int)), SLOT(onDataBitsChanged(int)));
     connect(ui->stopBitsBox, SIGNAL(currentIndexChanged(int)), SLOT(onStopBitsChanged(int)));
     connect(ui->queryModeBox, SIGNAL(currentIndexChanged(int)), SLOT(onQueryModeChanged(int)));
+    connect(ui->timeoutBox, SIGNAL(valueChanged(int)), SLOT(onTimeoutChanged(int)));
     connect(ui->portBox, SIGNAL(editTextChanged(QString)), SLOT(onPortNameChanged(QString)));
     connect(ui->openCloseButton, SIGNAL(clicked()), SLOT(onOpenCloseButtonClicked()));
     connect(ui->sendButton, SIGNAL(clicked()), SLOT(onSendButtonClicked()));
-    connect(timer, SIGNAL(timeout()), SLOT(onTimeout()));
+    connect(timer, SIGNAL(timeout()), SLOT(onReadyRead()));
+    connect(port, SIGNAL(readyRead()), SLOT(onReadyRead()));
 }
 
 Dialog::~Dialog()
@@ -110,17 +112,24 @@ void Dialog::onQueryModeChanged(int idx)
     port->setQueryMode((QextSerialPort::QueryMode)ui->queryModeBox->itemData(idx).toInt());
 }
 
+void Dialog::onTimeoutChanged(int val)
+{
+    port->setTimeout(val);
+}
+
 void Dialog::onOpenCloseButtonClicked()
 {
-    if (ui->led->state()==HLed::Off) {
+    if (!port->isOpen()) {
         port->setPortName(ui->portBox->currentText());
         port->open(QIODevice::ReadWrite);
     }
     else {
         port->close();
     }
+
     if (port->isOpen()) {
-        timer->start();
+        if (port->queryMode() == QextSerialPort::Polling)
+            timer->start();
         ui->led->turnOn();
     }
     else {
@@ -135,7 +144,7 @@ void Dialog::onSendButtonClicked()
         port->write(ui->sendEdit->toPlainText().toLatin1());
 }
 
-void Dialog::onTimeout()
+void Dialog::onReadyRead()
 {
     if (port->bytesAvailable()) {
         ui->recvEdit->moveCursor(QTextCursor::End);

@@ -27,9 +27,10 @@ private Q_SLOTS:
     void onDataBitsChanged(int idx);
     void onStopBitsChanged(int idx);
     void onQueryModeChanged(int idx);
+    void onTimeoutChanged(int val);
     void onOpenCloseButtonClicked();
     void onSendButtonClicked();
-    void onTimeout();
+    void onReadyRead();
 
 private:
     Ui::Dialog *ui;
