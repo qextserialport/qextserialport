@@ -1,97 +1,57 @@
-
-
-
 #include "qextserialenumerator.h"
-#include <QDebug>
-#include <QMetaType>
+#include "qextserialenumerator_p.h"
+#include <QtCore/QDebug>
+#include <QtCore/QMetaType>
+#include <QtCore/QRegExp>
 #include <objbase.h>
 #include <initguid.h>
+#include <setupapi.h>
+#include <dbt.h>
 #include "qextserialport.h"
-#include <QRegExp>
 
-
-/*! \class QextSerialEnumerator
-
-    \brief Provides list of ports available in the system.
-  
-    \section1 Usage
-    To poll the system for a list of connected devices, simply use getPorts().  Each
-    QextPortInfo structure will populated with information about the corresponding device.
-  
-    \bold Example
-    \code
-    QList<QextPortInfo> ports = QextSerialEnumerator::getPorts();
-    foreach( QextPortInfo port, ports ) {
-        // inspect port...
-    }
-    \endcode
-  
-    To enable event-driven notification of device connection events, first call
-    setUpNotifications() and then connect to the deviceDiscovered() and deviceRemoved()
-    signals.  Event-driven behavior is currently available only on Windows and OS X.
-  
-    \bold Example
-    \code
-    QextSerialEnumerator* enumerator = new QextSerialEnumerator();
-    connect(enumerator, SIGNAL(deviceDiscovered(const QextPortInfo &)),
-               myClass, SLOT(onDeviceDiscovered(const QextPortInfo &)));
-    connect(enumerator, SIGNAL(deviceRemoved(const QextPortInfo &)),
-               myClass, SLOT(onDeviceRemoved(const QextPortInfo &)));
-    \endcode
-  
-    \section1 Credits
-    Windows implementation is based on Zach Gorman's work from
-    \l {http://www.codeproject.com}{The Code Project} (\l http://www.codeproject.com/system/setupdi.asp).
-  
-    OS X implementation, see \l http://developer.apple.com/documentation/DeviceDrivers/Conceptual/AccessingHardware/AH_Finding_Devices/chapter_4_section_2.html
-  
-    \bold author Michal Policht, Liam Staskawicz
-*/
-
-/*!
-    \fn void QextSerialEnumerator::deviceDiscovered( const QextPortInfo & info )
-    A new device has been connected to the system.
-  
-    setUpNotifications() must be called first to enable event-driven device notifications.
-    Currently only implemented on Windows and OS X.
-  
-    \a info The device that has been discovered.
-*/
-
-/*!
-   \fn void QextSerialEnumerator::deviceRemoved( const QextPortInfo & info );
-    A device has been disconnected from the system.
-  
-    setUpNotifications() must be called first to enable event-driven device notifications.
-    Currently only implemented on Windows and OS X.
-  
-    \a info The device that was disconnected.
-*/
-
-/*!
-  default
-*/
-QextSerialEnumerator::QextSerialEnumerator( )
+#ifdef QT_GUI_LIB
+#include <QtGui/QWidget>
+class QextSerialRegistrationWidget : public QWidget
 {
-    if( !QMetaType::isRegistered( QMetaType::type("QextPortInfo") ) )
-        qRegisterMetaType<QextPortInfo>("QextPortInfo");
-#if (defined QT_GUI_LIB)
+    Q_OBJECT
+public:
+    QextSerialRegistrationWidget(QextSerialEnumeratorPrivate* qese) {
+        this->qese = qese;
+    }
+    ~QextSerialRegistrationWidget() {}
+
+protected:
+    bool winEvent( MSG* message, long* result ) {
+        if ( message->message == WM_DEVICECHANGE ) {
+            qese->onDeviceChanged(message->wParam, message->lParam );
+            *result = 1;
+            return true;
+        }
+        return false;
+    }
+private:
+    QextSerialEnumeratorPrivate* qese;
+};
+
+#endif // QT_GUI_LIB
+
+void QextSerialEnumeratorPrivate::platformSpecificInit()
+{
+#ifdef QT_GUI_LIB
     notificationWidget = 0;
-#endif // Q_OS_WIN
+#endif // QT_GUI_LIB
 }
 
 /*!
   default
 */
-QextSerialEnumerator::~QextSerialEnumerator( )
+void QextSerialEnumeratorPrivate::platformSpecificDestruct()
 {
-#if (defined QT_GUI_LIB)
+#ifdef QT_GUI_LIB
     if( notificationWidget )
         delete notificationWidget;
 #endif
 }
-
-
 
 // see http://msdn.microsoft.com/en-us/library/ms791134.aspx for list of GUID classes
 #ifndef GUID_DEVCLASS_PORTS
@@ -111,7 +71,6 @@ QextSerialEnumerator::~QextSerialEnumerator( )
     #define TCHARToQStringN(x,y)  QString::fromLocal8Bit((char*)(x),(y))
 #endif /*UNICODE*/
 
-
 /*!
     \internal
     Get value of specified property from the registry.
@@ -120,16 +79,16 @@ QextSerialEnumerator::~QextSerialEnumerator( )
 
         return property value.
 */
-QString QextSerialEnumerator::getRegKeyValue(HKEY key, LPCTSTR property)
+static QString getRegKeyValue(HKEY key, LPCTSTR property)
 {
     DWORD size = 0;
     DWORD type;
-    RegQueryValueEx(key, property, NULL, NULL, NULL, & size);
+    ::RegQueryValueEx(key, property, NULL, NULL, NULL, & size);
     BYTE* buff = new BYTE[size];
     QString result;
-    if( RegQueryValueEx(key, property, NULL, &type, buff, & size) == ERROR_SUCCESS )
+    if(::RegQueryValueEx(key, property, NULL, &type, buff, & size) == ERROR_SUCCESS )
         result = TCHARToQString(buff);
-    RegCloseKey(key);
+    ::RegCloseKey(key);
     delete [] buff;
     return result;
 }
@@ -145,15 +104,57 @@ QString QextSerialEnumerator::getRegKeyValue(HKEY key, LPCTSTR property)
 
      return property string.
  */
-QString QextSerialEnumerator::getDeviceProperty(HDEVINFO devInfo, PSP_DEVINFO_DATA devData, DWORD property)
+static QString getDeviceProperty(HDEVINFO devInfo, PSP_DEVINFO_DATA devData, DWORD property)
 {
     DWORD buffSize = 0;
-    SetupDiGetDeviceRegistryProperty(devInfo, devData, property, NULL, NULL, 0, & buffSize);
+    ::SetupDiGetDeviceRegistryProperty(devInfo, devData, property, NULL, NULL, 0, & buffSize);
     BYTE* buff = new BYTE[buffSize];
-    SetupDiGetDeviceRegistryProperty(devInfo, devData, property, NULL, buff, buffSize, NULL);
+    ::SetupDiGetDeviceRegistryProperty(devInfo, devData, property, NULL, buff, buffSize, NULL);
     QString result = TCHARToQString(buff);
     delete [] buff;
     return result;
+}
+
+/*!
+     \internal
+*/
+static bool getDeviceDetailsWin( QextPortInfo* portInfo, HDEVINFO devInfo, PSP_DEVINFO_DATA devData
+                                 , WPARAM wParam = DBT_DEVICEARRIVAL)
+{
+    portInfo->friendName = getDeviceProperty(devInfo, devData, SPDRP_FRIENDLYNAME);
+    if( wParam == DBT_DEVICEARRIVAL)
+        portInfo->physName = getDeviceProperty(devInfo, devData, SPDRP_PHYSICAL_DEVICE_OBJECT_NAME);
+    portInfo->enumName = getDeviceProperty(devInfo, devData, SPDRP_ENUMERATOR_NAME);
+    QString hardwareIDs = getDeviceProperty(devInfo, devData, SPDRP_HARDWAREID);
+    HKEY devKey = ::SetupDiOpenDevRegKey(devInfo, devData, DICS_FLAG_GLOBAL, 0, DIREG_DEV, KEY_QUERY_VALUE);
+    portInfo->portName = QextSerialPort::fullPortNameWin(getRegKeyValue(devKey, TEXT("PortName")) );
+    QRegExp idRx("VID_(\\w+)&PID_(\\w+)");
+    if(hardwareIDs.toUpper().contains(idRx)) {
+        bool dummy;
+        portInfo->vendorID = idRx.cap(1).toInt(&dummy, 16);
+        portInfo->productID = idRx.cap(2).toInt(&dummy, 16);
+        //qDebug() << "got vid:" << vid << "pid:" << pid;
+    }
+    return true;
+}
+
+/*!
+     \internal
+*/
+static void enumerateDevicesWin( const GUID & guid, QList<QextPortInfo>* infoList )
+{
+    HDEVINFO devInfo;
+    if( (devInfo = ::SetupDiGetClassDevs(&guid, NULL, NULL, DIGCF_PRESENT)) != INVALID_HANDLE_VALUE) {
+        SP_DEVINFO_DATA devInfoData;
+        devInfoData.cbSize = sizeof(SP_DEVINFO_DATA);
+        for(int i = 0; ::SetupDiEnumDeviceInfo(devInfo, i, &devInfoData); i++) {
+            QextPortInfo info;
+            info.productID = info.vendorID = 0;
+            getDeviceDetailsWin( &info, devInfo, &devInfoData );
+            infoList->append(info);
+        }
+        ::SetupDiDestroyDeviceInfoList(devInfo);
+    }
 }
 
 /*!
@@ -161,76 +162,49 @@ QString QextSerialEnumerator::getDeviceProperty(HDEVINFO devInfo, PSP_DEVINFO_DA
 
     return list of ports currently available in the system.
 */
-QList<QextPortInfo> QextSerialEnumerator::getPorts()
+QList<QextPortInfo> QextSerialEnumeratorPrivate::getPorts_sys()
 {
     QList<QextPortInfo> ports;
     enumerateDevicesWin(GUID_DEVCLASS_PORTS, &ports);
     return ports;
 }
 
-void QextSerialEnumerator::enumerateDevicesWin( const GUID & guid, QList<QextPortInfo>* infoList )
-{
-    HDEVINFO devInfo;
-    if( (devInfo = SetupDiGetClassDevs(&guid, NULL, NULL, DIGCF_PRESENT)) != INVALID_HANDLE_VALUE)
-    {
-        SP_DEVINFO_DATA devInfoData;
-        devInfoData.cbSize = sizeof(SP_DEVINFO_DATA);
-        for(int i = 0; SetupDiEnumDeviceInfo(devInfo, i, &devInfoData); i++)
-        {
-            QextPortInfo info;
-            info.productID = info.vendorID = 0;
-            getDeviceDetailsWin( &info, devInfo, &devInfoData );
-            infoList->append(info);
-        }
-        SetupDiDestroyDeviceInfoList(devInfo);
-    }
-}
 
-#ifdef QT_GUI_LIB
-bool QextSerialRegistrationWidget::winEvent( MSG* message, long* result )
-{
-    if ( message->message == WM_DEVICECHANGE ) {
-        qese->onDeviceChangeWin( message->wParam, message->lParam );
-        *result = 1;
-        return true;
-    }
-    return false;
-}
-#endif
-
-/*!
+/*
     Enable event-driven notifications of board discovery/removal.
 */
-void QextSerialEnumerator::setUpNotifications( )
+bool QextSerialEnumeratorPrivate::setUpNotifications_sys(bool setup)
 {
-    #ifdef QT_GUI_LIB
-    if(notificationWidget)
-        return;
+#ifndef QT_GUI_LIB
+    qWarning("QextSerialEnumerator: GUI not enabled - can't register for device notifications.");
+    return false;
+#endif
+    Q_Q(QextSerialEnumerator);
+    if(setup && notificationWidget) //already setup
+        return true;
     notificationWidget = new QextSerialRegistrationWidget(this);
 
     DEV_BROADCAST_DEVICEINTERFACE dbh;
-    ZeroMemory(&dbh, sizeof(dbh));
+    ::ZeroMemory(&dbh, sizeof(dbh));
     dbh.dbcc_size = sizeof(dbh);
     dbh.dbcc_devicetype = DBT_DEVTYP_DEVICEINTERFACE;
-    CopyMemory(&dbh.dbcc_classguid, &GUID_DEVCLASS_PORTS, sizeof(GUID));
-    if( RegisterDeviceNotification( notificationWidget->winId( ), &dbh, DEVICE_NOTIFY_WINDOW_HANDLE ) == NULL)
+    ::CopyMemory(&dbh.dbcc_classguid, &GUID_DEVCLASS_PORTS, sizeof(GUID));
+    if(::RegisterDeviceNotification(notificationWidget->winId(), &dbh, DEVICE_NOTIFY_WINDOW_HANDLE ) == NULL) {
         qWarning() << "RegisterDeviceNotification failed:" << GetLastError();
+        return false;
+    }
     // setting up notifications doesn't tell us about devices already connected
     // so get those manually
-    foreach( QextPortInfo port, getPorts() )
-      emit deviceDiscovered( port );
-    #else
-    qWarning("QextSerialEnumerator: GUI not enabled - can't register for device notifications.");
-    #endif // QT_GUI_LIB
+    foreach(QextPortInfo port, getPorts_sys())
+      emit q->deviceDiscovered(port);
+    return true;
 }
 
-LRESULT QextSerialEnumerator::onDeviceChangeWin( WPARAM wParam, LPARAM lParam )
+LRESULT QextSerialEnumeratorPrivate::onDeviceChanged( WPARAM wParam, LPARAM lParam )
 {
-    if ( DBT_DEVICEARRIVAL == wParam || DBT_DEVICEREMOVECOMPLETE == wParam )
-    {
+    if (DBT_DEVICEARRIVAL == wParam || DBT_DEVICEREMOVECOMPLETE == wParam ) {
         PDEV_BROADCAST_HDR pHdr = (PDEV_BROADCAST_HDR)lParam;
-        if( pHdr->dbch_devicetype == DBT_DEVTYP_DEVICEINTERFACE )
-        {
+        if(pHdr->dbch_devicetype == DBT_DEVTYP_DEVICEINTERFACE ) {
             PDEV_BROADCAST_DEVICEINTERFACE pDevInf = (PDEV_BROADCAST_DEVICEINTERFACE)pHdr;
              // delimiters are different across APIs...change to backslash.  ugh.
             QString deviceID = TCHARToQString(pDevInf->dbcc_name).toUpper().replace("#", "\\");
@@ -241,30 +215,28 @@ LRESULT QextSerialEnumerator::onDeviceChangeWin( WPARAM wParam, LPARAM lParam )
     return 0;
 }
 
-bool QextSerialEnumerator::matchAndDispatchChangedDevice(const QString & deviceID, const GUID & guid, WPARAM wParam)
+bool QextSerialEnumeratorPrivate::matchAndDispatchChangedDevice(const QString & deviceID, const GUID & guid, WPARAM wParam)
 {
+    Q_Q(QextSerialEnumerator);
     bool rv = false;
     DWORD dwFlag = (DBT_DEVICEARRIVAL == wParam) ? DIGCF_PRESENT : DIGCF_ALLCLASSES;
     HDEVINFO devInfo;
-    if( (devInfo = SetupDiGetClassDevs(&guid,NULL,NULL,dwFlag)) != INVALID_HANDLE_VALUE )
-    {
+    if( (devInfo = SetupDiGetClassDevs(&guid,NULL,NULL,dwFlag)) != INVALID_HANDLE_VALUE ) {
         SP_DEVINFO_DATA spDevInfoData;
         spDevInfoData.cbSize = sizeof(SP_DEVINFO_DATA);
-        for(int i=0; SetupDiEnumDeviceInfo(devInfo, i, &spDevInfoData); i++)
-        {
+        for(int i=0; SetupDiEnumDeviceInfo(devInfo, i, &spDevInfoData); i++) {
             DWORD nSize=0 ;
             TCHAR buf[MAX_PATH];
             if ( SetupDiGetDeviceInstanceId(devInfo, &spDevInfoData, buf, MAX_PATH, &nSize) &&
-                    deviceID.contains(TCHARToQString(buf))) // we found a match
-            {
+                    deviceID.contains(TCHARToQString(buf))) { // we found a match
                 rv = true;
                 QextPortInfo info;
                 info.productID = info.vendorID = 0;
                 getDeviceDetailsWin( &info, devInfo, &spDevInfoData, wParam );
                 if( wParam == DBT_DEVICEARRIVAL )
-                    emit deviceDiscovered(info);
+                    emit q->deviceDiscovered(info);
                 else if( wParam == DBT_DEVICEREMOVECOMPLETE )
-                    emit deviceRemoved(info);
+                    emit q->deviceRemoved(info);
                 break;
             }
         }
@@ -273,23 +245,4 @@ bool QextSerialEnumerator::matchAndDispatchChangedDevice(const QString & deviceI
     return rv;
 }
 
-bool QextSerialEnumerator::getDeviceDetailsWin( QextPortInfo* portInfo, HDEVINFO devInfo, PSP_DEVINFO_DATA devData, WPARAM wParam )
-{
-    portInfo->friendName = getDeviceProperty(devInfo, devData, SPDRP_FRIENDLYNAME);
-    if( wParam == DBT_DEVICEARRIVAL)
-        portInfo->physName = getDeviceProperty(devInfo, devData, SPDRP_PHYSICAL_DEVICE_OBJECT_NAME);
-    portInfo->enumName = getDeviceProperty(devInfo, devData, SPDRP_ENUMERATOR_NAME);
-    QString hardwareIDs = getDeviceProperty(devInfo, devData, SPDRP_HARDWAREID);
-    HKEY devKey = SetupDiOpenDevRegKey(devInfo, devData, DICS_FLAG_GLOBAL, 0, DIREG_DEV, KEY_QUERY_VALUE);
-    portInfo->portName = QextSerialPort::fullPortNameWin( getRegKeyValue(devKey, TEXT("PortName")) );
-    QRegExp idRx("VID_(\\w+)&PID_(\\w+)");
-    if( hardwareIDs.toUpper().contains(idRx) )
-    {
-        bool dummy;
-        portInfo->vendorID = idRx.cap(1).toInt(&dummy, 16);
-        portInfo->productID = idRx.cap(2).toInt(&dummy, 16);
-        //qDebug() << "got vid:" << vid << "pid:" << pid;
-    }
-    return true;
-}
-
+#include "qextserialenumerator_win.moc"

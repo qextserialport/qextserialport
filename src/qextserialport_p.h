@@ -3,9 +3,10 @@
 
 #include "qextserialport.h"
 #ifdef Q_OS_UNIX
-#include <termios.h>
+#  include <termios.h>
 #elif (defined Q_OS_WIN)
-#include <windows.h>
+/*we should always use <qt_windows.h> instead of <windows.h>*/
+#  include <qt_windows.h>
 #endif
 
 /*if all warning messages are turned off, flag portability warnings to be turned off as well*/

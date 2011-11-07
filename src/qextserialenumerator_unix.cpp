@@ -1,23 +1,18 @@
-
-
-
 #include "qextserialenumerator.h"
-#include <QDebug>
-#include <QMetaType>
-#include <QStringList>
-#include <QDir>
+#include "qextserialenumerator_p.h"
+#include <QtCore/QDebug>
+#include <QtCore/QStringList>
+#include <QtCore/QDir>
 
-QextSerialEnumerator::QextSerialEnumerator( )
-{
-    if( !QMetaType::isRegistered( QMetaType::type("QextPortInfo") ) )
-        qRegisterMetaType<QextPortInfo>("QextPortInfo");
-}
-
-QextSerialEnumerator::~QextSerialEnumerator( )
+void QextSerialEnumeratorPrivate::platformSpecificInit()
 {
 }
 
-QList<QextPortInfo> QextSerialEnumerator::getPorts()
+void QextSerialEnumeratorPrivate::platformSpecificDestruct()
+{
+}
+
+QList<QextPortInfo> QextSerialEnumeratorPrivate::getPorts_sys()
 {
     QList<QextPortInfo> infoList;
 #ifdef Q_OS_LINUX
@@ -63,13 +58,11 @@ QList<QextPortInfo> QextSerialEnumerator::getPorts()
         inf.enumName = "/dev"; // is there a more helpful name for this?
         infoList.append(inf);
     }
-#else
-    qCritical("Enumeration for POSIX systems (except Linux) is not implemented yet.");
 #endif
     return infoList;
 }
 
-void QextSerialEnumerator::setUpNotifications( )
+void QextSerialEnumeratorPrivate::setUpNotifications_sys(bool setup)
 {
-    qCritical("Notifications for *Nix/FreeBSD are not implemented yet");
+    Q_UNUSED(setup)
 }

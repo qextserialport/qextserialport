@@ -16,8 +16,10 @@ qextserialport-uselib:!qextserialport-buildlib {
     HEADERS                += $$PWD/qextserialport.h \
                               $$PWD/qextserialport_p.h \
                               $$PWD/qextserialenumerator.h \
+                              $$PWD/qextserialenumerator_p.h \
                               $$PWD/qextserialport_global.h
-    SOURCES                += $$PWD/qextserialport.cpp
+    SOURCES                += $$PWD/qextserialport.cpp \
+                              $$PWD/qextserialenumerator.cpp
     unix:SOURCES           += $$PWD/qextserialport_unix.cpp
     unix:!macx:SOURCES     += $$PWD/qextserialenumerator_unix.cpp
     macx:SOURCES           += $$PWD/qextserialenumerator_osx.cpp
