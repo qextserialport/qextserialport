@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <QtCore/QRegExp>
 #include <QtCore/QDebug>
+#include <QtCore/QMutex>
 
 /*!
     \internal
@@ -54,7 +55,7 @@ void QextSerialPortPrivate::setBaudRate(BaudRateType baudRate, bool update)
 #ifdef B76800
     case BAUD76800:
 #endif
-        TTY_PORTABILITY_WARNING<<"QextSerialPort Portability Warning: Windows does not support baudRate:"<<baudRate);
+        TTY_PORTABILITY_WARNING()<<"QextSerialPort Portability Warning: Windows does not support baudRate:"<<baudRate);
 #endif
     case BAUD110:
     case BAUD300:
@@ -209,6 +210,8 @@ void QextSerialPortPrivate::setStopBits(StopBitsType stopBits, bool update)
             settingsDirtyFlags |= DFE_StopBits;
         }
         break;
+    default:
+        TTY_WARNING()<<"QextSerialPort does not support stop bits: "<<stopBits;
     }
     if (update && q_func()->isOpen())
         updatePortSettings();
@@ -348,8 +351,8 @@ void QextSerialPortPrivate::setPortSettings(const PortSettings &settings, bool u
     See the other constructors if you need to open a different port.
 */
 
-QextSerialPort::QextSerialPort(QextSerialPort::QueryMode mode)
-    : QIODevice(), d_ptr(new QextSerialPortPrivate(this))
+QextSerialPort::QextSerialPort(QextSerialPort::QueryMode mode, QObject *parent)
+    : QIODevice(parent), d_ptr(new QextSerialPortPrivate(this))
 {
 #ifdef Q_OS_WIN
     setPortName("COM1");
@@ -383,8 +386,8 @@ QextSerialPort::QextSerialPort(QextSerialPort::QueryMode mode)
     \a name is the name of the device, which is windowsystem-specific,
     e.g."COM1" or "/dev/ttyS0". \a mode
 */
-QextSerialPort::QextSerialPort(const QString & name, QextSerialPort::QueryMode mode)
-    : QIODevice(), d_ptr(new QextSerialPortPrivate(this))
+QextSerialPort::QextSerialPort(const QString & name, QextSerialPort::QueryMode mode, QObject *parent)
+    : QIODevice(parent), d_ptr(new QextSerialPortPrivate(this))
 {
     setQueryMode(mode);
     setPortName(name);
@@ -393,8 +396,8 @@ QextSerialPort::QextSerialPort(const QString & name, QextSerialPort::QueryMode m
 /*!
     Constructs a port with default name and specified settings.
 */
-QextSerialPort::QextSerialPort(const PortSettings& settings, QextSerialPort::QueryMode mode)
-    : QIODevice(), d_ptr(new QextSerialPortPrivate(this))
+QextSerialPort::QextSerialPort(const PortSettings& settings, QextSerialPort::QueryMode mode, QObject *parent)
+    : QIODevice(parent), d_ptr(new QextSerialPortPrivate(this))
 {
     Q_D(QextSerialPort);
     setQueryMode(mode);
@@ -404,8 +407,8 @@ QextSerialPort::QextSerialPort(const PortSettings& settings, QextSerialPort::Que
 /*!
     Constructs a port with specified name and settings.
 */
-QextSerialPort::QextSerialPort(const QString & name, const PortSettings& settings, QextSerialPort::QueryMode mode)
-    : QIODevice(), d_ptr(new QextSerialPortPrivate(this))
+QextSerialPort::QextSerialPort(const QString & name, const PortSettings& settings, QextSerialPort::QueryMode mode, QObject *parent)
+    : QIODevice(parent), d_ptr(new QextSerialPortPrivate(this))
 {
     Q_D(QextSerialPort);
     setPortName(name);
@@ -498,7 +501,6 @@ void QextSerialPort::setQueryMode(QueryMode mode)
     Q_D(QextSerialPort);
     if (mode != d->_queryMode) {
         d->_queryMode = mode;
-        d->setTimeout(d->Settings.Timeout_Millisec);
     }
 }
 

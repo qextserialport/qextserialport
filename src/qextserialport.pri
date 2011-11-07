@@ -1,4 +1,12 @@
-include(../common.pri)
+exists(../common.pri) {
+    #For case:
+    #  someone want to copy all file in the src/ directory
+    #  to their project src/ directory and they does not like
+    #  the common.pri file.
+    #In this case:
+    #  they can just include this file (qextserialport.pri) too.
+    include(../common.pri)
+}
 INCLUDEPATH += $$PWD
 DEPENDPATH += $$PWD
 
@@ -15,7 +23,6 @@ qextserialport-uselib:!qextserialport-buildlib {
     macx:SOURCES           += $$PWD/qextserialenumerator_osx.cpp
     win32:SOURCES          += $$PWD/qextserialport_win.cpp \
                               $$PWD/qextserialenumerator_win.cpp
-
 }
 
 macx:LIBS              += -framework IOKit -framework CoreFoundation

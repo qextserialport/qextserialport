@@ -2,21 +2,10 @@
 #define _QEXTSERIALPORT_P_H_
 
 #include "qextserialport.h"
-#include <QMutex>
 #ifdef Q_OS_UNIX
-#include <stdio.h>
 #include <termios.h>
-#include <errno.h>
-#include <unistd.h>
-#include <sys/time.h>
-#include <sys/ioctl.h>
-#include <sys/select.h>
-#include <QSocketNotifier>
 #elif (defined Q_OS_WIN)
 #include <windows.h>
-#include <QThread>
-#include <QReadWriteLock>
-#include <QtCore/private/qwineventnotifier_p.h>
 #endif
 
 /*if all warning messages are turned off, flag portability warnings to be turned off as well*/
@@ -36,6 +25,11 @@
 #else
 #  define TTY_WARNING qWarning
 #endif /*_TTY_NOWARN_*/
+
+class QWinEventNotifier;
+class QReadWriteLock;
+class QMutex;
+class QSocketNotifier;
 
 class QextSerialPortPrivate
 {
@@ -67,8 +61,6 @@ public:
     QSocketNotifier *readNotifier;
     struct termios Posix_CommConfig;
     struct termios old_termios;
-    struct timeval Posix_Timeout;
-    struct timeval Posix_Copy_Timeout;
 #elif (defined Q_OS_WIN)
     HANDLE Win_Handle;
     OVERLAPPED overlap;
@@ -81,6 +73,7 @@ public:
     qint64 _bytesToWrite;
 #endif
 
+    /*fill PortSettings*/
     void setBaudRate(BaudRateType baudRate, bool update=true);
     void setDataBits(DataBitsType dataBits, bool update=true);
     void setParity(ParityType parity, bool update=true);

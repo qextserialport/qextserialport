@@ -1,9 +1,12 @@
 #include "qextserialport.h"
 #include "qextserialport_p.h"
-#include <QMutexLocker>
-#include <QDebug>
-#include <QRegExp>
-#include <QMetaType>
+#include <QtCore/QThread>
+#include <QtCore/QReadWriteLock>
+#include <QtCore/QMutexLocker>
+#include <QtCore/QDebug>
+#include <QtCore/QRegExp>
+#include <QtCore/QMetaType>
+#include <QtCore/private/qwineventnotifier_p.h>
 
 void QextSerialPortPrivate::platformSpecificInit()
 {

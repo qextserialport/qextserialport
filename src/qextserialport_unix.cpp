@@ -2,9 +2,14 @@
 #include "qextserialport_p.h"
 #include <fcntl.h>
 #include <stdio.h>
-
-#include <QMutexLocker>
-#include <QDebug>
+#include <errno.h>
+#include <unistd.h>
+#include <sys/time.h>
+#include <sys/ioctl.h>
+#include <sys/select.h>
+#include <QtCore/QMutexLocker>
+#include <QtCore/QDebug>
+#include <QtCore/QSocketNotifier>
 
 void QextSerialPortPrivate::platformSpecificInit()
 {
@@ -19,57 +24,44 @@ void QextSerialPortPrivate::platformSpecificDestruct()
 {
 }
 
-
-void QextSerialPort::setTimeout(long millisec)
-{
-    QMutexLocker lock(mutex);
-
-}
-
 bool QextSerialPortPrivate::open_sys(QIODevice::OpenMode mode)
 {
-    QMutexLocker lock(mutex);
-    qDebug() << "trying to open file" << port.toAscii();
+    Q_Q(QextSerialPort);
     //note: linux 2.6.21 seems to ignore O_NDELAY flag
     if ((fd = ::open(port.toAscii() ,O_RDWR | O_NOCTTY | O_NDELAY)) != -1) {
-        qDebug("file opened succesfully");
 
-        QIODevice::open(mode);          // Flag the port as opened
-        tcgetattr(fd, &old_termios);    // Save the old termios
+        /*In the Private class, I can not call QIODevice::open()*/
+//        QIODevice::open(mode);          // Flag the port as opened
+        q->setOpenMode(mode);
+        ::tcgetattr(fd, &old_termios);    // Save the old termios
         Posix_CommConfig = old_termios; // Make a working copy
-        cfmakeraw(&Posix_CommConfig);   // Enable raw access
+        ::cfmakeraw(&Posix_CommConfig);   // Enable raw access
 
         /*set up other port settings*/
-        Posix_CommConfig.c_cflag|=CREAD|CLOCAL;
-        Posix_CommConfig.c_lflag&=(~(ICANON|ECHO|ECHOE|ECHOK|ECHONL|ISIG));
-        Posix_CommConfig.c_iflag&=(~(INPCK|IGNPAR|PARMRK|ISTRIP|ICRNL|IXANY));
-        Posix_CommConfig.c_oflag&=(~OPOST);
-        Posix_CommConfig.c_cc[VMIN]= 0;
+        Posix_CommConfig.c_cflag |= CREAD|CLOCAL;
+        Posix_CommConfig.c_lflag &= (~(ICANON|ECHO|ECHOE|ECHOK|ECHONL|ISIG));
+        Posix_CommConfig.c_iflag &= (~(INPCK|IGNPAR|PARMRK|ISTRIP|ICRNL|IXANY));
+        Posix_CommConfig.c_oflag &= (~OPOST);
+        Posix_CommConfig.c_cc[VMIN] = 0;
 #ifdef _POSIX_VDISABLE  // Is a disable character available on this system?
         // Some systems allow for per-device disable-characters, so get the
         //  proper value for the configured device
-        const long vdisable = fpathconf(fd, _PC_VDISABLE);
+        const long vdisable = ::fpathconf(fd, _PC_VDISABLE);
         Posix_CommConfig.c_cc[VINTR] = vdisable;
         Posix_CommConfig.c_cc[VQUIT] = vdisable;
         Posix_CommConfig.c_cc[VSTART] = vdisable;
         Posix_CommConfig.c_cc[VSTOP] = vdisable;
         Posix_CommConfig.c_cc[VSUSP] = vdisable;
 #endif //_POSIX_VDISABLE
-        setBaudRate(Settings.BaudRate);
-        setDataBits(Settings.DataBits);
-        setParity(Settings.Parity);
-        setStopBits(Settings.StopBits);
-        setFlowControl(Settings.FlowControl);
-        setTimeout(Settings.Timeout_Millisec);
-        tcsetattr(fd, TCSAFLUSH, &Posix_CommConfig);
+        settingsDirtyFlags = DFE_ALL;
+        updatePortSettings();
 
         if (queryMode() == QextSerialPort::EventDriven) {
             readNotifier = new QSocketNotifier(fd, QSocketNotifier::Read, this);
-            connect(readNotifier, SIGNAL(activated(int)), this, SIGNAL(readyRead()));
+            q->connect(readNotifier, SIGNAL(activated(int)), q, SIGNAL(readyRead()));
         }
         return true;
     } else {
-        qDebug() << "could not open file:" << QString::fromLocal8Bit(strerror(errno));
         lastErr = E_FILE_NOT_FOUND;
         return false;
     }
@@ -81,7 +73,7 @@ void QextSerialPortPrivate::close_sys()
     // Force a flush and then restore the original termios
     flush_sys();
     // Using both TCSAFLUSH and TCSANOW here discards any pending input
-    tcsetattr(fd, TCSAFLUSH | TCSANOW, &old_termios);   // Restore termios
+    ::tcsetattr(fd, TCSAFLUSH | TCSANOW, &old_termios);   // Restore termios
     ::close(fd);
     if(readNotifier) {
         delete readNotifier;
@@ -92,17 +84,17 @@ void QextSerialPortPrivate::close_sys()
 void QextSerialPortPrivate::flush_sys()
 {
     QMutexLocker lock(mutex);
-    tcflush(fd, TCIOFLUSH);
+    ::tcflush(fd, TCIOFLUSH);
 }
 
 qint64 QextSerialPortPrivate::bytesAvailable_sys() const
 {
     QMutexLocker lock(mutex);
     int bytesQueued;
-    if (ioctl(fd, FIONREAD, &bytesQueued) == -1) {
+    if (::ioctl(fd, FIONREAD, &bytesQueued) == -1) {
         return (qint64)-1;
     }
-    return bytesQueued + QIODevice::bytesAvailable();
+    return bytesQueued;
 }
 
 /*!
@@ -113,15 +105,13 @@ void QextSerialPortPrivate::translateError(ulong error)
     switch (error) {
         case EBADF:
         case ENOTTY:
-            lastErr=E_INVALID_FD;
+            lastErr = E_INVALID_FD;
             break;
-
         case EINTR:
-            lastErr=E_CAUGHT_NON_BLOCKED_SIGNAL;
+            lastErr = E_CAUGHT_NON_BLOCKED_SIGNAL;
             break;
-
         case ENOMEM:
-            lastErr=E_NO_MEMORY;
+            lastErr = E_NO_MEMORY;
             break;
     }
 }
@@ -130,43 +120,39 @@ void QextSerialPortPrivate::setDtr_sys(bool set)
 {
     QMutexLocker lock(mutex);
     int status;
-    ioctl(fd, TIOCMGET, &status);
-    if (set) {
-        status|=TIOCM_DTR;
-    }
-    else {
-        status&=~TIOCM_DTR;
-    }
-    ioctl(fd, TIOCMSET, &status);
+    ::ioctl(fd, TIOCMGET, &status);
+    if (set)
+        status |= TIOCM_DTR;
+    else
+        status &= ~TIOCM_DTR;
+    ::ioctl(fd, TIOCMSET, &status);
 }
 
 void QextSerialPortPrivate::setRts_sys(bool set)
 {
     QMutexLocker lock(mutex);
     int status;
-    ioctl(fd, TIOCMGET, &status);
-    if (set) {
-        status|=TIOCM_RTS;
-    }
-    else {
-        status&=~TIOCM_RTS;
-    }
-    ioctl(fd, TIOCMSET, &status);
+    ::ioctl(fd, TIOCMGET, &status);
+    if (set)
+        status |= TIOCM_RTS;
+    else
+        status &= ~TIOCM_RTS;
+    ::ioctl(fd, TIOCMSET, &status);
 }
 
 unsigned long QextSerialPortPrivate::lineStatus_sys()
 {
     unsigned long Status=0, Temp=0;
     QMutexLocker lock(mutex);
-    ioctl(fd, TIOCMGET, &Temp);
-    if (Temp&TIOCM_CTS) Status|=LS_CTS;
-    if (Temp&TIOCM_DSR) Status|=LS_DSR;
-    if (Temp&TIOCM_RI)  Status|=LS_RI;
-    if (Temp&TIOCM_CD)  Status|=LS_DCD;
-    if (Temp&TIOCM_DTR) Status|=LS_DTR;
-    if (Temp&TIOCM_RTS) Status|=LS_RTS;
-    if (Temp&TIOCM_ST)  Status|=LS_ST;
-    if (Temp&TIOCM_SR)  Status|=LS_SR;
+    ::ioctl(fd, TIOCMGET, &Temp);
+    if (Temp & TIOCM_CTS) Status |= LS_CTS;
+    if (Temp & TIOCM_DSR) Status |= LS_DSR;
+    if (Temp & TIOCM_RI ) Status |= LS_RI;
+    if (Temp & TIOCM_CD ) Status |= LS_DCD;
+    if (Temp & TIOCM_DTR) Status |= LS_DTR;
+    if (Temp & TIOCM_RTS) Status |= LS_RTS;
+    if (Temp & TIOCM_ST ) Status |= LS_ST;
+    if (Temp & TIOCM_SR ) Status |= LS_SR;
     return Status;
 }
 
@@ -209,17 +195,20 @@ qint64 QextSerialPortPrivate::writeData_sys(const char * data, qint64 maxSize)
 static void setBaudRate(termios *config, int baudRate)
 {
 #ifdef CBAUD
-                config->c_cflag&=(~CBAUD);
-                config->c_cflag|=baudRate;
+    config->c_cflag &= (~CBAUD);
+    config->c_cflag |= baudRate;
 #else
-                cfsetispeed(config, baudRate);
-                cfsetospeed(config, baudRate);
+    ::cfsetispeed(config, baudRate);
+    ::cfsetospeed(config, baudRate);
 #endif
 }
 
+/*
+
+*/
 void QextSerialPortPrivate::updatePortSettings()
 {
-    if (!q_ptr->isOpen() || !settingsDirtyFlags)
+    if (!q_func()->isOpen() || !settingsDirtyFlags)
         return;
 
     if (settingsDirtyFlags & DFE_BaudRate) {
@@ -287,62 +276,66 @@ void QextSerialPortPrivate::updatePortSettings()
         /*space parity*/
         case PAR_SPACE:
             /*space parity not directly supported - add an extra data bit to simulate it*/
-            Posix_CommConfig.c_cflag&=~(PARENB|CSIZE);
-            switch(Settings.DataBits) {
-            case DATA_5:
-                Posix_CommConfig.c_cflag|=CS6;
-                break;
-            case DATA_6:
-                Posix_CommConfig.c_cflag|=CS7;
-                break;
-            case DATA_7:
-                Posix_CommConfig.c_cflag|=CS8;
-                break;
-            }
+            settingsDirtyFlags |= DFE_DataBits;
             break;
         /*no parity*/
         case PAR_NONE:
-            Posix_CommConfig.c_cflag&=(~PARENB);
+            Posix_CommConfig.c_cflag &= (~PARENB);
             break;
         /*even parity*/
         case PAR_EVEN:
-            Posix_CommConfig.c_cflag&=(~PARODD);
-            Posix_CommConfig.c_cflag|=PARENB;
+            Posix_CommConfig.c_cflag &= (~PARODD);
+            Posix_CommConfig.c_cflag |= PARENB;
             break;
         /*odd parity*/
         case PAR_ODD:
-            Posix_CommConfig.c_cflag|=(PARENB|PARODD);
+            Posix_CommConfig.c_cflag |= (PARENB|PARODD);
             break;
         }
     }
+    /*must after Parity settings*/
     if (settingsDirtyFlags & DFE_DataBits) {
-        Posix_CommConfig.c_cflag&=(~CSIZE);
-        switch(Settings.DataBits) {
-        case DATA_5:
-            Posix_CommConfig.c_cflag|=CS5;
-            break;
-        case DATA_6:
-            Posix_CommConfig.c_cflag|=CS6;
-            break;
-        case DATA_7:
-            Posix_CommConfig.c_cflag|=CS7;
-            break;
-        case DATA_8:
-            Posix_CommConfig.c_cflag|=CS8;
-            break;
+        if (Settings.Parity != PAR_SPACE) {
+            Posix_CommConfig.c_cflag &= (~CSIZE);
+            switch(Settings.DataBits) {
+            case DATA_5:
+                Posix_CommConfig.c_cflag |= CS5;
+                break;
+            case DATA_6:
+                Posix_CommConfig.c_cflag |= CS6;
+                break;
+            case DATA_7:
+                Posix_CommConfig.c_cflag |= CS7;
+                break;
+            case DATA_8:
+                Posix_CommConfig.c_cflag |= CS8;
+                break;
+            }
+        } else {
+            /*space parity not directly supported - add an extra data bit to simulate it*/
+            Posix_CommConfig.c_cflag &= ~(PARENB|CSIZE);
+            switch(Settings.DataBits) {
+            case DATA_5:
+                Posix_CommConfig.c_cflag |= CS6;
+                break;
+            case DATA_6:
+                Posix_CommConfig.c_cflag |= CS7;
+                break;
+            case DATA_7:
+                Posix_CommConfig.c_cflag |= CS8;
+                break;
+            }
         }
     }
     if (settingsDirtyFlags & DFE_StopBits) {
         switch (Settings.StopBits) {
         /*one stop bit*/
         case STOP_1:
-            Settings.StopBits=stopBits;
-            Posix_CommConfig.c_cflag&=(~CSTOPB);
+            Posix_CommConfig.c_cflag &= (~CSTOPB);
             break;
         /*two stop bits*/
         case STOP_2:
-            Settings.StopBits=stopBits;
-            Posix_CommConfig.c_cflag|=CSTOPB;
+            Posix_CommConfig.c_cflag |= CSTOPB;
             break;
         }
     }
@@ -350,39 +343,38 @@ void QextSerialPortPrivate::updatePortSettings()
         switch(flow) {
         /*no flow control*/
         case FLOW_OFF:
-            Posix_CommConfig.c_cflag&=(~CRTSCTS);
-            Posix_CommConfig.c_iflag&=(~(IXON|IXOFF|IXANY));
+            Posix_CommConfig.c_cflag &= (~CRTSCTS);
+            Posix_CommConfig.c_iflag &= (~(IXON|IXOFF|IXANY));
             break;
         /*software (XON/XOFF) flow control*/
         case FLOW_XONXOFF:
-            Posix_CommConfig.c_cflag&=(~CRTSCTS);
-            Posix_CommConfig.c_iflag|=(IXON|IXOFF|IXANY);
+            Posix_CommConfig.c_cflag &= (~CRTSCTS);
+            Posix_CommConfig.c_iflag |= (IXON|IXOFF|IXANY);
             break;
         case FLOW_HARDWARE:
-            Posix_CommConfig.c_cflag|=CRTSCTS;
-            Posix_CommConfig.c_iflag&=(~(IXON|IXOFF|IXANY));
+            Posix_CommConfig.c_cflag |= CRTSCTS;
+            Posix_CommConfig.c_iflag &= (~(IXON|IXOFF|IXANY));
             break;
         }
     }
 
+    /*if any thing in Posix_CommConfig changed, flush*/
     if (settingsDirtyFlags & DFE_Settings_Mask)
-        tcsetattr(fd, TCSAFLUSH, &Posix_CommConfig);
+        ::tcsetattr(fd, TCSAFLUSH, &Posix_CommConfig);
 
     if (settingsDirtyFlags & DFE_TimeOut) {
         int millisec = Settings.Timeout_Millisec;
-        Posix_Copy_Timeout.tv_sec = millisec / 1000;
-        Posix_Copy_Timeout.tv_usec = millisec % 1000;
         if (millisec == -1) {
-            fcntl(fd, F_SETFL, O_NDELAY);
+            ::fcntl(fd, F_SETFL, O_NDELAY);
         }
         else {
             //O_SYNC should enable blocking ::write()
             //however this seems not working on Linux 2.6.21 (works on OpenBSD 4.2)
-            fcntl(fd, F_SETFL, O_SYNC);
+            ::fcntl(fd, F_SETFL, O_SYNC);
         }
-        tcgetattr(fd, & Posix_CommConfig);
+        ::tcgetattr(fd, & Posix_CommConfig);
         Posix_CommConfig.c_cc[VTIME] = millisec/100;
-        tcsetattr(fd, TCSAFLUSH, & Posix_CommConfig);
+        ::tcsetattr(fd, TCSAFLUSH, & Posix_CommConfig);
     }
 
     settingsDirtyFlags = 0;
