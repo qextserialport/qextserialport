@@ -26,6 +26,7 @@ private Q_SLOTS:
     void onParityChanged(int idx);
     void onDataBitsChanged(int idx);
     void onStopBitsChanged(int idx);
+    void onQueryModeChanged(int idx);
     void onOpenCloseButtonClicked();
     void onSendButtonClicked();
     void onTimeout();

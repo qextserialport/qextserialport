@@ -16,6 +16,7 @@ Dialog::Dialog(QWidget *parent) :
 #else
     ui->portBox->addItems(QStringList()<<"/dev/ttyS0"<<"/dev/ttyS1"<<"/dev/ttyUSB0"<<"/dev/ttyUSB1");
 #endif
+    //make sure user can input their own port name!
     ui->portBox->setEditable(true);
 
     ui->baudRateBox->addItem("1200", BAUD1200);
@@ -38,17 +39,21 @@ Dialog::Dialog(QWidget *parent) :
     ui->stopBitsBox->addItem("1", STOP_1);
     ui->stopBitsBox->addItem("2", STOP_2);
 
+    ui->queryModeBox->addItem("Polling", QextSerialPort::Polling);
+    ui->queryModeBox->addItem("EventDriven", QextSerialPort::EventDriven);
+
     ui->led->turnOff();
 
     timer = new QTimer(this);
     timer->setInterval(40);
-    PortSettings settings = {BAUD1200, DATA_8, PAR_NONE, STOP_1, FLOW_OFF, 500};
+    PortSettings settings = {BAUD9600, DATA_8, PAR_NONE, STOP_1, FLOW_OFF, 500};
     port = new QextSerialPort(ui->portBox->currentText(), settings, QextSerialPort::Polling);
 
     connect(ui->baudRateBox, SIGNAL(currentIndexChanged(int)), SLOT(onBaudRateChanged(int)));
     connect(ui->parityBox, SIGNAL(currentIndexChanged(int)), SLOT(onParityChanged(int)));
     connect(ui->dataBitsBox, SIGNAL(currentIndexChanged(int)), SLOT(onDataBitsChanged(int)));
     connect(ui->stopBitsBox, SIGNAL(currentIndexChanged(int)), SLOT(onStopBitsChanged(int)));
+    connect(ui->queryModeBox, SIGNAL(currentIndexChanged(int)), SLOT(onQueryModeChanged(int)));
     connect(ui->portBox, SIGNAL(editTextChanged(QString)), SLOT(onPortNameChanged(QString)));
     connect(ui->openCloseButton, SIGNAL(clicked()), SLOT(onOpenCloseButtonClicked()));
     connect(ui->sendButton, SIGNAL(clicked()), SLOT(onSendButtonClicked()));
@@ -97,7 +102,12 @@ void Dialog::onDataBitsChanged(int idx)
 
 void Dialog::onStopBitsChanged(int idx)
 {
-    port->setDataBits((DataBitsType)ui->dataBitsBox->itemData(idx).toInt());
+    port->setStopBits((StopBitsType)ui->stopBitsBox->itemData(idx).toInt());
+}
+
+void Dialog::onQueryModeChanged(int idx)
+{
+    port->setQueryMode((QextSerialPort::QueryMode)ui->queryModeBox->itemData(idx).toInt());
 }
 
 void Dialog::onOpenCloseButtonClicked()
