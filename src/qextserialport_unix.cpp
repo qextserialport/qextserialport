@@ -56,8 +56,8 @@ bool QextSerialPortPrivate::open_sys(QIODevice::OpenMode mode)
         settingsDirtyFlags = DFE_ALL;
         updatePortSettings();
 
-        if (queryMode() == QextSerialPort::EventDriven) {
-            readNotifier = new QSocketNotifier(fd, QSocketNotifier::Read, this);
+        if (_queryMode == QextSerialPort::EventDriven) {
+            readNotifier = new QSocketNotifier(fd, QSocketNotifier::Read, q);
             q->connect(readNotifier, SIGNAL(activated(int)), q, SIGNAL(readyRead()));
         }
         return true;
@@ -67,7 +67,7 @@ bool QextSerialPortPrivate::open_sys(QIODevice::OpenMode mode)
     }
 }
 
-void QextSerialPortPrivate::close_sys()
+bool QextSerialPortPrivate::close_sys()
 {
     QMutexLocker lock(mutex);
     // Force a flush and then restore the original termios
@@ -79,12 +79,14 @@ void QextSerialPortPrivate::close_sys()
         delete readNotifier;
         readNotifier = 0;
     }
+    return true;
 }
 
-void QextSerialPortPrivate::flush_sys()
+bool QextSerialPortPrivate::flush_sys()
 {
     QMutexLocker lock(mutex);
     ::tcflush(fd, TCIOFLUSH);
+    return true;
 }
 
 qint64 QextSerialPortPrivate::bytesAvailable_sys() const
@@ -192,7 +194,7 @@ qint64 QextSerialPortPrivate::writeData_sys(const char * data, qint64 maxSize)
     return (qint64)retVal;
 }
 
-static void setBaudRate(termios *config, int baudRate)
+static void setBaudRate2Termios(termios *config, int baudRate)
 {
 #ifdef CBAUD
     config->c_cflag &= (~CBAUD);
@@ -214,60 +216,60 @@ void QextSerialPortPrivate::updatePortSettings()
     if (settingsDirtyFlags & DFE_BaudRate) {
         switch (Settings.BaudRate) {
         case BAUD50:
-            setBaudRate(&Posix_CommConfig, B50);
+            setBaudRate2Termios(&Posix_CommConfig, B50);
             break;
         case BAUD75:
-            setBaudRate(&Posix_CommConfig, B75);
+            setBaudRate2Termios(&Posix_CommConfig, B75);
             break;
         case BAUD110:
-            setBaudRate(&Posix_CommConfig, B110);
+            setBaudRate2Termios(&Posix_CommConfig, B110);
             break;
         case BAUD134:
-            setBaudRate(&Posix_CommConfig, B134);
+            setBaudRate2Termios(&Posix_CommConfig, B134);
             break;
         case BAUD150:
-            setBaudRate(&Posix_CommConfig, B150);
+            setBaudRate2Termios(&Posix_CommConfig, B150);
             break;
         case BAUD200:
-            setBaudRate(&Posix_CommConfig, B200);
+            setBaudRate2Termios(&Posix_CommConfig, B200);
             break;
         case BAUD300:
-            setBaudRate(&Posix_CommConfig, B300);
+            setBaudRate2Termios(&Posix_CommConfig, B300);
             break;
         case BAUD600:
-            setBaudRate(&Posix_CommConfig, B600);
+            setBaudRate2Termios(&Posix_CommConfig, B600);
             break;
         case BAUD1200:
-            setBaudRate(&Posix_CommConfig, B1200);
+            setBaudRate2Termios(&Posix_CommConfig, B1200);
             break;
         case BAUD1800:
-            setBaudRate(&Posix_CommConfig, B1800);
+            setBaudRate2Termios(&Posix_CommConfig, B1800);
             break;
         case BAUD2400:
-            setBaudRate(&Posix_CommConfig, B2400);
+            setBaudRate2Termios(&Posix_CommConfig, B2400);
             break;
         case BAUD4800:
-            setBaudRate(&Posix_CommConfig, B4800);
+            setBaudRate2Termios(&Posix_CommConfig, B4800);
             break;
         case BAUD9600:
-            setBaudRate(&Posix_CommConfig, B9600);
+            setBaudRate2Termios(&Posix_CommConfig, B9600);
             break;
         case BAUD19200:
-            setBaudRate(&Posix_CommConfig, B19200);
+            setBaudRate2Termios(&Posix_CommConfig, B19200);
             break;
         case BAUD38400:
-            setBaudRate(&Posix_CommConfig, B38400);
+            setBaudRate2Termios(&Posix_CommConfig, B38400);
             break;
         case BAUD57600:
-            setBaudRate(&Posix_CommConfig, B57600);
+            setBaudRate2Termios(&Posix_CommConfig, B57600);
             break;
 #ifdef B76800
         case BAUD76800:
-            setBaudRate(&Posix_CommConfig, B76800);
+            setBaudRate2Termios(&Posix_CommConfig, B76800);
             break;
 #endif
         case BAUD115200:
-            setBaudRate(&Posix_CommConfig, B115200);
+            setBaudRate2Termios(&Posix_CommConfig, B115200);
             break;
         }
     }
@@ -324,6 +326,9 @@ void QextSerialPortPrivate::updatePortSettings()
             case DATA_7:
                 Posix_CommConfig.c_cflag |= CS8;
                 break;
+            case DATA_8:
+                /*this will never happen, put here to Suppress an warning*/
+                break;
             }
         }
     }
@@ -340,7 +345,7 @@ void QextSerialPortPrivate::updatePortSettings()
         }
     }
     if (settingsDirtyFlags & DFE_Flow) {
-        switch(flow) {
+        switch(Settings.FlowControl) {
         /*no flow control*/
         case FLOW_OFF:
             Posix_CommConfig.c_cflag &= (~CRTSCTS);

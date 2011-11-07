@@ -55,7 +55,7 @@ void QextSerialPortPrivate::setBaudRate(BaudRateType baudRate, bool update)
 #ifdef B76800
     case BAUD76800:
 #endif
-        TTY_PORTABILITY_WARNING()<<"QextSerialPort Portability Warning: Windows does not support baudRate:"<<baudRate);
+        TTY_PORTABILITY_WARNING()<<"QextSerialPort Portability Warning: Windows does not support baudRate:"<<baudRate;
 #endif
     case BAUD110:
     case BAUD300:
@@ -523,6 +523,11 @@ void QextSerialPort::setPortName(const QString & name)
 QString QextSerialPort::portName() const
 {
     return d_func()->port;
+}
+
+QextSerialPort::QueryMode QextSerialPort::queryMode() const
+{
+    return d_func()->_queryMode;
 }
 
 /*!
