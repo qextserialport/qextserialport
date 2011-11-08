@@ -1,26 +1,38 @@
+/****************************************************************************
+** Copyright (c) 2000-2007 Stefan Sander
+** Copyright (c) 2007 Michal Policht
+** Copyright (c) 2008 Brandon Fosdick
+** Copyright (c) 2009-2010 Liam Staskawicz
+** Copyright (c) 2011 Debao Zhang
+** All right reserved.
+** Web: http://code.google.com/p/qextserialport/
+**
+** Permission is hereby granted, free of charge, to any person obtaining
+** a copy of this software and associated documentation files (the
+** "Software"), to deal in the Software without restriction, including
+** without limitation the rights to use, copy, modify, merge, publish,
+** distribute, sublicense, and/or sell copies of the Software, and to
+** permit persons to whom the Software is furnished to do so, subject to
+** the following conditions:
+**
+** The above copyright notice and this permission notice shall be
+** included in all copies or substantial portions of the Software.
+**
+** THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+** EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+** MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+** NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+** LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+** OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+** WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+**
+****************************************************************************/
 
 #ifndef _QEXTSERIALPORT_H_
 #define _QEXTSERIALPORT_H_
 
+#include <QtCore/QIODevice>
 #include "qextserialport_global.h"
-
-/*if all warning messages are turned off, flag portability warnings to be turned off as well*/
-#ifdef _TTY_NOWARN_
-#define _TTY_NOWARN_PORT_
-#endif
-
-/*macros for warning and debug messages*/
-#ifdef _TTY_NOWARN_PORT_
-#define TTY_PORTABILITY_WARNING(s)
-#else
-#define TTY_PORTABILITY_WARNING(s) qWarning(s)
-#endif /*_TTY_NOWARN_PORT_*/
-#ifdef _TTY_NOWARN_
-#define TTY_WARNING(s)
-#else
-#define TTY_WARNING(s) qWarning(s)
-#endif /*_TTY_NOWARN_*/
-
 
 /*line status constants*/
 #define LS_CTS  0x01
@@ -52,36 +64,41 @@
 
 enum BaudRateType
 {
-    BAUD50,                //POSIX ONLY
-    BAUD75,                //POSIX ONLY
-    BAUD110,
-    BAUD134,               //POSIX ONLY
-    BAUD150,               //POSIX ONLY
-    BAUD200,               //POSIX ONLY
-    BAUD300,
-    BAUD600,
-    BAUD1200,
-    BAUD1800,              //POSIX ONLY
-    BAUD2400,
-    BAUD4800,
-    BAUD9600,
-    BAUD14400,             //WINDOWS ONLY
-    BAUD19200,
-    BAUD38400,
-    BAUD56000,             //WINDOWS ONLY
-    BAUD57600,
-    BAUD76800,             //POSIX ONLY
-    BAUD115200,
-    BAUD128000,            //WINDOWS ONLY
-    BAUD256000             //WINDOWS ONLY
+#ifdef Q_OS_UNIX
+    BAUD50 = 50,                //POSIX ONLY
+    BAUD75 = 75,                //POSIX ONLY
+    BAUD134 = 134,              //POSIX ONLY
+    BAUD150 = 150,              //POSIX ONLY
+    BAUD200 = 200,              //POSIX ONLY
+    BAUD1800 = 1800,            //POSIX ONLY
+#  ifdef B76800
+    BAUD76800 = 76800,          //POSIX ONLY
+#  endif
+#elif defined(Q_OS_WIN)
+    BAUD14400 = 14400,          //WINDOWS ONLY
+    BAUD56000 = 56000,          //WINDOWS ONLY
+    BAUD128000 = 12800,         //WINDOWS ONLY
+    BAUD256000 = 25600,         //WINDOWS ONLY
+#endif //Q_OS_UNIX
+    BAUD110 = 110,
+    BAUD300 = 300,
+    BAUD600 = 600,
+    BAUD1200 = 1200,
+    BAUD2400 = 2400,
+    BAUD4800 = 4800,
+    BAUD9600 = 9600,
+    BAUD19200 = 19200,
+    BAUD38400 = 38400,
+    BAUD57600 = 57600,
+    BAUD115200 = 115200
 };
 
 enum DataBitsType
 {
-    DATA_5,
-    DATA_6,
-    DATA_7,
-    DATA_8
+    DATA_5 = 5,
+    DATA_6 = 6,
+    DATA_7 = 7,
+    DATA_8 = 8
 };
 
 enum ParityType
@@ -89,14 +106,18 @@ enum ParityType
     PAR_NONE,
     PAR_ODD,
     PAR_EVEN,
+#ifdef Q_OS_WIN
     PAR_MARK,               //WINDOWS ONLY
+#endif
     PAR_SPACE
 };
 
 enum StopBitsType
 {
     STOP_1,
+#ifdef Q_OS_WIN
     STOP_1_5,               //WINDOWS ONLY
+#endif
     STOP_2
 };
 
@@ -120,130 +141,77 @@ struct PortSettings
     long Timeout_Millisec;
 };
 
-#include <QIODevice>
-#include <QMutex>
-#ifdef Q_OS_UNIX
-#include <stdio.h>
-#include <termios.h>
-#include <errno.h>
-#include <unistd.h>
-#include <sys/time.h>
-#include <sys/ioctl.h>
-#include <sys/select.h>
-#include <QSocketNotifier>
-#elif (defined Q_OS_WIN)
-#include <windows.h>
-#include <QThread>
-#include <QReadWriteLock>
-#include <QtCore/private/qwineventnotifier_p.h>
-#endif
-
+class QextSerialPortPrivate;
 class QEXTSERIALPORT_EXPORT QextSerialPort: public QIODevice
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QextSerialPort)
 public:
     enum QueryMode {
         Polling,
         EventDriven
     };
 
-    QextSerialPort(QueryMode mode = EventDriven);
-    QextSerialPort(const QString & name, QueryMode mode = EventDriven);
-    QextSerialPort(PortSettings const& s, QueryMode mode = EventDriven);
-    QextSerialPort(const QString & name, PortSettings const& s, QueryMode mode = EventDriven);
+    QextSerialPort(QueryMode mode = EventDriven, QObject* parent = 0);
+    QextSerialPort(const QString & name, QueryMode mode = EventDriven, QObject * parent = 0);
+    QextSerialPort(PortSettings const& s, QueryMode mode = EventDriven, QObject * parent = 0);
+    QextSerialPort(const QString & name, PortSettings const& s, QueryMode mode = EventDriven, QObject *parent=0);
+
     ~QextSerialPort();
 
-    void setPortName(const QString & name);
     QString portName() const;
-
-    inline QueryMode queryMode() const { return _queryMode; }
-    void setQueryMode(QueryMode mode);
-
-    void setBaudRate(BaudRateType);
+    QueryMode queryMode() const;
     BaudRateType baudRate() const;
-
-    void setDataBits(DataBitsType);
     DataBitsType dataBits() const;
-
-    void setParity(ParityType);
     ParityType parity() const;
-
-    void setStopBits(StopBitsType);
     StopBitsType stopBits() const;
-
-    void setFlowControl(FlowType);
     FlowType flowControl() const;
-
-    void setTimeout(long);
 
     bool open(OpenMode mode);
     bool isSequential() const;
     void close();
     void flush();
-
-    qint64 size() const;
     qint64 bytesAvailable() const;
     QByteArray readAll();
 
-    void ungetChar(char c);
-
     ulong lastError() const;
-    void translateError(ulong error);
 
-    void setDtr(bool set=true);
-    void setRts(bool set=true);
     ulong lineStatus();
     QString errorString();
 
 #ifdef Q_OS_WIN
-    virtual bool waitForReadyRead(int msecs);  ///< @todo implement.
-    virtual qint64 bytesToWrite() const;
     static QString fullPortNameWin(const QString & name);
 #endif
 
+public Q_SLOTS:
+    void setPortName(const QString & name);
+    void setQueryMode(QueryMode mode);
+    void setBaudRate(BaudRateType);
+    void setDataBits(DataBitsType);
+    void setParity(ParityType);
+    void setStopBits(StopBitsType);
+    void setFlowControl(FlowType);
+    void setTimeout(long);
+
+    void setDtr(bool set=true);
+    void setRts(bool set=true);
+
+Q_SIGNALS:
+    void dsrChanged(bool status);
+
 protected:
-    QMutex* mutex;
-    QString port;
-    PortSettings Settings;
-    ulong lastErr;
-    QueryMode _queryMode;
-
-    // platform specific members
-#ifdef Q_OS_UNIX
-    int fd;
-    QSocketNotifier *readNotifier;
-    struct termios Posix_CommConfig;
-    struct termios old_termios;
-    struct timeval Posix_Timeout;
-    struct timeval Posix_Copy_Timeout;
-#elif (defined Q_OS_WIN)
-    HANDLE Win_Handle;
-    OVERLAPPED overlap;
-    COMMCONFIG Win_CommConfig;
-    COMMTIMEOUTS Win_CommTimeouts;
-    QWinEventNotifier *winEventNotifier;
-    DWORD eventMask;
-    QList<OVERLAPPED*> pendingWrites;
-    QReadWriteLock* bytesToWriteLock;
-    qint64 _bytesToWrite;
-#endif
-
-    void construct(); // common construction
-    void platformSpecificDestruct();
-    void platformSpecificInit();
     qint64 readData(char * data, qint64 maxSize);
     qint64 writeData(const char * data, qint64 maxSize);
-
-#ifdef Q_OS_WIN
-private slots:
-    void onWinEvent(HANDLE h);
-#endif
 
 private:
     Q_DISABLE_COPY(QextSerialPort)
 
-signals:
-    void dsrChanged(bool status);
+#ifdef Q_OS_WIN
+    Q_PRIVATE_SLOT(d_func(), void _q_onWinEvent(HANDLE))
+#endif
+
+    QextSerialPortPrivate * d_ptr;
+
 };
 
 #endif

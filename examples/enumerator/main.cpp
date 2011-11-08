@@ -4,7 +4,7 @@
  * @author Micha? Policht
  */
 
-#include <QextSerialEnumerator>
+#include "qextserialenumerator.h"
 #include <QList>
 #include <QtDebug>
 //! [0]

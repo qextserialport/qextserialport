@@ -1,8 +1,9 @@
 syntax: glob
-*.pro.user
+*.pro.user*
 *.app
 *.moc
 Makefile*
+doc/html/
 debug/
 release/
 qtc-gdbmacros/
@@ -33,3 +34,7 @@ lib/*
 *.idb
 *.ncb
 *.suo
+examples/enumerator/enumerator
+examples/event/event
+examples/qespta/qespta
+examples/uartassistant/uartassistant
