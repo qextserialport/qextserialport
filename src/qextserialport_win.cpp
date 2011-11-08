@@ -1,5 +1,5 @@
 /****************************************************************************
-** Copyright (c) 2004-2007 Stefan Sander
+** Copyright (c) 2000-2007 Stefan Sander
 ** Copyright (c) 2007 Michal Policht
 ** Copyright (c) 2008 Brandon Fosdick
 ** Copyright (c) 2009-2010 Liam Staskawicz
