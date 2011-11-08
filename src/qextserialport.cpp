@@ -34,8 +34,7 @@
 #include <QtCore/QDebug>
 #include <QtCore/QMutex>
 
-/*!
-    \internal
+/*
     Common constructor function for setting up default port settings.
     (115200 Baud, 8N1, Hardware flow control where supported, otherwise no flow control, and 0 ms timeout).
 */
@@ -291,6 +290,10 @@ void QextSerialPortPrivate::setPortSettings(const PortSettings &settings, bool u
 
 /*!
     \enum StopBitsType
+
+    \value STOP_1
+    \value STOP_1_5
+    \value STOP_2
 */
 
 /*!
@@ -299,12 +302,14 @@ void QextSerialPortPrivate::setPortSettings(const PortSettings &settings, bool u
 
 /*! \class PortSettings
 
-    \brief structure to contain port settings
+    \brief The PortSettings class contain port settings
+
+    structure to contain port settings
 */
 
 /*! \class QextSerialPort
 
-    \brief Encapsulates a serial port on both POSIX and Windows systems.
+    \brief The QextSerialPort class encapsulates a serial port on both POSIX and Windows systems.
 
     \section1 Usage
     QextSerialPort offers both a polling and event driven API.  Event driven
@@ -336,6 +341,17 @@ void QextSerialPortPrivate::setPortSettings(const PortSettings &settings, bool u
     (to turn off all warnings) or QESP_NO_PORTABILITY_WARN (to turn off portability warnings) in the project.
 
     \bold author: Stefan Sander, Michal Policht, Brandon Fosdick, Liam Staskawicz, Debao Zhang
+*/
+
+/*!
+  \enum QextSerialPort::QueryMode
+
+  This enum type specifies query mode used in a serial port:
+
+  \value Polling
+     asynchronously read and write
+  \value EventDriven
+     synchronously read and write
 */
 
 /*!
@@ -407,6 +423,8 @@ QextSerialPort::QextSerialPort(QextSerialPort::QueryMode mode, QObject *parent)
 }
 
 /*!
+    \overload
+
     Constructs a serial port attached to the port specified by name.
     \a name is the name of the device, which is windowsystem-specific,
     e.g."COM1" or "/dev/ttyS0". \a mode
@@ -419,6 +437,8 @@ QextSerialPort::QextSerialPort(const QString & name, QextSerialPort::QueryMode m
 }
 
 /*!
+    \overload
+
     Constructs a port with default name and specified settings.
 */
 QextSerialPort::QextSerialPort(const PortSettings& settings, QextSerialPort::QueryMode mode, QObject *parent)
@@ -430,6 +450,8 @@ QextSerialPort::QextSerialPort(const PortSettings& settings, QextSerialPort::Que
 }
 
 /*!
+    \overload
+
     Constructs a port with specified name and settings.
 */
 QextSerialPort::QextSerialPort(const QString & name, const PortSettings& settings, QextSerialPort::QueryMode mode, QObject *parent)
@@ -441,7 +463,7 @@ QextSerialPort::QextSerialPort(const QString & name, const PortSettings& setting
     d->setPortSettings(settings);
 }
 
-/*!
+/*! \reimp
     Opens a serial port.  Note that this function does not specify which device to open.  If you need
     to open a device by name, see QextSerialPort::open(const char*).  This function has no effect
     if the port associated with the class is already open.  The port is also configured to the current
@@ -457,7 +479,7 @@ bool QextSerialPort::open(OpenMode mode)
 }
 
 
-/*!
+/*! \reimp
     Closes a serial port.  This function has no effect if the serial port associated with the class
     is not currently open.
 */
@@ -483,7 +505,7 @@ void QextSerialPort::flush()
         d->flush_sys();
 }
 
-/*!
+/*! \reimp
     Returns the number of bytes waiting in the port's receive queue.  This function will return 0 if
     the port is not currently open, or -1 on error.
 */
@@ -677,7 +699,7 @@ QString QextSerialPort::errorString()
 }
 
 /*!
-    Standard destructor.
+   Destructs the QextSerialPort object.
 */
 QextSerialPort::~QextSerialPort()
 {
@@ -862,7 +884,7 @@ void QextSerialPort::setRts(bool set)
         d->setRts_sys(set);
 }
 
-/*!
+/*! \reimp
     Reads a block of data from the serial port.  This function will read at most maxlen bytes from
     the serial port and place them in the buffer pointed to by data.  Return value is the number of
     bytes actually read, or -1 on error.
@@ -876,7 +898,7 @@ qint64 QextSerialPort::readData(char *data, qint64 maxSize)
     return d->readData_sys(data, maxSize);
 }
 
-/*!
+/*! \reimp
     Writes a block of data to the serial port.  This function will write len bytes
     from the buffer pointed to by data to the serial port.  Return value is the number
     of bytes actually written, or -1 on error.

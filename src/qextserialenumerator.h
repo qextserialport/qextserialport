@@ -35,9 +35,6 @@
 #include <QtCore/QObject>
 #include "qextserialport_global.h"
 
-/*!
- * Structure containing port information.
- */
 struct QextPortInfo {
     QString portName;   ///< Port name.
     QString physName;   ///< Physical name.

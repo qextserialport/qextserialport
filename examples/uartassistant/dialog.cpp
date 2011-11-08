@@ -60,6 +60,8 @@ Dialog::Dialog(QWidget *parent) :
     connect(ui->sendButton, SIGNAL(clicked()), SLOT(onSendButtonClicked()));
     connect(timer, SIGNAL(timeout()), SLOT(onReadyRead()));
     connect(port, SIGNAL(readyRead()), SLOT(onReadyRead()));
+
+    setWindowTitle(QLatin1String("QextSerialPort Demo"));
 }
 
 Dialog::~Dialog()

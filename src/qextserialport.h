@@ -146,6 +146,9 @@ class QEXTSERIALPORT_EXPORT QextSerialPort: public QIODevice
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QextSerialPort)
+    Q_ENUMS(QueryMode)
+    Q_PROPERTY(QString portName READ portName WRITE setPortName)
+    Q_PROPERTY(QueryMode queryMode READ queryMode WRITE setQueryMode)
 public:
     enum QueryMode {
         Polling,

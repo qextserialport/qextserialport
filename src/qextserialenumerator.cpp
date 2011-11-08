@@ -46,9 +46,17 @@ QextSerialEnumeratorPrivate::~QextSerialEnumeratorPrivate()
     platformSpecificDestruct();
 }
 
+/*!
+  \class QextPortInfo
+
+  \brief The QextPortInfo class containing port information.
+
+  Structure containing port information.
+ */
+
 /*! \class QextSerialEnumerator
 
-    \brief Provides list of ports available in the system.
+    \brief The QextSerialEnumerator class provides list of ports available in the system.
   
     \section1 Usage
     To poll the system for a list of connected devices, simply use getPorts().  Each
@@ -105,7 +113,7 @@ QextSerialEnumeratorPrivate::~QextSerialEnumeratorPrivate()
 */
 
 /*!
-  default
+   Constructs a QextSerialEnumerator object with the given parent.
 */
 QextSerialEnumerator::QextSerialEnumerator(QObject *parent)
     :QObject(parent), d_ptr(new QextSerialEnumeratorPrivate(this))
@@ -115,7 +123,7 @@ QextSerialEnumerator::QextSerialEnumerator(QObject *parent)
 }
 
 /*!
-  default
+   Destructs the QextSerialEnumerator object.
 */
 QextSerialEnumerator::~QextSerialEnumerator( )
 {
