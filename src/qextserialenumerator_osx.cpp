@@ -174,7 +174,7 @@ void QextSerialEnumeratorPrivate::onDeviceDiscoveredOSX( io_object_t service )
     info.vendorID = 0;
     info.productID = 0;
     if( getServiceDetailsOSX( service, &info ) )
-        emit q->deviceDiscovered( info );
+        Q_EMIT q->deviceDiscovered( info );
 }
 
 /*
@@ -188,7 +188,7 @@ void QextSerialEnumeratorPrivate::onDeviceTerminatedOSX( io_object_t service )
     info.vendorID = 0;
     info.productID = 0;
     if( getServiceDetailsOSX( service, &info ) )
-        emit q->deviceRemoved( info );
+        Q_EMIT q->deviceRemoved( info );
 }
 
 /*

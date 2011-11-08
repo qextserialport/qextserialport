@@ -35,7 +35,7 @@ public:
     static QList<QextPortInfo> getPorts();
     void setUpNotifications();
 
-signals:
+Q_SIGNALS:
     void deviceDiscovered(const QextPortInfo & info);
     void deviceRemoved(const QextPortInfo & info);
 

@@ -196,7 +196,7 @@ bool QextSerialEnumeratorPrivate::setUpNotifications_sys(bool setup)
     // setting up notifications doesn't tell us about devices already connected
     // so get those manually
     foreach(QextPortInfo port, getPorts_sys())
-      emit q->deviceDiscovered(port);
+      Q_EMIT q->deviceDiscovered(port);
     return true;
 }
 
@@ -234,9 +234,9 @@ bool QextSerialEnumeratorPrivate::matchAndDispatchChangedDevice(const QString & 
                 info.productID = info.vendorID = 0;
                 getDeviceDetailsWin( &info, devInfo, &spDevInfoData, wParam );
                 if( wParam == DBT_DEVICEARRIVAL )
-                    emit q->deviceDiscovered(info);
+                    Q_EMIT q->deviceDiscovered(info);
                 else if( wParam == DBT_DEVICEREMOVECOMPLETE )
-                    emit q->deviceRemoved(info);
+                    Q_EMIT q->deviceRemoved(info);
                 break;
             }
         }

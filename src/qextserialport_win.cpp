@@ -242,7 +242,7 @@ void QextSerialPortPrivate::_q_onWinEvent(HANDLE h)
     if(h == overlap.hEvent) {
         if (eventMask & EV_RXCHAR) {
             if (q->sender() != q && bytesAvailable_sys() > 0)
-                emit q->readyRead();
+                Q_EMIT q->readyRead();
         }
         if (eventMask & EV_TXEMPTY) {
             /*
@@ -265,7 +265,7 @@ void QextSerialPortPrivate::_q_onWinEvent(HANDLE h)
 
             if (q->sender() != q && totalBytesWritten > 0) {
                 QWriteLocker writelocker(bytesToWriteLock);
-                emit q->bytesWritten(totalBytesWritten);
+                Q_EMIT q->bytesWritten(totalBytesWritten);
                 _bytesToWrite = 0;
             }
 
@@ -277,9 +277,9 @@ void QextSerialPortPrivate::_q_onWinEvent(HANDLE h)
         }
         if (eventMask & EV_DSR) {
             if (lineStatus_sys() & LS_DSR)
-                emit q->dsrChanged(true);
+                Q_EMIT q->dsrChanged(true);
             else
-                emit q->dsrChanged(false);
+                Q_EMIT q->dsrChanged(false);
         }
     }
     WaitCommEvent(Win_Handle, &eventMask, &overlap);
