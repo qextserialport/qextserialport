@@ -357,22 +357,22 @@ QextSerialPort::QextSerialPort(QextSerialPort::QueryMode mode, QObject *parent)
 #ifdef Q_OS_WIN
     setPortName("COM1");
 
-#elif defined(_TTY_IRIX_)
+#elif defined(Q_OS_IRIX)
     setPortName("/dev/ttyf1");
 
-#elif defined(_TTY_HPUX_)
+#elif defined(Q_OS_HPUX)
     setPortName("/dev/tty1p0");
 
-#elif defined(_TTY_SUN_)
+#elif defined(Q_OS_SOLARIS)
     setPortName("/dev/ttya");
 
-#elif defined(_TTY_DIGITAL_)
+#elif defined(Q_OS_OSF) //formally DIGITAL UNIX
     setPortName("/dev/tty01");
 
-#elif defined(_TTY_FREEBSD_)
+#elif defined(Q_OS_FREEBSD)
     setPortName("/dev/ttyd1");
 
-#elif defined(_TTY_OPENBSD_)
+#elif defined(Q_OS_OPENBSD)
     setPortName("/dev/tty00");
 
 #else
