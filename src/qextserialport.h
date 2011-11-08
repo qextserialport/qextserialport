@@ -37,40 +37,30 @@ enum BaudRateType
 #ifdef Q_OS_UNIX
     BAUD50 = 50,                //POSIX ONLY
     BAUD75 = 75,                //POSIX ONLY
-#endif
+    BAUD134 = 134,              //POSIX ONLY
+    BAUD150 = 150,              //POSIX ONLY
+    BAUD200 = 200,              //POSIX ONLY
+    BAUD1800 = 1800,            //POSIX ONLY
+#  ifdef B76800
+    BAUD76800 = 76800,          //POSIX ONLY
+#  endif
+#elif defined(Q_OS_WIN)
+    BAUD14400 = 14400,          //WINDOWS ONLY
+    BAUD56000 = 56000,          //WINDOWS ONLY
+    BAUD128000 = 12800,         //WINDOWS ONLY
+    BAUD256000 = 25600,         //WINDOWS ONLY
+#endif //Q_OS_UNIX
     BAUD110 = 110,
-#ifdef Q_OS_UNIX
-    BAUD134 = 134,               //POSIX ONLY
-    BAUD150 = 150,               //POSIX ONLY
-    BAUD200 = 200,               //POSIX ONLY
-#endif
     BAUD300 = 300,
     BAUD600 = 600,
     BAUD1200 = 1200,
-#ifdef Q_OS_UNIX
-    BAUD1800 = 1800,              //POSIX ONLY
-#endif
     BAUD2400 = 2400,
     BAUD4800 = 4800,
     BAUD9600 = 9600,
-#ifdef Q_OS_WIN
-    BAUD14400 = 14400,             //WINDOWS ONLY
-#endif
     BAUD19200 = 19200,
     BAUD38400 = 38400,
-#ifdef Q_OS_WIN
-    BAUD56000 = 56000,             //WINDOWS ONLY
-#endif
     BAUD57600 = 57600,
-#if defined(Q_OS_UNIX) && defined(B76800)
-    BAUD76800 = 76800,             //POSIX ONLY
-#endif
     BAUD115200 = 115200
-#ifdef Q_OS_WIN
-    ,
-    BAUD128000 = 12800,            //WINDOWS ONLY
-    BAUD256000 = 25600             //WINDOWS ONLY
-#endif
 };
 
 enum DataBitsType
