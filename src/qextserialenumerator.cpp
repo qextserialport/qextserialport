@@ -115,5 +115,5 @@ void QextSerialEnumerator::setUpNotifications()
 #endif
     Q_D(QextSerialEnumerator);
     if (!d->setUpNotifications_sys(true))
-        qWarning("Setup Notification Failed...");
+        QESP_WARNING("Setup Notification Failed...");
 }

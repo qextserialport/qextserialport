@@ -55,7 +55,7 @@ bool QextSerialPortPrivate::open_sys(QIODevice::OpenMode mode)
         //init event driven approach
         if (_queryMode == QextSerialPort::EventDriven) {
             if (!SetCommMask( Win_Handle, EV_TXEMPTY | EV_RXCHAR | EV_DSR)) {
-                TTY_WARNING()<<"failed to set Comm Mask. Error code:"<<GetLastError();
+                QESP_WARNING()<<"failed to set Comm Mask. Error code:"<<GetLastError();
                 return false;
             }
             winEventNotifier = new QWinEventNotifier(overlap.hEvent);
@@ -195,13 +195,13 @@ qint64 QextSerialPortPrivate::writeData_sys(const char *data, qint64 maxSize)
             pendingWrites.append(newOverlapWrite);
         }
         else {
-            TTY_WARNING()<<"QextSerialPort write error:"<<GetLastError();
+            QESP_WARNING()<<"QextSerialPort write error:"<<GetLastError();
             lastErr = E_WRITE_FAILED;
             retVal = (DWORD)-1;
             if(!CancelIo(newOverlapWrite->hEvent))
-                TTY_WARNING("QextSerialPort: couldn't cancel IO");
+                QESP_WARNING("QextSerialPort: couldn't cancel IO");
             if(!CloseHandle(newOverlapWrite->hEvent))
-                TTY_WARNING("QextSerialPort: couldn't close OVERLAPPED handle");
+                QESP_WARNING("QextSerialPort: couldn't close OVERLAPPED handle");
             delete newOverlapWrite;
         }
     } else if (!WriteFile(Win_Handle, (void*)data, (DWORD)maxSize, & retVal, NULL)) {
@@ -259,7 +259,7 @@ void QextSerialPortPrivate::_q_onWinEvent(HANDLE h)
                     totalBytesWritten += numBytes;
                 } else if( GetLastError() != ERROR_IO_INCOMPLETE ) {
                     overlapsToDelete.append(o);
-                    TTY_WARNING()<<"CommEvent overlapped write error:" << GetLastError();
+                    QESP_WARNING()<<"CommEvent overlapped write error:" << GetLastError();
                 }
             }
 

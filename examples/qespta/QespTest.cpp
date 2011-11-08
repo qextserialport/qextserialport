@@ -14,11 +14,11 @@ QespTest::QespTest(QWidget* parent)
 
 {
 	//modify the port settings on your own
-	#ifdef _TTY_POSIX_
+    #ifdef Q_OS_UNIX
 		port = new QextSerialPort("/dev/ttyS0", QextSerialPort::Polling);
 	#else
 		port = new QextSerialPort("COM1", QextSerialPort::Polling);
-	#endif /*_TTY_POSIX*/
+    #endif /*Q_OS_UNIX*/
 	port->setBaudRate(BAUD19200);
 	port->setFlowControl(FLOW_OFF);
 	port->setParity(PAR_NONE);

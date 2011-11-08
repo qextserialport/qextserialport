@@ -176,7 +176,7 @@ QList<QextPortInfo> QextSerialEnumeratorPrivate::getPorts_sys()
 bool QextSerialEnumeratorPrivate::setUpNotifications_sys(bool setup)
 {
 #ifndef QT_GUI_LIB
-    qWarning("QextSerialEnumerator: GUI not enabled - can't register for device notifications.");
+    QESP_WARNING("QextSerialEnumerator: GUI not enabled - can't register for device notifications.");
     return false;
 #endif
     Q_Q(QextSerialEnumerator);
@@ -190,7 +190,7 @@ bool QextSerialEnumeratorPrivate::setUpNotifications_sys(bool setup)
     dbh.dbcc_devicetype = DBT_DEVTYP_DEVICEINTERFACE;
     ::CopyMemory(&dbh.dbcc_classguid, &GUID_DEVCLASS_PORTS, sizeof(GUID));
     if(::RegisterDeviceNotification(notificationWidget->winId(), &dbh, DEVICE_NOTIFY_WINDOW_HANDLE ) == NULL) {
-        qWarning() << "RegisterDeviceNotification failed:" << GetLastError();
+        QESP_WARNING() << "RegisterDeviceNotification failed:" << GetLastError();
         return false;
     }
     // setting up notifications doesn't tell us about devices already connected

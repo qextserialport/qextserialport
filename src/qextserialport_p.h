@@ -9,24 +9,6 @@
 #  include <qt_windows.h>
 #endif
 
-/*if all warning messages are turned off, flag portability warnings to be turned off as well*/
-#ifdef _TTY_NOWARN_
-#  define _TTY_NOWARN_PORT_
-#endif
-
-/*macros for warning and debug messages*/
-#ifdef _TTY_NOWARN_PORT_
-#  define TTY_PORTABILITY_WARNING  while(false)qWarning
-#else
-#  define TTY_PORTABILITY_WARNING qWarning
-#endif /*_TTY_NOWARN_PORT_*/
-
-#ifdef _TTY_NOWARN_
-#  define TTY_WARNING while(false)qWarning
-#else
-#  define TTY_WARNING qWarning
-#endif /*_TTY_NOWARN_*/
-
 class QWinEventNotifier;
 class QReadWriteLock;
 class QMutex;

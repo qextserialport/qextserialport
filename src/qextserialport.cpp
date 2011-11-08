@@ -43,7 +43,7 @@ void QextSerialPortPrivate::setBaudRate(BaudRateType baudRate, bool update)
     case BAUD56000:
     case BAUD128000:
     case BAUD256000:
-        TTY_PORTABILITY_WARNING()<<"QextSerialPort Portability Warning: POSIX does not support baudRate:"<<baudRate;
+        QESP_PORTABILITY_WARNING()<<"QextSerialPort Portability Warning: POSIX does not support baudRate:"<<baudRate;
 #elif defined(Q_OS_UNIX)
     //Unix Special
     case BAUD50:
@@ -55,7 +55,7 @@ void QextSerialPortPrivate::setBaudRate(BaudRateType baudRate, bool update)
 #ifdef B76800
     case BAUD76800:
 #endif
-        TTY_PORTABILITY_WARNING()<<"QextSerialPort Portability Warning: Windows does not support baudRate:"<<baudRate;
+        QESP_PORTABILITY_WARNING()<<"QextSerialPort Portability Warning: Windows does not support baudRate:"<<baudRate;
 #endif
     case BAUD110:
     case BAUD300:
@@ -74,7 +74,7 @@ void QextSerialPortPrivate::setBaudRate(BaudRateType baudRate, bool update)
             updatePortSettings();
         break;
     default:
-        TTY_WARNING()<<"QextSerialPort does not support baudRate:"<<baudRate;
+        QESP_WARNING()<<"QextSerialPort does not support baudRate:"<<baudRate;
     }
 }
 
@@ -86,9 +86,9 @@ void QextSerialPortPrivate::setParity(ParityType parity, bool update)
     case PAR_SPACE:
         if (Settings.DataBits==DATA_8) {
 #ifdef Q_OS_WIN
-            TTY_PORTABILITY_WARNING("QextSerialPort Portability Warning: Space parity with 8 data bits is not supported by POSIX systems.");
+            QESP_PORTABILITY_WARNING("QextSerialPort Portability Warning: Space parity with 8 data bits is not supported by POSIX systems.");
 #else
-            TTY_WARNING("Space parity with 8 data bits is not supported by POSIX systems.");
+            QESP_WARNING("Space parity with 8 data bits is not supported by POSIX systems.");
 #endif
         }
         break;
@@ -96,7 +96,7 @@ void QextSerialPortPrivate::setParity(ParityType parity, bool update)
 #ifdef Q_OS_WIN
         /*mark parity - WINDOWS ONLY*/
     case PAR_MARK:
-        TTY_PORTABILITY_WARNING("QextSerialPort Portability Warning:  Mark parity is not supported by POSIX systems");
+        QESP_PORTABILITY_WARNING("QextSerialPort Portability Warning:  Mark parity is not supported by POSIX systems");
         break;
 #endif
 
@@ -105,7 +105,7 @@ void QextSerialPortPrivate::setParity(ParityType parity, bool update)
     case PAR_ODD:
         break;
     default:
-        TTY_WARNING()<<"QextSerialPort does not support Parity:" << parity;
+        QESP_WARNING()<<"QextSerialPort does not support Parity:" << parity;
     }
 
     Settings.Parity=parity;
@@ -122,7 +122,7 @@ void QextSerialPortPrivate::setDataBits(DataBitsType dataBits, bool update)
 
     case DATA_5:
         if (Settings.StopBits==STOP_2) {
-            TTY_WARNING("QextSerialPort: 5 Data bits cannot be used with 2 stop bits.");
+            QESP_WARNING("QextSerialPort: 5 Data bits cannot be used with 2 stop bits.");
         }
         else {
             Settings.DataBits=dataBits;
@@ -133,7 +133,7 @@ void QextSerialPortPrivate::setDataBits(DataBitsType dataBits, bool update)
     case DATA_6:
 #ifdef Q_OS_WIN
         if (Settings.StopBits==STOP_1_5) {
-            TTY_WARNING("QextSerialPort: 6 Data bits cannot be used with 1.5 stop bits.");
+            QESP_WARNING("QextSerialPort: 6 Data bits cannot be used with 1.5 stop bits.");
         }
         else
 #endif
@@ -146,7 +146,7 @@ void QextSerialPortPrivate::setDataBits(DataBitsType dataBits, bool update)
     case DATA_7:
 #ifdef Q_OS_WIN
         if (Settings.StopBits==STOP_1_5) {
-            TTY_WARNING("QextSerialPort: 7 Data bits cannot be used with 1.5 stop bits.");
+            QESP_WARNING("QextSerialPort: 7 Data bits cannot be used with 1.5 stop bits.");
         }
         else
 #endif
@@ -159,7 +159,7 @@ void QextSerialPortPrivate::setDataBits(DataBitsType dataBits, bool update)
     case DATA_8:
 #ifdef Q_OS_WIN
         if (Settings.StopBits==STOP_1_5) {
-            TTY_WARNING("QextSerialPort: 8 Data bits cannot be used with 1.5 stop bits.");
+            QESP_WARNING("QextSerialPort: 8 Data bits cannot be used with 1.5 stop bits.");
         }
         else
 #endif
@@ -169,7 +169,7 @@ void QextSerialPortPrivate::setDataBits(DataBitsType dataBits, bool update)
         }
         break;
     default:
-        TTY_WARNING()<<"QextSerialPort does not support Data bits:"<<dataBits;
+        QESP_WARNING()<<"QextSerialPort does not support Data bits:"<<dataBits;
     }
     if (update && q_func()->isOpen())
         updatePortSettings();
@@ -189,9 +189,9 @@ void QextSerialPortPrivate::setStopBits(StopBitsType stopBits, bool update)
 #ifdef Q_OS_WIN
         /*1.5 stop bits*/
     case STOP_1_5:
-        TTY_PORTABILITY_WARNING("QextSerialPort Portability Warning: 1.5 stop bit operation is not supported by POSIX.");
+        QESP_PORTABILITY_WARNING("QextSerialPort Portability Warning: 1.5 stop bit operation is not supported by POSIX.");
         if (Settings.DataBits!=DATA_5) {
-            TTY_WARNING("QextSerialPort: 1.5 stop bits can only be used with 5 data bits");
+            QESP_WARNING("QextSerialPort: 1.5 stop bits can only be used with 5 data bits");
         }
         else {
             Settings.StopBits = stopBits;
@@ -203,7 +203,7 @@ void QextSerialPortPrivate::setStopBits(StopBitsType stopBits, bool update)
         /*two stop bits*/
     case STOP_2:
         if (Settings.DataBits==DATA_5) {
-            TTY_WARNING("QextSerialPort: 2 stop bits cannot be used with 5 data bits");
+            QESP_WARNING("QextSerialPort: 2 stop bits cannot be used with 5 data bits");
         }
         else {
             Settings.StopBits = stopBits;
@@ -211,7 +211,7 @@ void QextSerialPortPrivate::setStopBits(StopBitsType stopBits, bool update)
         }
         break;
     default:
-        TTY_WARNING()<<"QextSerialPort does not support stop bits: "<<stopBits;
+        QESP_WARNING()<<"QextSerialPort does not support stop bits: "<<stopBits;
     }
     if (update && q_func()->isOpen())
         updatePortSettings();
@@ -303,12 +303,8 @@ void QextSerialPortPrivate::setPortSettings(const PortSettings &settings, bool u
 
     \section1 Compatibility
     The user will be notified of errors and possible portability conflicts at run-time
-    by default - this behavior can be turned off by defining _TTY_NOWARN_
-    (to turn off all warnings) or _TTY_NOWARN_PORT_ (to turn off portability warnings) in the project.
-
-    On Windows NT/2000/XP this class uses Win32 serial port functions by default.  The user may
-    select POSIX behavior under NT, 2000, or XP ONLY by defining Q_OS_UNIX in the project.
-    No guarantees are made as to the quality of POSIX support under NT/2000 however.
+    by default - this behavior can be turned off by defining QESP_NO_WARN
+    (to turn off all warnings) or QESP_NO_PORTABILITY_WARN (to turn off portability warnings) in the project.
 
     \bold author: Stefan Sander, Michal Policht, Brandon Fosdick, Liam Staskawicz, Debao Zhang
 */
@@ -330,21 +326,21 @@ void QextSerialPortPrivate::setPortSettings(const PortSettings &settings, bool u
 /*!
     Default constructor.  Note that the name of the device used by a QextSerialPort constructed with
     this constructor will be determined by #defined constants, or lack thereof - the default behavior
-    is the same as _TTY_LINUX_.  Possible naming conventions and their associated constants are:
+    is the same as Q_OS_LINUX.  Possible naming conventions and their associated constants are:
 
     \code
 
     Constant         Used By         Naming Convention
     ----------       -------------   ------------------------
-    Q_OS_WIN        Windows         COM1, COM2
-    _TTY_IRIX_       SGI/IRIX        /dev/ttyf1, /dev/ttyf2
-    _TTY_HPUX_       HP-UX           /dev/tty1p0, /dev/tty2p0
-    _TTY_SUN_        SunOS/Solaris   /dev/ttya, /dev/ttyb
-    _TTY_DIGITAL_    Digital UNIX    /dev/tty01, /dev/tty02
-    _TTY_FREEBSD_    FreeBSD         /dev/ttyd0, /dev/ttyd1
-    _TTY_OPENBSD_    OpenBSD         /dev/tty00, /dev/tty01
-    _TTY_LINUX_      Linux           /dev/ttyS0, /dev/ttyS1
-    <none>           Linux           /dev/ttyS0, /dev/ttyS1
+    Q_OS_WIN          Windows         COM1, COM2
+    Q_OS_IRIX         SGI/IRIX        /dev/ttyf1, /dev/ttyf2
+    Q_OS_HPUX         HP-UX           /dev/tty1p0, /dev/tty2p0
+    Q_OS_SOLARIS      SunOS/Solaris   /dev/ttya, /dev/ttyb
+    Q_OS_OSF          Digital UNIX    /dev/tty01, /dev/tty02
+    Q_OS_FREEBSD      FreeBSD         /dev/ttyd0, /dev/ttyd1
+    Q_OS_OPENBSD      OpenBSD         /dev/tty00, /dev/tty01
+    Q_OS_LINUX        Linux           /dev/ttyS0, /dev/ttyS1
+    <none>            Linux           /dev/ttyS0, /dev/ttyS1
     \endcode
 
     This constructor assigns the device name to the name of the first port on the specified system.
