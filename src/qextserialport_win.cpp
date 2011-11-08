@@ -53,6 +53,22 @@ void QextSerialPortPrivate::platformSpecificDestruct() {
     delete bytesToWriteLock;
 }
 
+
+/*!
+    \internal
+    COM ports greater than 9 need \\.\ prepended
+
+    This is only need when open the port.
+*/
+static QString fullPortNameWin(const QString & name)
+{
+    QRegExp rx("^COM(\\d+)");
+    QString fullName(name);
+    if(fullName.contains(rx))
+        fullName.prepend("\\\\.\\");
+    return fullName;
+}
+
 bool QextSerialPortPrivate::open_sys(QIODevice::OpenMode mode)
 {
     Q_Q(QextSerialPort);
@@ -64,7 +80,7 @@ bool QextSerialPortPrivate::open_sys(QIODevice::OpenMode mode)
 
     QMutexLocker lock(mutex);
     /*open the port*/
-    Win_Handle=CreateFileA(port.toAscii(), GENERIC_READ|GENERIC_WRITE,
+    Win_Handle=CreateFileW((wchar_t*)fullPortNameWin(port).utf16(), GENERIC_READ|GENERIC_WRITE,
                            0, NULL, OPEN_EXISTING, dwFlagsAndAttributes, NULL);
     if (Win_Handle!=INVALID_HANDLE_VALUE) {
         q->setOpenMode(mode);

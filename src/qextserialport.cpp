@@ -31,7 +31,6 @@
 #include "qextserialport.h"
 #include "qextserialport_p.h"
 #include <stdio.h>
-#include <QtCore/QRegExp>
 #include <QtCore/QDebug>
 #include <QtCore/QMutex>
 
@@ -536,11 +535,7 @@ void QextSerialPort::setQueryMode(QueryMode mode)
 void QextSerialPort::setPortName(const QString & name)
 {
     Q_D(QextSerialPort);
-    #ifdef Q_OS_WIN
-    d->port = fullPortNameWin( name );
-    #else
     d->port = name;
-    #endif
 }
 
 /*!
@@ -680,20 +675,6 @@ QString QextSerialPort::errorString()
         default: return QString("Unknown error: %1").arg(d->lastErr);
     }
 }
-
-#ifdef Q_OS_WIN
-QString QextSerialPort::fullPortNameWin(const QString & name)
-{
-    QRegExp rx("^COM(\\d+)");
-    QString fullName(name);
-    if(fullName.contains(rx)) {
-        int portnum = rx.cap(1).toInt();
-        if(portnum > 9) // COM ports greater than 9 need \\.\ prepended
-            fullName.prepend("\\\\.\\");
-    }
-    return fullName;
-}
-#endif
 
 /*!
     Standard destructor.

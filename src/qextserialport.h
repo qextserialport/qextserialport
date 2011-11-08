@@ -179,10 +179,6 @@ public:
     ulong lineStatus();
     QString errorString();
 
-#ifdef Q_OS_WIN
-    static QString fullPortNameWin(const QString & name);
-#endif
-
 public Q_SLOTS:
     void setPortName(const QString & name);
     void setQueryMode(QueryMode mode);

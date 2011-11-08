@@ -157,7 +157,7 @@ static bool getDeviceDetailsWin( QextPortInfo* portInfo, HDEVINFO devInfo, PSP_D
     portInfo->enumName = getDeviceProperty(devInfo, devData, SPDRP_ENUMERATOR_NAME);
     QString hardwareIDs = getDeviceProperty(devInfo, devData, SPDRP_HARDWAREID);
     HKEY devKey = ::SetupDiOpenDevRegKey(devInfo, devData, DICS_FLAG_GLOBAL, 0, DIREG_DEV, KEY_QUERY_VALUE);
-    portInfo->portName = QextSerialPort::fullPortNameWin(getRegKeyValue(devKey, TEXT("PortName")) );
+    portInfo->portName = getRegKeyValue(devKey, TEXT("PortName"));
     QRegExp idRx("VID_(\\w+)&PID_(\\w+)");
     if(hardwareIDs.toUpper().contains(idRx)) {
         bool dummy;
