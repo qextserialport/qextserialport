@@ -1,3 +1,33 @@
+/****************************************************************************
+** Copyright (c) 2000-2007 Stefan Sander
+** Copyright (c) 2007 Michal Policht
+** Copyright (c) 2008 Brandon Fosdick
+** Copyright (c) 2009-2010 Liam Staskawicz
+** Copyright (c) 2011 Debao Zhang
+** All right reserved.
+** Web: http://code.google.com/p/qextserialport/
+**
+** Permission is hereby granted, free of charge, to any person obtaining
+** a copy of this software and associated documentation files (the
+** "Software"), to deal in the Software without restriction, including
+** without limitation the rights to use, copy, modify, merge, publish,
+** distribute, sublicense, and/or sell copies of the Software, and to
+** permit persons to whom the Software is furnished to do so, subject to
+** the following conditions:
+**
+** The above copyright notice and this permission notice shall be
+** included in all copies or substantial portions of the Software.
+**
+** THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+** EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+** MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+** NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+** LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+** OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+** WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+**
+****************************************************************************/
+
 #include "qextserialport.h"
 #include "qextserialport_p.h"
 #include <QtCore/QThread>
@@ -23,6 +53,22 @@ void QextSerialPortPrivate::platformSpecificDestruct() {
     delete bytesToWriteLock;
 }
 
+
+/*!
+    \internal
+    COM ports greater than 9 need \\.\ prepended
+
+    This is only need when open the port.
+*/
+static QString fullPortNameWin(const QString & name)
+{
+    QRegExp rx("^COM(\\d+)");
+    QString fullName(name);
+    if(fullName.contains(rx))
+        fullName.prepend("\\\\.\\");
+    return fullName;
+}
+
 bool QextSerialPortPrivate::open_sys(QIODevice::OpenMode mode)
 {
     Q_Q(QextSerialPort);
@@ -34,7 +80,7 @@ bool QextSerialPortPrivate::open_sys(QIODevice::OpenMode mode)
 
     QMutexLocker lock(mutex);
     /*open the port*/
-    Win_Handle=CreateFileA(port.toAscii(), GENERIC_READ|GENERIC_WRITE,
+    Win_Handle=CreateFileW((wchar_t*)fullPortNameWin(port).utf16(), GENERIC_READ|GENERIC_WRITE,
                            0, NULL, OPEN_EXISTING, dwFlagsAndAttributes, NULL);
     if (Win_Handle!=INVALID_HANDLE_VALUE) {
         q->setOpenMode(mode);
@@ -55,7 +101,7 @@ bool QextSerialPortPrivate::open_sys(QIODevice::OpenMode mode)
         //init event driven approach
         if (_queryMode == QextSerialPort::EventDriven) {
             if (!SetCommMask( Win_Handle, EV_TXEMPTY | EV_RXCHAR | EV_DSR)) {
-                TTY_WARNING()<<"failed to set Comm Mask. Error code:"<<GetLastError();
+                QESP_WARNING()<<"failed to set Comm Mask. Error code:"<<GetLastError();
                 return false;
             }
             winEventNotifier = new QWinEventNotifier(overlap.hEvent);
@@ -195,13 +241,13 @@ qint64 QextSerialPortPrivate::writeData_sys(const char *data, qint64 maxSize)
             pendingWrites.append(newOverlapWrite);
         }
         else {
-            TTY_WARNING()<<"QextSerialPort write error:"<<GetLastError();
+            QESP_WARNING()<<"QextSerialPort write error:"<<GetLastError();
             lastErr = E_WRITE_FAILED;
             retVal = (DWORD)-1;
             if(!CancelIo(newOverlapWrite->hEvent))
-                TTY_WARNING("QextSerialPort: couldn't cancel IO");
+                QESP_WARNING("QextSerialPort: couldn't cancel IO");
             if(!CloseHandle(newOverlapWrite->hEvent))
-                TTY_WARNING("QextSerialPort: couldn't close OVERLAPPED handle");
+                QESP_WARNING("QextSerialPort: couldn't close OVERLAPPED handle");
             delete newOverlapWrite;
         }
     } else if (!WriteFile(Win_Handle, (void*)data, (DWORD)maxSize, & retVal, NULL)) {
@@ -242,7 +288,7 @@ void QextSerialPortPrivate::_q_onWinEvent(HANDLE h)
     if(h == overlap.hEvent) {
         if (eventMask & EV_RXCHAR) {
             if (q->sender() != q && bytesAvailable_sys() > 0)
-                emit q->readyRead();
+                Q_EMIT q->readyRead();
         }
         if (eventMask & EV_TXEMPTY) {
             /*
@@ -259,13 +305,13 @@ void QextSerialPortPrivate::_q_onWinEvent(HANDLE h)
                     totalBytesWritten += numBytes;
                 } else if( GetLastError() != ERROR_IO_INCOMPLETE ) {
                     overlapsToDelete.append(o);
-                    TTY_WARNING()<<"CommEvent overlapped write error:" << GetLastError();
+                    QESP_WARNING()<<"CommEvent overlapped write error:" << GetLastError();
                 }
             }
 
             if (q->sender() != q && totalBytesWritten > 0) {
                 QWriteLocker writelocker(bytesToWriteLock);
-                emit q->bytesWritten(totalBytesWritten);
+                Q_EMIT q->bytesWritten(totalBytesWritten);
                 _bytesToWrite = 0;
             }
 
@@ -277,9 +323,9 @@ void QextSerialPortPrivate::_q_onWinEvent(HANDLE h)
         }
         if (eventMask & EV_DSR) {
             if (lineStatus_sys() & LS_DSR)
-                emit q->dsrChanged(true);
+                Q_EMIT q->dsrChanged(true);
             else
-                emit q->dsrChanged(false);
+                Q_EMIT q->dsrChanged(false);
         }
     }
     WaitCommEvent(Win_Handle, &eventMask, &overlap);

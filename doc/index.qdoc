@@ -5,6 +5,12 @@
     \section1 Description
       QextSerialPort provides an interface to old fashioned serial ports for
       Qt-based applications. It currently supports Mac OS X, Windows, Linux, FreeBSD. 
+
+      \list
+         \o  Revision 0.9.x is Qt 2 & 3 compatible.
+         \o Revision 1.x.x is Qt 4 compatible.
+      \endlist
+
         
     \section1 Classes
       \list
@@ -12,23 +18,43 @@
       \o \l QextSerialEnumerator enumerates ports currently available in the system.
       \endlist
     
-    \section1 Tested platforms
-      \list
-      \o Qt 4.7 / Windows XP / MSVC 2008
-      \o Qt 4.7 / Windows XP / MinGW 
-      \o Qt 4.7 / Linux / gcc
-      \endlist
-    
     \section1 Examples
       \list
       \o \l examples/enumerator
       \o \l examples/qespta
+      \o \l examples/uartassistant
       \endlist
+
+    \section1 Resources
+        \section2  Nokia(Trolltech)
+        \list
+          \o  \l {http://doc.trolltech.com/qq/qq12-iodevice.html} {Writing a Custom I/O Device}
+          \o  \l {http://doc.trolltech.com/3.3/qiodevice.html} {Qt 3.3: QIODevice Class Reference}
+          \o  \l {http://doc.trolltech.com/4.7/qiodevice.html} {Qt 4.7: QIODevice Class Reference}
+        \endlist
+        \section2  MSDN
+        \list
+          \o \l {http://msdn.microsoft.com/library/default.asp?url=/library/en-us/devio/base/communications_resources.asp} {Communications Resources}
+           \o \l {http://msdn.microsoft.com/library/default.asp?url=/library/en-us/devio/base/about_communications_resources.asp} {About Communications Resources}
+           \o \l {http://msdn.microsoft.com/library/default.asp?url=/library/en-us/devio/base/using_communications_resources.asp}{Using Communications Resources}
+           \o \l {http://msdn.microsoft.com/library/default.asp?url=/library/en-us/devio/base/communications_functions.asp} {Communications Functions}
+           \o \l {http://msdn.microsoft.com/library/default.asp?url=/library/en-us/devio/base/communications_structures.asp} {Communications Structures}
+        \endlist
+        \section2  TLDP
+        \list
+           \o \l {http://www.tldp.org/HOWTO/Serial-HOWTO.html}{Serial HOWTO}
+           \o \l {http://www.tldp.org/HOWTO/Serial-Programming-HOWTO/}{Serial Programming HOWTO}
+        \endlist
+        \section2  Other
+        \list
+           \o \l {http://www.easysw.com/~mike/serial/serial.html} {Serial Programming Guide for POSIX Operating Systems}
+        \endlist
+
 */
 
 /*!
   \page classes.html
-  \generatelist classes
+  \generatelist annotatedclasses
   */
 
 /*!
@@ -39,5 +65,4 @@
 /*!
   \page all-examples.html
 */
-
 

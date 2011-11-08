@@ -1,5 +1,46 @@
+/****************************************************************************
+** Copyright (c) 2000-2007 Stefan Sander
+** Copyright (c) 2007 Michal Policht
+** Copyright (c) 2008 Brandon Fosdick
+** Copyright (c) 2009-2010 Liam Staskawicz
+** Copyright (c) 2011 Debao Zhang
+** All right reserved.
+** Web: http://code.google.com/p/qextserialport/
+**
+** Permission is hereby granted, free of charge, to any person obtaining
+** a copy of this software and associated documentation files (the
+** "Software"), to deal in the Software without restriction, including
+** without limitation the rights to use, copy, modify, merge, publish,
+** distribute, sublicense, and/or sell copies of the Software, and to
+** permit persons to whom the Software is furnished to do so, subject to
+** the following conditions:
+**
+** The above copyright notice and this permission notice shall be
+** included in all copies or substantial portions of the Software.
+**
+** THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+** EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+** MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+** NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+** LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+** OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+** WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+**
+****************************************************************************/
+
 #ifndef _QEXTSERIALPORT_P_H_
 #define _QEXTSERIALPORT_P_H_
+
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the QESP API.  It exists for the convenience
+// of other QESP classes.  This header file may change from version to
+// version without notice, or even be removed.
+//
+// We mean it.
+//
 
 #include "qextserialport.h"
 #ifdef Q_OS_UNIX
@@ -8,24 +49,6 @@
 /*we should always use <qt_windows.h> instead of <windows.h>*/
 #  include <qt_windows.h>
 #endif
-
-/*if all warning messages are turned off, flag portability warnings to be turned off as well*/
-#ifdef _TTY_NOWARN_
-#  define _TTY_NOWARN_PORT_
-#endif
-
-/*macros for warning and debug messages*/
-#ifdef _TTY_NOWARN_PORT_
-#  define TTY_PORTABILITY_WARNING  while(false)qWarning
-#else
-#  define TTY_PORTABILITY_WARNING qWarning
-#endif /*_TTY_NOWARN_PORT_*/
-
-#ifdef _TTY_NOWARN_
-#  define TTY_WARNING while(false)qWarning
-#else
-#  define TTY_WARNING qWarning
-#endif /*_TTY_NOWARN_*/
 
 class QWinEventNotifier;
 class QReadWriteLock;

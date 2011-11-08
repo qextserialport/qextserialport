@@ -4,14 +4,12 @@
  * @author Micha? Policht
  */
 
-#include <QextSerialEnumerator>
-#include <QList>
-#include <QtDebug>
+#include "qextserialenumerator.h"
+#include <QtCore/QList>
+#include <QtCore/QDebug>
 //! [0]
-int main(int argc, char *argv[])
+int main()
 {
-    (void)argc;
-    (void)argv;
     QList<QextPortInfo> ports = QextSerialEnumerator::getPorts();
     qDebug() << "List of ports:";
     for (int i = 0; i < ports.size(); i++) {
@@ -23,6 +21,6 @@ int main(int argc, char *argv[])
         qDebug() << "product ID:" << QString::number(ports.at(i).productID, 16);
         qDebug() << "===================================";
     }
-    return EXIT_SUCCESS;
+    return 0;
 }
 //! [0]

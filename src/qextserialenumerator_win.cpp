@@ -1,3 +1,33 @@
+/****************************************************************************
+** Copyright (c) 2000-2007 Stefan Sander
+** Copyright (c) 2007 Michal Policht
+** Copyright (c) 2008 Brandon Fosdick
+** Copyright (c) 2009-2010 Liam Staskawicz
+** Copyright (c) 2011 Debao Zhang
+** All right reserved.
+** Web: http://code.google.com/p/qextserialport/
+**
+** Permission is hereby granted, free of charge, to any person obtaining
+** a copy of this software and associated documentation files (the
+** "Software"), to deal in the Software without restriction, including
+** without limitation the rights to use, copy, modify, merge, publish,
+** distribute, sublicense, and/or sell copies of the Software, and to
+** permit persons to whom the Software is furnished to do so, subject to
+** the following conditions:
+**
+** The above copyright notice and this permission notice shall be
+** included in all copies or substantial portions of the Software.
+**
+** THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+** EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+** MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+** NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+** LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+** OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+** WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+**
+****************************************************************************/
+
 #include "qextserialenumerator.h"
 #include "qextserialenumerator_p.h"
 #include <QtCore/QDebug>
@@ -127,7 +157,7 @@ static bool getDeviceDetailsWin( QextPortInfo* portInfo, HDEVINFO devInfo, PSP_D
     portInfo->enumName = getDeviceProperty(devInfo, devData, SPDRP_ENUMERATOR_NAME);
     QString hardwareIDs = getDeviceProperty(devInfo, devData, SPDRP_HARDWAREID);
     HKEY devKey = ::SetupDiOpenDevRegKey(devInfo, devData, DICS_FLAG_GLOBAL, 0, DIREG_DEV, KEY_QUERY_VALUE);
-    portInfo->portName = QextSerialPort::fullPortNameWin(getRegKeyValue(devKey, TEXT("PortName")) );
+    portInfo->portName = getRegKeyValue(devKey, TEXT("PortName"));
     QRegExp idRx("VID_(\\w+)&PID_(\\w+)");
     if(hardwareIDs.toUpper().contains(idRx)) {
         bool dummy;
@@ -176,7 +206,7 @@ QList<QextPortInfo> QextSerialEnumeratorPrivate::getPorts_sys()
 bool QextSerialEnumeratorPrivate::setUpNotifications_sys(bool setup)
 {
 #ifndef QT_GUI_LIB
-    qWarning("QextSerialEnumerator: GUI not enabled - can't register for device notifications.");
+    QESP_WARNING("QextSerialEnumerator: GUI not enabled - can't register for device notifications.");
     return false;
 #endif
     Q_Q(QextSerialEnumerator);
@@ -190,13 +220,13 @@ bool QextSerialEnumeratorPrivate::setUpNotifications_sys(bool setup)
     dbh.dbcc_devicetype = DBT_DEVTYP_DEVICEINTERFACE;
     ::CopyMemory(&dbh.dbcc_classguid, &GUID_DEVCLASS_PORTS, sizeof(GUID));
     if(::RegisterDeviceNotification(notificationWidget->winId(), &dbh, DEVICE_NOTIFY_WINDOW_HANDLE ) == NULL) {
-        qWarning() << "RegisterDeviceNotification failed:" << GetLastError();
+        QESP_WARNING() << "RegisterDeviceNotification failed:" << GetLastError();
         return false;
     }
     // setting up notifications doesn't tell us about devices already connected
     // so get those manually
     foreach(QextPortInfo port, getPorts_sys())
-      emit q->deviceDiscovered(port);
+      Q_EMIT q->deviceDiscovered(port);
     return true;
 }
 
@@ -234,9 +264,9 @@ bool QextSerialEnumeratorPrivate::matchAndDispatchChangedDevice(const QString & 
                 info.productID = info.vendorID = 0;
                 getDeviceDetailsWin( &info, devInfo, &spDevInfoData, wParam );
                 if( wParam == DBT_DEVICEARRIVAL )
-                    emit q->deviceDiscovered(info);
+                    Q_EMIT q->deviceDiscovered(info);
                 else if( wParam == DBT_DEVICEREMOVECOMPLETE )
-                    emit q->deviceRemoved(info);
+                    Q_EMIT q->deviceRemoved(info);
                 break;
             }
         }

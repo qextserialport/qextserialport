@@ -1,3 +1,33 @@
+/****************************************************************************
+** Copyright (c) 2000-2007 Stefan Sander
+** Copyright (c) 2007 Michal Policht
+** Copyright (c) 2008 Brandon Fosdick
+** Copyright (c) 2009-2010 Liam Staskawicz
+** Copyright (c) 2011 Debao Zhang
+** All right reserved.
+** Web: http://code.google.com/p/qextserialport/
+**
+** Permission is hereby granted, free of charge, to any person obtaining
+** a copy of this software and associated documentation files (the
+** "Software"), to deal in the Software without restriction, including
+** without limitation the rights to use, copy, modify, merge, publish,
+** distribute, sublicense, and/or sell copies of the Software, and to
+** permit persons to whom the Software is furnished to do so, subject to
+** the following conditions:
+**
+** The above copyright notice and this permission notice shall be
+** included in all copies or substantial portions of the Software.
+**
+** THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+** EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+** MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+** NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+** LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+** OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+** WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+**
+****************************************************************************/
+
 #include "qextserialenumerator.h"
 #include "qextserialenumerator_p.h"
 #include <QtCore/QDebug>
@@ -24,7 +54,7 @@ QList<QextPortInfo> QextSerialEnumeratorPrivate::getPorts_sys()
 
     // first try to get any serialbsd devices, then try any USBCDC devices
     if( !(matchingDictionary = IOServiceMatching(kIOSerialBSDServiceValue) ) ) {
-        qWarning("IOServiceMatching returned a NULL dictionary.");
+        QESP_WARNING("IOServiceMatching returned a NULL dictionary.");
         return infoList;
     }
     CFDictionaryAddValue(matchingDictionary, CFSTR(kIOSerialBSDTypeKey), CFSTR(kIOSerialBSDAllTypes));
@@ -39,7 +69,7 @@ QList<QextPortInfo> QextSerialEnumeratorPrivate::getPorts_sys()
     serialPortIterator = 0;
 
     if( !(matchingDictionary = IOServiceNameMatching("AppleUSBCDC")) ) {
-        qWarning("IOServiceNameMatching returned a NULL dictionary.");
+        QESP_WARNING("IOServiceNameMatching returned a NULL dictionary.");
         return infoList;
     }
 
@@ -174,7 +204,7 @@ void QextSerialEnumeratorPrivate::onDeviceDiscoveredOSX( io_object_t service )
     info.vendorID = 0;
     info.productID = 0;
     if( getServiceDetailsOSX( service, &info ) )
-        emit q->deviceDiscovered( info );
+        Q_EMIT q->deviceDiscovered( info );
 }
 
 /*
@@ -188,7 +218,7 @@ void QextSerialEnumeratorPrivate::onDeviceTerminatedOSX( io_object_t service )
     info.vendorID = 0;
     info.productID = 0;
     if( getServiceDetailsOSX( service, &info ) )
-        emit q->deviceRemoved( info );
+        Q_EMIT q->deviceRemoved( info );
 }
 
 /*
@@ -219,7 +249,7 @@ bool QextSerialEnumeratorPrivate::setUpNotifications_sys(bool setup)
         CFDictionarySetValue(classesToMatch, CFSTR(kIOSerialBSDTypeKey), CFSTR(kIOSerialBSDAllTypes));
 
     if( !(cdcClassesToMatch = IOServiceNameMatching("AppleUSBCDC") ) ) {
-        qWarning("couldn't create cdc matching dict");
+        QESP_WARNING("couldn't create cdc matching dict");
         return false;
     }
 

@@ -1,3 +1,33 @@
+/****************************************************************************
+** Copyright (c) 2000-2007 Stefan Sander
+** Copyright (c) 2007 Michal Policht
+** Copyright (c) 2008 Brandon Fosdick
+** Copyright (c) 2009-2010 Liam Staskawicz
+** Copyright (c) 2011 Debao Zhang
+** All right reserved.
+** Web: http://code.google.com/p/qextserialport/
+**
+** Permission is hereby granted, free of charge, to any person obtaining
+** a copy of this software and associated documentation files (the
+** "Software"), to deal in the Software without restriction, including
+** without limitation the rights to use, copy, modify, merge, publish,
+** distribute, sublicense, and/or sell copies of the Software, and to
+** permit persons to whom the Software is furnished to do so, subject to
+** the following conditions:
+**
+** The above copyright notice and this permission notice shall be
+** included in all copies or substantial portions of the Software.
+**
+** THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+** EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+** MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+** NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+** LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+** OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+** WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+**
+****************************************************************************/
+
 #include "qextserialenumerator.h"
 #include "qextserialenumerator_p.h"
 
@@ -16,9 +46,17 @@ QextSerialEnumeratorPrivate::~QextSerialEnumeratorPrivate()
     platformSpecificDestruct();
 }
 
+/*!
+  \class QextPortInfo
+
+  \brief The QextPortInfo class containing port information.
+
+  Structure containing port information.
+ */
+
 /*! \class QextSerialEnumerator
 
-    \brief Provides list of ports available in the system.
+    \brief The QextSerialEnumerator class provides list of ports available in the system.
   
     \section1 Usage
     To poll the system for a list of connected devices, simply use getPorts().  Each
@@ -75,7 +113,7 @@ QextSerialEnumeratorPrivate::~QextSerialEnumeratorPrivate()
 */
 
 /*!
-  default
+   Constructs a QextSerialEnumerator object with the given parent.
 */
 QextSerialEnumerator::QextSerialEnumerator(QObject *parent)
     :QObject(parent), d_ptr(new QextSerialEnumeratorPrivate(this))
@@ -85,7 +123,7 @@ QextSerialEnumerator::QextSerialEnumerator(QObject *parent)
 }
 
 /*!
-  default
+   Destructs the QextSerialEnumerator object.
 */
 QextSerialEnumerator::~QextSerialEnumerator( )
 {
@@ -115,5 +153,5 @@ void QextSerialEnumerator::setUpNotifications()
 #endif
     Q_D(QextSerialEnumerator);
     if (!d->setUpNotifications_sys(true))
-        qWarning("Setup Notification Failed...");
+        QESP_WARNING("Setup Notification Failed...");
 }

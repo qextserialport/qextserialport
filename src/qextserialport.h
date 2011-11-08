@@ -1,3 +1,33 @@
+/****************************************************************************
+** Copyright (c) 2000-2007 Stefan Sander
+** Copyright (c) 2007 Michal Policht
+** Copyright (c) 2008 Brandon Fosdick
+** Copyright (c) 2009-2010 Liam Staskawicz
+** Copyright (c) 2011 Debao Zhang
+** All right reserved.
+** Web: http://code.google.com/p/qextserialport/
+**
+** Permission is hereby granted, free of charge, to any person obtaining
+** a copy of this software and associated documentation files (the
+** "Software"), to deal in the Software without restriction, including
+** without limitation the rights to use, copy, modify, merge, publish,
+** distribute, sublicense, and/or sell copies of the Software, and to
+** permit persons to whom the Software is furnished to do so, subject to
+** the following conditions:
+**
+** The above copyright notice and this permission notice shall be
+** included in all copies or substantial portions of the Software.
+**
+** THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+** EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+** MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+** NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+** LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+** OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+** WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+**
+****************************************************************************/
+
 #ifndef _QEXTSERIALPORT_H_
 #define _QEXTSERIALPORT_H_
 
@@ -37,40 +67,30 @@ enum BaudRateType
 #ifdef Q_OS_UNIX
     BAUD50 = 50,                //POSIX ONLY
     BAUD75 = 75,                //POSIX ONLY
-#endif
+    BAUD134 = 134,              //POSIX ONLY
+    BAUD150 = 150,              //POSIX ONLY
+    BAUD200 = 200,              //POSIX ONLY
+    BAUD1800 = 1800,            //POSIX ONLY
+#  ifdef B76800
+    BAUD76800 = 76800,          //POSIX ONLY
+#  endif
+#elif defined(Q_OS_WIN)
+    BAUD14400 = 14400,          //WINDOWS ONLY
+    BAUD56000 = 56000,          //WINDOWS ONLY
+    BAUD128000 = 12800,         //WINDOWS ONLY
+    BAUD256000 = 25600,         //WINDOWS ONLY
+#endif //Q_OS_UNIX
     BAUD110 = 110,
-#ifdef Q_OS_UNIX
-    BAUD134 = 134,               //POSIX ONLY
-    BAUD150 = 150,               //POSIX ONLY
-    BAUD200 = 200,               //POSIX ONLY
-#endif
     BAUD300 = 300,
     BAUD600 = 600,
     BAUD1200 = 1200,
-#ifdef Q_OS_UNIX
-    BAUD1800 = 1800,              //POSIX ONLY
-#endif
     BAUD2400 = 2400,
     BAUD4800 = 4800,
     BAUD9600 = 9600,
-#ifdef Q_OS_WIN
-    BAUD14400 = 14400,             //WINDOWS ONLY
-#endif
     BAUD19200 = 19200,
     BAUD38400 = 38400,
-#ifdef Q_OS_WIN
-    BAUD56000 = 56000,             //WINDOWS ONLY
-#endif
     BAUD57600 = 57600,
-#if defined(Q_OS_UNIX) && defined(B76800)
-    BAUD76800 = 76800,             //POSIX ONLY
-#endif
     BAUD115200 = 115200
-#ifdef Q_OS_WIN
-    ,
-    BAUD128000 = 12800,            //WINDOWS ONLY
-    BAUD256000 = 25600             //WINDOWS ONLY
-#endif
 };
 
 enum DataBitsType
@@ -126,6 +146,9 @@ class QEXTSERIALPORT_EXPORT QextSerialPort: public QIODevice
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QextSerialPort)
+    Q_ENUMS(QueryMode)
+    Q_PROPERTY(QString portName READ portName WRITE setPortName)
+    Q_PROPERTY(QueryMode queryMode READ queryMode WRITE setQueryMode)
 public:
     enum QueryMode {
         Polling,
@@ -158,10 +181,6 @@ public:
 
     ulong lineStatus();
     QString errorString();
-
-#ifdef Q_OS_WIN
-    static QString fullPortNameWin(const QString & name);
-#endif
 
 public Q_SLOTS:
     void setPortName(const QString & name);
