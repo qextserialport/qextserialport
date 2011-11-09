@@ -28,52 +28,52 @@
 **
 ****************************************************************************/
 
-#ifndef QEXTSERIALPORT_GLOBAL_H
-#define QEXTSERIALPORT_GLOBAL_H
+#ifndef QEXTWINEVENTNOTIFIER_P_H_
+#define QEXTWINEVENTNOTIFIER_P_H_
 
-#include <QtCore/QtGlobal>
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the QESP API.  It exists for the convenience
+// of other QESP classes.  This header file may change from version to
+// version without notice, or even be removed.
+//
+// We mean it.
+//
 
-#if defined(Q_OS_WIN)
-#  if !defined(QEXTSERIALPORT_EXPORT) && !defined(QEXTSERIALPORT_IMPORT)
-#    define QEXTSERIALPORT_EXPORT
-#  elif defined(QEXTSERIALPORT_IMPORT)
-#    if defined(QEXTSERIALPORT_EXPORT)
-#      undef QEXTSERIALPORT_EXPORT
-#    endif
-#    define QEXTSERIALPORT_EXPORT __declspec(dllimport)
-#  elif defined(QEXTSERIALPORT_EXPORT)
-#    undef QEXTSERIALPORT_EXPORT
-#    define QEXTSERIALPORT_EXPORT __declspec(dllexport)
-#  endif
-#else
-#  define QEXTSERIALPORT_EXPORT
-#endif
+#include <QtCore/QObject>
+#include <QtCore/qt_windows.h>
+#include "qextserialport_global.h"
 
-// ### for compatible with old version. should be removed in QESP 2.0
-#ifdef _TTY_NOWARN_
-#  define QESP_NO_WARN
-#endif
-#ifdef _TTY_NOWARN_PORT_
-#  define QESP_NO_PORTABILITY_WARN
-#endif
+class QextWinEventNotifierPrivate;
+class QEXTSERIALPORT_EXPORT QextWinEventNotifier : public QObject
+{
+    Q_OBJECT
+    Q_DECLARE_PRIVATE(QextWinEventNotifier)
 
-/*if all warning messages are turned off, flag portability warnings to be turned off as well*/
-#ifdef QESP_NO_WARN
-#  define QESP_NO_PORTABILITY_WARN
-#endif
+public:
+    explicit QextWinEventNotifier(QObject *parent = 0);
+    explicit QextWinEventNotifier(HANDLE hEvent, QObject *parent = 0);
+    ~QextWinEventNotifier();
 
-/*macros for warning and debug messages*/
-#ifdef QESP_NO_PORTABILITY_WARN
-#  define QESP_PORTABILITY_WARNING  while(false)qWarning
-#else
-#  define QESP_PORTABILITY_WARNING qWarning
-#endif /*QESP_NOWARN_PORT*/
+    void setHandle(HANDLE hEvent);
+    HANDLE handle() const;
 
-#ifdef QESP_NO_WARN
-#  define QESP_WARNING while(false)qWarning
-#else
-#  define QESP_WARNING qWarning
-#endif /*QESP_NOWARN*/
+    bool isEnabled() const;
 
-#endif // QEXTSERIALPORT_GLOBAL_H
+public Q_SLOTS:
+    void setEnabled(bool enable);
 
+Q_SIGNALS:
+    void activated(HANDLE hEvent);
+
+protected:
+    bool event(QEvent * e);
+
+private:
+    Q_DISABLE_COPY(QextWinEventNotifier)
+    QextWinEventNotifierPrivate * d_ptr;
+};
+
+#endif // QEXTWINEVENTNOTIFIER_P_H_

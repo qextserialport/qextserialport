@@ -25,6 +25,12 @@ qextserialport-uselib:!qextserialport-buildlib {
     macx:SOURCES           += $$PWD/qextserialenumerator_osx.cpp
     win32:SOURCES          += $$PWD/qextserialport_win.cpp \
                               $$PWD/qextserialenumerator_win.cpp
+
+    win32:!exists($$[QT_INSTALL_HEADERS]/QtCore/private/qwineventnotifier_p.h){
+        DEFINES            += QESP_NO_QT_PRIVATE
+        HEADERS            += $$PWD/qextwineventnotifier_p.h
+        SOURCES            += $$PWD/qextwineventnotifier_p.cpp
+    }
 }
 
 macx:LIBS              += -framework IOKit -framework CoreFoundation

@@ -52,7 +52,7 @@
 #    define _WIN32_WINDOWS 0x0500
 #    define WINVER 0x0500
 #  endif
-#  include <qt_windows.h>
+#  include <QtCore/qt_windows.h>
 #endif /*Q_OS_WIN*/
 
 #ifdef Q_OS_MAC

@@ -36,8 +36,13 @@
 #include <QtCore/QDebug>
 #include <QtCore/QRegExp>
 #include <QtCore/QMetaType>
-#include <QtCore/private/qwineventnotifier_p.h>
-
+#ifndef QESP_NO_QT_PRIVATE
+#  include <QtCore/private/qwineventnotifier_p.h>
+#  define WinEventNotifier QWinEventNotifier
+#else
+#  include "qextwineventnotifier_p.h"
+#  define WinEventNotifier QextWinEventNotifier
+#endif
 void QextSerialPortPrivate::platformSpecificInit()
 {
     Win_Handle=INVALID_HANDLE_VALUE;
@@ -104,7 +109,7 @@ bool QextSerialPortPrivate::open_sys(QIODevice::OpenMode mode)
                 QESP_WARNING()<<"failed to set Comm Mask. Error code:"<<GetLastError();
                 return false;
             }
-            winEventNotifier = new QWinEventNotifier(overlap.hEvent);
+            winEventNotifier = new WinEventNotifier(overlap.hEvent);
             qRegisterMetaType<HANDLE>("HANDLE");
             q->connect(winEventNotifier, SIGNAL(activated(HANDLE)), q, SLOT(_q_onWinEvent(HANDLE)), Qt::DirectConnection);
             WaitCommEvent(Win_Handle, &eventMask, &overlap);

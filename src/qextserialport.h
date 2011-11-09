@@ -35,6 +35,7 @@
 #include "qextserialport_global.h"
 
 /*line status constants*/
+// ### QESP2.0 move to enum
 #define LS_CTS  0x01
 #define LS_DSR  0x02
 #define LS_DCD  0x04
@@ -45,6 +46,7 @@
 #define LS_SR   0x80
 
 /*error constants*/
+// ### QESP2.0 move to enum
 #define E_NO_ERROR                   0
 #define E_INVALID_FD                 1
 #define E_NO_MEMORY                  2
@@ -210,7 +212,6 @@ private:
 #endif
 
     QextSerialPortPrivate * d_ptr;
-
 };
 
 #endif

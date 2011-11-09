@@ -46,10 +46,10 @@
 #ifdef Q_OS_UNIX
 #  include <termios.h>
 #elif (defined Q_OS_WIN)
-/*we should always use <qt_windows.h> instead of <windows.h>*/
-#  include <qt_windows.h>
+#  include <QtCore/qt_windows.h>
 #endif
 
+class QextWinEventNotifier;
 class QWinEventNotifier;
 class QReadWriteLock;
 class QMutex;
@@ -90,7 +90,11 @@ public:
     OVERLAPPED overlap;
     COMMCONFIG Win_CommConfig;
     COMMTIMEOUTS Win_CommTimeouts;
+#  ifndef QESP_NO_QT_PRIVATE
     QWinEventNotifier *winEventNotifier;
+#  else
+    QextWinEventNotifier *winEventNotifier;
+#  endif
     DWORD eventMask;
     QList<OVERLAPPED*> pendingWrites;
     QReadWriteLock* bytesToWriteLock;
