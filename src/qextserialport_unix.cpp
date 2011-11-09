@@ -99,7 +99,6 @@ bool QextSerialPortPrivate::open_sys(QIODevice::OpenMode mode)
 
 bool QextSerialPortPrivate::close_sys()
 {
-    QMutexLocker lock(mutex);
     // Force a flush and then restore the original termios
     flush_sys();
     // Using both TCSAFLUSH and TCSANOW here discards any pending input
@@ -114,14 +113,12 @@ bool QextSerialPortPrivate::close_sys()
 
 bool QextSerialPortPrivate::flush_sys()
 {
-    QMutexLocker lock(mutex);
     ::tcflush(fd, TCIOFLUSH);
     return true;
 }
 
 qint64 QextSerialPortPrivate::bytesAvailable_sys() const
 {
-    QMutexLocker lock(mutex);
     int bytesQueued;
     if (::ioctl(fd, FIONREAD, &bytesQueued) == -1) {
         return (qint64)-1;
@@ -150,7 +147,6 @@ void QextSerialPortPrivate::translateError(ulong error)
 
 void QextSerialPortPrivate::setDtr_sys(bool set)
 {
-    QMutexLocker lock(mutex);
     int status;
     ::ioctl(fd, TIOCMGET, &status);
     if (set)
@@ -162,7 +158,6 @@ void QextSerialPortPrivate::setDtr_sys(bool set)
 
 void QextSerialPortPrivate::setRts_sys(bool set)
 {
-    QMutexLocker lock(mutex);
     int status;
     ::ioctl(fd, TIOCMGET, &status);
     if (set)
@@ -175,7 +170,6 @@ void QextSerialPortPrivate::setRts_sys(bool set)
 unsigned long QextSerialPortPrivate::lineStatus_sys()
 {
     unsigned long Status=0, Temp=0;
-    QMutexLocker lock(mutex);
     ::ioctl(fd, TIOCMGET, &Temp);
     if (Temp & TIOCM_CTS) Status |= LS_CTS;
     if (Temp & TIOCM_DSR) Status |= LS_DSR;
@@ -198,7 +192,6 @@ unsigned long QextSerialPortPrivate::lineStatus_sys()
 */
 qint64 QextSerialPortPrivate::readData_sys(char * data, qint64 maxSize)
 {
-    QMutexLocker lock(mutex);
     int retVal = ::read(fd, data, maxSize);
     if (retVal == -1)
         lastErr = E_READ_FAILED;
@@ -216,7 +209,6 @@ qint64 QextSerialPortPrivate::readData_sys(char * data, qint64 maxSize)
 */
 qint64 QextSerialPortPrivate::writeData_sys(const char * data, qint64 maxSize)
 {
-    QMutexLocker lock(mutex);
     int retVal = ::write(fd, data, maxSize);
     if (retVal == -1)
        lastErr = E_WRITE_FAILED;

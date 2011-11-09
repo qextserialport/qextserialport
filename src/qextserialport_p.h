@@ -43,6 +43,7 @@
 //
 
 #include "qextserialport.h"
+#include <QtCore/QReadWriteLock>
 #ifdef Q_OS_UNIX
 #  include <termios.h>
 #elif (defined Q_OS_WIN)
@@ -52,7 +53,6 @@
 class QextWinEventNotifier;
 class QWinEventNotifier;
 class QReadWriteLock;
-class QMutex;
 class QSocketNotifier;
 
 class QextSerialPortPrivate
@@ -72,7 +72,7 @@ public:
         DFE_ALL = 0x0fff,
         DFE_Settings_Mask = 0x00ff //without TimeOut
     };
-    QMutex* mutex;
+    mutable QReadWriteLock lock;
     QString port;
     PortSettings Settings;
     int settingsDirtyFlags;

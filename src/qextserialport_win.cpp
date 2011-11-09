@@ -83,7 +83,6 @@ bool QextSerialPortPrivate::open_sys(QIODevice::OpenMode mode)
     if (_queryMode == QextSerialPort::EventDriven)
         dwFlagsAndAttributes += FILE_FLAG_OVERLAPPED;
 
-    QMutexLocker lock(mutex);
     /*open the port*/
     Win_Handle=CreateFileW((wchar_t*)fullPortNameWin(port).utf16(), GENERIC_READ|GENERIC_WRITE,
                            0, NULL, OPEN_EXISTING, dwFlagsAndAttributes, NULL);
@@ -121,7 +120,6 @@ bool QextSerialPortPrivate::open_sys(QIODevice::OpenMode mode)
 
 bool QextSerialPortPrivate::close_sys()
 {
-    QMutexLocker lock(mutex);
     flush_sys();
     CancelIo(Win_Handle);
     if (CloseHandle(Win_Handle))
@@ -142,14 +140,12 @@ bool QextSerialPortPrivate::close_sys()
 
 bool QextSerialPortPrivate::flush_sys()
 {
-    QMutexLocker lock(mutex);
     FlushFileBuffers(Win_Handle);
     return true;
 }
 
 qint64 QextSerialPortPrivate::bytesAvailable_sys() const
 {
-    QMutexLocker lock(mutex);
     DWORD Errors;
     COMSTAT Status;
     if (ClearCommError(Win_Handle, &Errors, &Status)) {
@@ -199,7 +195,6 @@ void QextSerialPortPrivate::translateError(ulong error) {
 qint64 QextSerialPortPrivate::readData_sys(char *data, qint64 maxSize)
 {
     DWORD retVal;
-    QMutexLocker lock(mutex);
     retVal = 0;
     if (_queryMode == QextSerialPort::EventDriven) {
         OVERLAPPED overlapRead;
@@ -229,7 +224,6 @@ qint64 QextSerialPortPrivate::readData_sys(char *data, qint64 maxSize)
 */
 qint64 QextSerialPortPrivate::writeData_sys(const char *data, qint64 maxSize)
 {
-    QMutexLocker lock( mutex );
     DWORD retVal = 0;
     if (_queryMode == QextSerialPort::EventDriven) {
         OVERLAPPED* newOverlapWrite = new OVERLAPPED;
@@ -263,18 +257,15 @@ qint64 QextSerialPortPrivate::writeData_sys(const char *data, qint64 maxSize)
 }
 
 void QextSerialPortPrivate::setDtr_sys(bool set) {
-    QMutexLocker lock(mutex);
     EscapeCommFunction(Win_Handle, set ? SETDTR : CLRDTR);
 }
 
 void QextSerialPortPrivate::setRts_sys(bool set) {
-    QMutexLocker lock(mutex);
     EscapeCommFunction(Win_Handle, set ? SETRTS : CLRRTS);
 }
 
 ulong QextSerialPortPrivate::lineStatus_sys(void) {
     unsigned long Status=0, Temp=0;
-    QMutexLocker lock(mutex);
     GetCommModemStatus(Win_Handle, &Temp);
     if (Temp & MS_CTS_ON) Status|=LS_CTS;
     if (Temp & MS_DSR_ON) Status|=LS_DSR;
@@ -289,7 +280,6 @@ ulong QextSerialPortPrivate::lineStatus_sys(void) {
 void QextSerialPortPrivate::_q_onWinEvent(HANDLE h)
 {
     Q_Q(QextSerialPort);
-    QMutexLocker lock(mutex);
     if(h == overlap.hEvent) {
         if (eventMask & EV_RXCHAR) {
             if (q->sender() != q && bytesAvailable_sys() > 0)

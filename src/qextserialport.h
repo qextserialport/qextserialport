@@ -211,7 +211,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void _q_onWinEvent(HANDLE))
 #endif
 
-    QextSerialPortPrivate * d_ptr;
+    QextSerialPortPrivate * const d_ptr;
 };
 
 #endif
