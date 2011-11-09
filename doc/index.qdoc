@@ -18,6 +18,44 @@
       \o \l QextSerialEnumerator enumerates ports currently available in the system.
       \endlist
     
+    \section1 Usage
+      The package contains a qextserialport.pri file that allows you to integrate the 
+      component into programs that use qmake for the build step.
+
+      All you need is adding following line to your qmake project file:
+      \code
+      include(pathToPri/qextserialport.pri)
+      \endcode
+
+    \section2 Using QexSerialPort library
+      Although QextSerialPort can be directly compiled into your application, You may prefer
+      to use QextSerailPort as an library, which is very easy too.
+
+      1. Write a config.pri file.(read config_example.pri for reference):
+
+      \list
+        \o shared library
+        \o static library
+      \endlist
+
+      2. Changed to subdirectory 'buildlib', run
+      \code
+      qmake
+      make
+      \endcode
+      shared or static library will be generated.
+
+      3.  Add following line to your qmake project file:
+      \code
+      include(pathToPri/qextserialport.pri)
+      \endcode
+
+     \section2 Build documents
+      Run qdoc3 from the doc directory.
+      \code
+        qdoc3 qextserialport.qdocconf
+      \endcode
+
     \section1 Examples
       \list
       \o \l examples/enumerator
