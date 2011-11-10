@@ -17,9 +17,11 @@ qextserialport-uselib:!qextserialport-buildlib {
                               $$PWD/qextserialport_p.h \
                               $$PWD/qextserialenumerator.h \
                               $$PWD/qextserialenumerator_p.h \
-                              $$PWD/qextserialport_global.h
+                              $$PWD/qextserialport_global.h \
+                              $$PWD/qextportsettings.h
     SOURCES                += $$PWD/qextserialport.cpp \
-                              $$PWD/qextserialenumerator.cpp
+                              $$PWD/qextserialenumerator.cpp \
+                              $$PWD/qextportsettings.cpp
     unix:SOURCES           += $$PWD/qextserialport_unix.cpp
     unix:!macx:SOURCES     += $$PWD/qextserialenumerator_unix.cpp
     macx:SOURCES           += $$PWD/qextserialenumerator_osx.cpp
@@ -40,3 +42,5 @@ win32 {
     contains(TEMPLATE, lib):contains(CONFIG, shared):DEFINES += QEXTSERIALPORT_EXPORT
     else:qextserialport-uselib:!qextserialport-static:DEFINES += QEXTSERIALPORT_IMPORT
 }
+
+

@@ -293,6 +293,9 @@ void QextSerialPortPrivate::updatePortSettings()
         case BAUD115200:
             setBaudRate2Termios(&Posix_CommConfig, B115200);
             break;
+        case BAUDCustom:
+            setBaudRate2Termios(&Posix_CommConfig, Settings.CustomBaudRate);
+            break;
         }
     }
     if (settingsDirtyFlags & DFE_Parity) {

@@ -35,19 +35,9 @@
 #include <QtCore/QReadLocker>
 #include <QtCore/QWriteLocker>
 
-/*
-    Common constructor function for setting up default port settings.
-    (115200 Baud, 8N1, Hardware flow control where supported, otherwise no flow control, and 0 ms timeout).
-*/
 QextSerialPortPrivate::QextSerialPortPrivate(QextSerialPort *q)
-    :q_ptr(q)
+    :lock(QReadWriteLock::Recursive), q_ptr(q)
 {
-    Settings.BaudRate = BAUD115200;
-    Settings.DataBits = DATA_8;
-    Settings.Parity = PAR_NONE;
-    Settings.StopBits = STOP_1;
-    Settings.FlowControl = FLOW_HARDWARE;
-    Settings.Timeout_Millisec = 500;
     lastErr = E_NO_ERROR;
     settingsDirtyFlags = DFE_ALL;
 
@@ -97,6 +87,14 @@ void QextSerialPortPrivate::setBaudRate(BaudRateType baudRate, bool update)
         settingsDirtyFlags |= DFE_BaudRate;
         if (update && q_func()->isOpen())
             updatePortSettings();
+        break;
+    case BAUDCustom:
+        if (Settings.CustomBaudRate != -1) {
+            Settings.BaudRate=baudRate;
+            settingsDirtyFlags |= DFE_BaudRate;
+            if (update && q_func()->isOpen())
+                updatePortSettings();
+        }
         break;
     default:
         QESP_WARNING()<<"QextSerialPort does not support baudRate:"<<baudRate;
@@ -253,7 +251,16 @@ void QextSerialPortPrivate::setTimeout(long millisec, bool update)
         updatePortSettings();
 }
 
-void QextSerialPortPrivate::setPortSettings(const PortSettings &settings, bool update)
+void QextSerialPortPrivate::setCustomBaudRate(int customBaudRate, bool update)
+{
+    Settings.CustomBaudRate = customBaudRate;
+    Settings.BaudRate = BAUDCustom;
+    settingsDirtyFlags |= DFE_BaudRate;
+    if (update && q_func()->isOpen())
+        updatePortSettings();
+}
+
+void QextSerialPortPrivate::setPortSettings(const QextPortSettings &settings, bool update)
 {
     setBaudRate(settings.BaudRate, false);
     setDataBits(settings.DataBits, false);
@@ -261,41 +268,11 @@ void QextSerialPortPrivate::setPortSettings(const PortSettings &settings, bool u
     setParity(settings.Parity, false);
     setFlowControl(settings.FlowControl, false);
     setTimeout(settings.Timeout_Millisec, false);
+    setCustomBaudRate(settings.CustomBaudRate, false);
     settingsDirtyFlags = DFE_ALL;
     if (update && q_func()->isOpen())
         updatePortSettings();
 }
-
-/*!
-    \enum BaudRateType
-*/
-
-/*!
-    \enum DataBitsType
-*/
-
-/*!
-    \enum ParityType
-*/
-
-/*!
-    \enum StopBitsType
-
-    \value STOP_1
-    \value STOP_1_5
-    \value STOP_2
-*/
-
-/*!
-    \enum FlowType
-*/
-
-/*! \class PortSettings
-
-    \brief The PortSettings class contain port settings
-
-    structure to contain port settings
-*/
 
 /*! \class QextSerialPort
 
@@ -431,7 +408,7 @@ QextSerialPort::QextSerialPort(const QString & name, QextSerialPort::QueryMode m
 
     Constructs a port with default name and specified settings.
 */
-QextSerialPort::QextSerialPort(const PortSettings& settings, QextSerialPort::QueryMode mode, QObject *parent)
+QextSerialPort::QextSerialPort(const QextPortSettings& settings, QextSerialPort::QueryMode mode, QObject *parent)
     : QIODevice(parent), d_ptr(new QextSerialPortPrivate(this))
 {
     Q_D(QextSerialPort);
@@ -444,7 +421,7 @@ QextSerialPort::QextSerialPort(const PortSettings& settings, QextSerialPort::Que
 
     Constructs a port with specified name and settings.
 */
-QextSerialPort::QextSerialPort(const QString & name, const PortSettings& settings, QextSerialPort::QueryMode mode, QObject *parent)
+QextSerialPort::QextSerialPort(const QString & name, const QextPortSettings& settings, QextSerialPort::QueryMode mode, QObject *parent)
     : QIODevice(parent), d_ptr(new QextSerialPortPrivate(this))
 {
     Q_D(QextSerialPort);
@@ -593,6 +570,15 @@ BaudRateType QextSerialPort::baudRate(void) const
 }
 
 /*!
+    Returns the baud rate of the serial port.
+*/
+int QextSerialPort::customBaudRate() const
+{
+    QReadLocker locker(&d_func()->lock);
+    return baudRate()==BAUDCustom ? d_func()->Settings.CustomBaudRate : -1;
+}
+
+/*!
     Returns the number of data bits used by the port.  For a list of possible values returned by
     this function, see the definition of the enum DataBitsType.
 */
@@ -729,7 +715,7 @@ void QextSerialPort::setFlowControl(FlowType flow)
 {
     Q_D(QextSerialPort);
     QWriteLocker locker(&d->lock);
-    if (this->flowControl() != flow)
+    if (d->Settings.FlowControl != flow)
         d->setFlowControl(flow, true);
 }
 
@@ -747,7 +733,7 @@ void QextSerialPort::setParity(ParityType parity)
 {
     Q_D(QextSerialPort);
     QWriteLocker locker(&d->lock);
-    if (this->parity() != parity)
+    if (d->Settings.Parity != parity)
         d->setParity(parity, true);
 }
 
@@ -772,7 +758,7 @@ void QextSerialPort::setDataBits(DataBitsType dataBits)
 {
     Q_D(QextSerialPort);
     QWriteLocker locker(&d->lock);
-    if (this->dataBits() != dataBits)
+    if (d->Settings.DataBits != dataBits)
         d->setDataBits(dataBits, true);
 }
 
@@ -796,7 +782,7 @@ void QextSerialPort::setStopBits(StopBitsType stopBits)
 {
     Q_D(QextSerialPort);
     QWriteLocker locker(&d->lock);
-    if (this->stopBits() != stopBits)
+    if (d->Settings.StopBits != stopBits)
         d->setStopBits(stopBits, true);
 }
 
@@ -832,14 +818,37 @@ void QextSerialPort::setStopBits(StopBitsType stopBits)
        BAUD128000          128000           X
        BAUD256000          256000           X
     \endcode
+
+    \sa setCustomBaudRate()
 */
 
 void QextSerialPort::setBaudRate(BaudRateType baudRate)
 {
     Q_D(QextSerialPort);
     QWriteLocker locker(&d->lock);
-    if (this->baudRate() != baudRate)
+    if (d->Settings.BaudRate != baudRate)
         d->setBaudRate(baudRate, true);
+}
+
+/*!
+  Sets the baud rate of the serial port. Be careful when using this function.
+
+  Under Posix System, this value will tranfer to ::cfsetispeed()
+
+  Under Windows System, this value will assigned to DCB's BaudRate member.
+
+  \sa setBaudRate()
+*/
+void QextSerialPort::setCustomBaudRate(int baudRate)
+{
+    if (baudRate == -1) {
+        QESP_WARNING("QextSerialPort: Invalid custom baud rate");
+        return;
+    }
+    Q_D(QextSerialPort);
+    QWriteLocker locker(&d->lock);
+    if (d->Settings.CustomBaudRate != baudRate || d->Settings.BaudRate != BAUDCustom)
+        d->setCustomBaudRate(baudRate, true);
 }
 
 /*!

@@ -74,7 +74,7 @@ public:
     };
     mutable QReadWriteLock lock;
     QString port;
-    PortSettings Settings;
+    QextPortSettings Settings;
     int settingsDirtyFlags;
     ulong lastErr;
     QextSerialPort::QueryMode _queryMode;
@@ -108,7 +108,8 @@ public:
     void setStopBits(StopBitsType stopbits, bool update=true);
     void setFlowControl(FlowType flow, bool update=true);
     void setTimeout(long millisec, bool update=true);
-    void setPortSettings(const PortSettings& settings, bool update=true);
+    void setCustomBaudRate(int customBaudRate, bool update=true);
+    void setPortSettings(const QextPortSettings& settings, bool update=true);
 
     void platformSpecificDestruct();
     void platformSpecificInit();
