@@ -125,6 +125,7 @@ bool QextSerialPortPrivate::close_sys()
     if (CloseHandle(Win_Handle))
         Win_Handle = INVALID_HANDLE_VALUE;
     if (winEventNotifier){
+        winEventNotifier->setEnabled(false);
         winEventNotifier->deleteLater();
         winEventNotifier = 0;
     }
