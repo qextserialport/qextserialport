@@ -33,18 +33,10 @@
 
 #include <QtCore/QtGlobal>
 
-#if defined(Q_OS_WIN)
-#  if !defined(QEXTSERIALPORT_EXPORT) && !defined(QEXTSERIALPORT_IMPORT)
-#    define QEXTSERIALPORT_EXPORT
-#  elif defined(QEXTSERIALPORT_IMPORT)
-#    if defined(QEXTSERIALPORT_EXPORT)
-#      undef QEXTSERIALPORT_EXPORT
-#    endif
-#    define QEXTSERIALPORT_EXPORT __declspec(dllimport)
-#  elif defined(QEXTSERIALPORT_EXPORT)
-#    undef QEXTSERIALPORT_EXPORT
-#    define QEXTSERIALPORT_EXPORT __declspec(dllexport)
-#  endif
+#ifdef QEXTSERIALPORT_BUILD_SHARED
+#  define QEXTSERIALPORT_EXPORT Q_DECL_EXPORT
+#elif defined(QEXTSERIALPORT_USING_SHARED)
+#  define QEXTSERIALPORT_EXPORT Q_DECL_IMPORT
 #else
 #  define QEXTSERIALPORT_EXPORT
 #endif
