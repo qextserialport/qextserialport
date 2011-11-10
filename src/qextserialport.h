@@ -79,8 +79,8 @@ enum BaudRateType
 #elif defined(Q_OS_WIN)
     BAUD14400 = 14400,          //WINDOWS ONLY
     BAUD56000 = 56000,          //WINDOWS ONLY
-    BAUD128000 = 12800,         //WINDOWS ONLY
-    BAUD256000 = 25600,         //WINDOWS ONLY
+    BAUD128000 = 128000,        //WINDOWS ONLY
+    BAUD256000 = 256000,        //WINDOWS ONLY
 #endif //Q_OS_UNIX
     BAUD110 = 110,
     BAUD300 = 300,
