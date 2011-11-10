@@ -194,24 +194,25 @@ void QextSerialPortPrivate::translateError(ulong error) {
 */
 qint64 QextSerialPortPrivate::readData_sys(char *data, qint64 maxSize)
 {
-    DWORD retVal;
-    retVal = 0;
+    DWORD bytesRead = 0;
+    bool failed = false;
     if (_queryMode == QextSerialPort::EventDriven) {
         OVERLAPPED overlapRead;
         ZeroMemory(&overlapRead, sizeof(OVERLAPPED));
-        if (!ReadFile(Win_Handle, (void*)data, (DWORD)maxSize, & retVal, & overlapRead)) {
+        if (!ReadFile(Win_Handle, (void*)data, (DWORD)maxSize, & bytesRead, & overlapRead)) {
             if (GetLastError() == ERROR_IO_PENDING)
-                GetOverlappedResult(Win_Handle, & overlapRead, & retVal, true);
-            else {
-                lastErr = E_READ_FAILED;
-                retVal = (DWORD)-1;
-            }
+                GetOverlappedResult(Win_Handle, & overlapRead, & bytesRead, true);
+            else
+                failed = true;
         }
-    } else if (!ReadFile(Win_Handle, (void*)data, (DWORD)maxSize, & retVal, NULL)) {
-        lastErr = E_READ_FAILED;
-        retVal = (DWORD)-1;
+    } else if (!ReadFile(Win_Handle, (void*)data, (DWORD)maxSize, & bytesRead, NULL)) {
+        failed = true;
     }
-    return (qint64)retVal;
+    if (!failed)
+        return (qint64)bytesRead;
+
+    lastErr = E_READ_FAILED;
+    return -1;
 }
 
 /*
@@ -224,12 +225,13 @@ qint64 QextSerialPortPrivate::readData_sys(char *data, qint64 maxSize)
 */
 qint64 QextSerialPortPrivate::writeData_sys(const char *data, qint64 maxSize)
 {
-    DWORD retVal = 0;
+    DWORD bytesWritten = 0;
+    bool failed = false;
     if (_queryMode == QextSerialPort::EventDriven) {
         OVERLAPPED* newOverlapWrite = new OVERLAPPED;
         ZeroMemory(newOverlapWrite, sizeof(OVERLAPPED));
         newOverlapWrite->hEvent = CreateEvent(NULL, true, false, NULL);
-        if (WriteFile(Win_Handle, (void*)data, (DWORD)maxSize, & retVal, newOverlapWrite)) {
+        if (WriteFile(Win_Handle, (void*)data, (DWORD)maxSize, & bytesWritten, newOverlapWrite)) {
             CloseHandle(newOverlapWrite->hEvent);
             delete newOverlapWrite;
         }
@@ -241,19 +243,22 @@ qint64 QextSerialPortPrivate::writeData_sys(const char *data, qint64 maxSize)
         }
         else {
             QESP_WARNING()<<"QextSerialPort write error:"<<GetLastError();
-            lastErr = E_WRITE_FAILED;
-            retVal = (DWORD)-1;
+            failed = true;
             if(!CancelIo(newOverlapWrite->hEvent))
                 QESP_WARNING("QextSerialPort: couldn't cancel IO");
             if(!CloseHandle(newOverlapWrite->hEvent))
                 QESP_WARNING("QextSerialPort: couldn't close OVERLAPPED handle");
             delete newOverlapWrite;
         }
-    } else if (!WriteFile(Win_Handle, (void*)data, (DWORD)maxSize, & retVal, NULL)) {
-        lastErr = E_WRITE_FAILED;
-        retVal = (DWORD)-1;
+    } else if (!WriteFile(Win_Handle, (void*)data, (DWORD)maxSize, & bytesWritten, NULL)) {
+        failed = true;
     }
-    return (qint64)retVal;
+
+    if (!failed)
+        return (qint64)bytesWritten;
+
+    lastErr = E_WRITE_FAILED;
+    return -1;
 }
 
 void QextSerialPortPrivate::setDtr_sys(bool set) {
