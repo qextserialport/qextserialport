@@ -695,8 +695,6 @@ QString QextSerialPort::errorString()
 */
 QextSerialPort::~QextSerialPort()
 {
-    Q_D(QextSerialPort);
-    QWriteLocker locker(&d->lock);
     if (isOpen()) {
         close();
     }

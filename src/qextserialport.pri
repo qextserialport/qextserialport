@@ -6,7 +6,6 @@ exists(../common.pri) {
     #In this case:
     #  they can just include this file (qextserialport.pri) too.
     include(../common.pri)
-    message(hello)
 }
 INCLUDEPATH += $$PWD
 DEPENDPATH += $$PWD
