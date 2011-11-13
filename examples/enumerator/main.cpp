@@ -14,10 +14,6 @@ int main()
     qDebug() << "List of ports:";
     for (int i = 0; i < ports.size(); i++) {
         qDebug() << "port name:" << ports.at(i).portName;
-        qDebug() << "port name:" << ports.at(i).portName.size();
-        qDebug() << "port name:" << ports.at(i).portName.toLatin1().toHex();
-        qDebug() << "port name:" << ports.at(i).portName.toAscii().toHex();
-
         qDebug() << "friendly name:" << ports.at(i).friendName;
         qDebug() << "physical name:" << ports.at(i).physName;
         qDebug() << "enumerator name:" << ports.at(i).enumName;
