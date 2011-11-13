@@ -83,6 +83,7 @@ void QextSerialEnumeratorPrivate::platformSpecificDestruct()
 #endif
 }
 
+// ### This url has broken, anyone can fix it?
 // see http://msdn.microsoft.com/en-us/library/ms791134.aspx for list of GUID classes
 #ifndef GUID_DEVCLASS_PORTS
     DEFINE_GUID(GUID_DEVCLASS_PORTS, 0x4D36E978, 0xE325, 0x11CE, 0xBF, 0xC1, 0x08, 0x00, 0x2B, 0xE1, 0x03, 0x18 );
@@ -187,6 +188,17 @@ static void enumerateDevicesWin( const GUID & guid, QList<QextPortInfo>* infoLis
     }
 }
 
+
+static bool lessThan(const QextPortInfo &s1, const QextPortInfo &s2)
+{
+    if (s1.portName.startsWith(QLatin1String("COM"))
+            && s2.portName.startsWith(QLatin1String("COM"))) {
+        return s1.portName.mid(3).toInt()<s2.portName.mid(3).toInt();
+    }
+    return s1.portName < s2.portName;
+}
+
+
 /*!
     Get list of ports.
 
@@ -196,6 +208,7 @@ QList<QextPortInfo> QextSerialEnumeratorPrivate::getPorts_sys()
 {
     QList<QextPortInfo> ports;
     enumerateDevicesWin(GUID_DEVCLASS_PORTS, &ports);
+    qSort(ports.begin(), ports.end(), lessThan);
     return ports;
 }
 

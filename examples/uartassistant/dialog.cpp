@@ -148,6 +148,10 @@ void Dialog::onSendButtonClicked()
 
 void Dialog::onReadyRead()
 {
+    if (port->queryMode()==QextSerialPort::EventDriven){
+        ui->recvEdit->appendPlainText(QString::number(port->bytesAvailable()));
+        return;
+    }
     if (port->bytesAvailable()) {
         ui->recvEdit->moveCursor(QTextCursor::End);
         ui->recvEdit->insertPlainText(QString::fromLatin1(port->readAll()));
