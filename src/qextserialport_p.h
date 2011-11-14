@@ -49,6 +49,7 @@
 #elif (defined Q_OS_WIN)
 #  include <QtCore/qt_windows.h>
 #endif
+#include <stdlib.h>
 
 // This is QextSerialPort's read buffer, needed by posix system.
 // ref: QRingBuffer & QIODevicePrivateLinearBuffer
@@ -130,8 +131,11 @@ public:
         while (newCapacity < size_t(len))
             newCapacity *= 2;
         if (newCapacity < capacity) {
-            realloc(buf, newCapacity);
-            capacity = newCapacity;
+            char * tmp = static_cast<char*>(realloc(buf, newCapacity));
+            if (tmp) {
+                buf = tmp;
+                capacity = newCapacity;
+            }
         }
     }
 
