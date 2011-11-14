@@ -33,6 +33,8 @@
 
 /*!
     \enum BaudRateType
+
+    baud rate values support.
 */
 
 /*!
@@ -55,19 +57,24 @@
     \enum FlowType
 */
 
-/*! \class PortSettings
+/*!
+    \obsolete
+
+    \class PortSettings
 
     \brief The PortSettings class contain port settings
 
-    structure to contain port settings. This new code should using
-    QextPortSettings.
+    Structure to contain port settings.
+
+    \bold Note: This class is provided for comatible with old versions.
+    New code should using QextPortSettings.
 */
 
 
 /*!
   \class QextPortSettings
 
-    \brief The PortSettings class contain port settings
+    \brief The QextPortSettings class contain port settings
 
     structure to contain port settings.
 */

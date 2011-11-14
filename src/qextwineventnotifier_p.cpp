@@ -51,8 +51,10 @@ private:
     QextWinEventNotifier * q_ptr;
 };
 
-/*!
+/*
   \internal
+
+  \class QextWinEventNotifierThread
 
   This class works more or less like an EventDispatcher.
 
@@ -177,10 +179,10 @@ void QextWinEventNotifierThread::run()
     you can register a HANDLE to an event and get notification when
     that event becomes signalled.
 
-    \note If it is a manual reset event ,it will be reset before
+    \bold Note: If it is a manual reset event ,it will be reset before
     the notification. This is different from QWinEventNotifier.
 
-    \note All the registered handles will be waited under a new thread.
+    \bold Note: All the registered handles will be waited under a new thread.
     This is different from QWinEventNotifier whose event handle will be waited
     in its affinal thread.
 */

@@ -321,7 +321,7 @@ void QextSerialPortPrivate::_q_canRead()
     by default - this behavior can be turned off by defining QESP_NO_WARN
     (to turn off all warnings) or QESP_NO_PORTABILITY_WARN (to turn off portability warnings) in the project.
 
-    \bold author: Stefan Sander, Michal Policht, Brandon Fosdick, Liam Staskawicz, Debao Zhang
+    \bold Author: Stefan Sander, Michal Policht, Brandon Fosdick, Liam Staskawicz, Debao Zhang
 */
 
 /*!
@@ -444,11 +444,12 @@ QextSerialPort::QextSerialPort(const QString & name, const QextPortSettings& set
     d->setPortSettings(settings);
 }
 
-/*! \reimp
-    Opens a serial port.  Note that this function does not specify which device to open.  If you need
-    to open a device by name, see QextSerialPort::open(const char*).  This function has no effect
-    if the port associated with the class is already open.  The port is also configured to the current
-    settings, as stored in the Settings structure.
+/*!
+    Opens a serial port and sets its OpenMode to \a mode.
+    Note that this function does not specify which device to open.
+    Returns true if successful; otherwise returns false.This function has no effect
+    if the port associated with the class is already open.  The port is also
+    configured to the current settings, as stored in the Settings structure.
 */
 bool QextSerialPort::open(OpenMode mode)
 {
@@ -719,7 +720,7 @@ QextSerialPort::~QextSerialPort()
 }
 
 /*!
-    Sets the flow control used by the port.  Possible values of flow are:
+    Sets the flow control used by the port to \a flow.  Possible values of flow are:
     \code
         FLOW_OFF            No flow control
         FLOW_HARDWARE       Hardware (RTS/CTS) flow control
@@ -735,7 +736,7 @@ void QextSerialPort::setFlowControl(FlowType flow)
 }
 
 /*!
-    Sets the parity associated with the serial port.  The possible values of parity are:
+    Sets the parity associated with the serial port to \a parity.  The possible values of parity are:
     \code
         PAR_SPACE       Space Parity
         PAR_MARK        Mark Parity
@@ -753,7 +754,7 @@ void QextSerialPort::setParity(ParityType parity)
 }
 
 /*!
-    Sets the number of data bits used by the serial port.  Possible values of dataBits are:
+    Sets the number of data bits used by the serial port to \a dataBits.  Possible values of dataBits are:
     \code
         DATA_5      5 data bits
         DATA_6      6 data bits
@@ -778,7 +779,7 @@ void QextSerialPort::setDataBits(DataBitsType dataBits)
 }
 
 /*!
-    Sets the number of stop bits used by the serial port.  Possible values of stopBits are:
+    Sets the number of stop bits used by the serial port to \a stopBits.  Possible values of stopBits are:
     \code
         STOP_1      1 stop bit
         STOP_1_5    1.5 stop bits
@@ -802,7 +803,7 @@ void QextSerialPort::setStopBits(StopBitsType stopBits)
 }
 
 /*!
-    Sets the baud rate of the serial port.  Note that not all rates are applicable on
+    Sets the baud rate of the serial port to \a baudRate.  Note that not all rates are applicable on
     all platforms.  The following table shows translations of the various baud rate
     constants on Windows(including NT/2000) and POSIX platforms.  Speeds marked with an *
     are speeds that are usable on both Windows and POSIX.
@@ -846,13 +847,16 @@ void QextSerialPort::setBaudRate(BaudRateType baudRate)
 }
 
 /*!
-  Sets the baud rate of the serial port. Be careful when using this function.
+  Sets the baud rate of the serial port to \a baudRate. Be careful
+  when using this function.
 
-  Under Posix System, this value will tranfer to ::cfsetispeed()
+  Under Posix System, this value will tranfer to ::cfsetispeed(). So you can directly
+  using B1200/B1800/...
 
-  Under Windows System, this value will assigned to DCB's BaudRate member.
+  Under Windows System, this value will assigned to DCB's BaudRate member. Macros such
+  as CBR_1200/CBR_2400/... can be used directly.
 
-  \sa setBaudRate()
+  \sa setBaudRate(), customBaudRate()
 */
 void QextSerialPort::setCustomBaudRate(int baudRate)
 {
@@ -869,7 +873,7 @@ void QextSerialPort::setCustomBaudRate(int baudRate)
 /*!
     For Unix:
 
-    Sets the read and write timeouts for the port to millisec milliseconds.
+    Sets the read and write timeouts for the port to \a millisec milliseconds.
     Note that this is a per-character timeout, i.e. the port will wait this long for each
     individual character, not for the whole read operation.  This timeout also applies to the
     bytesWaiting() function.
@@ -885,7 +889,7 @@ void QextSerialPort::setCustomBaudRate(int baudRate)
 
     For Windows:
 
-    Sets the read and write timeouts for the port to millisec milliseconds.
+    Sets the read and write timeouts for the port to \a millisec milliseconds.
     Setting 0 indicates that timeouts are not used for read nor write operations;
     however read() and write() functions will still block. Set -1 to provide
     non-blocking behaviour (read() and write() will return immediately).
@@ -901,7 +905,7 @@ void QextSerialPort::setTimeout(long millisec)
 }
 
 /*!
-    Sets DTR line to the requested state (high by default).  This function will have no effect if
+    Sets DTR line to the requested state (\a set default to high).  This function will have no effect if
     the port associated with the class is not currently open.
 */
 void QextSerialPort::setDtr(bool set)
