@@ -50,6 +50,106 @@
 #  include <QtCore/qt_windows.h>
 #endif
 
+// This is QextSerialPort's read buffer, needed by posix system.
+// ref: QRingBuffer & QIODevicePrivateLinearBuffer
+class QextReadBuffer
+{
+public:
+    inline QextReadBuffer(size_t growth=4096)
+        : len(0), first(0), buf(0), capacity(0), basicBlockSize(growth) {
+    }
+
+    ~QextReadBuffer() {
+        delete [] buf;
+    }
+
+    inline void clear() {
+        first = buf;
+        len = 0;
+    }
+
+    inline int size() const {
+        return len;
+    }
+
+    inline bool isEmpty() const {
+        return len == 0;
+    }
+
+    inline int read(char* target, int size) {
+        int r = qMin(size, len);
+        if (r == 1) {
+            *target = *first;
+            --len;
+            ++first;
+        } else {
+            memcpy(target, first, r);
+            len -= r;
+            first += r;
+        }
+        return r;
+    }
+
+    inline char* reserve(size_t size) {
+        if ((first - buf) + len + size > capacity) {
+            size_t newCapacity = qMax(capacity, basicBlockSize);
+            while (newCapacity < size)
+                newCapacity *= 2;
+            if (newCapacity > capacity) {
+                // allocate more space
+                char* newBuf = new char[newCapacity];
+                memmove(newBuf, first, len);
+                delete [] buf;
+                buf = newBuf;
+                capacity = newCapacity;
+            } else {
+                // shift any existing data to make space
+                memmove(buf, first, len);
+            }
+            first = buf;
+        }
+        char* writePtr = first + len;
+        len += size;
+        return writePtr;
+    }
+
+    inline void chop(int size) {
+        if (size >= len) {
+            clear();
+        } else {
+            len -= size;
+        }
+    }
+
+    inline void squeeze() {
+        if (first != buf) {
+            memmove(buf, first, len);
+            first = buf;
+        }
+        size_t newCapacity = basicBlockSize;
+        while (newCapacity < size_t(len))
+            newCapacity *= 2;
+        if (newCapacity < capacity) {
+            realloc(buf, newCapacity);
+            capacity = newCapacity;
+        }
+    }
+
+    inline QByteArray readAll() {
+        char* f = first;
+        int l = len;
+        clear();
+        return QByteArray(f, l);
+    }
+
+private:
+    int len;
+    char* first;
+    char* buf;
+    size_t capacity;
+    size_t basicBlockSize;
+};
+
 class QextWinEventNotifier;
 class QWinEventNotifier;
 class QReadWriteLock;
@@ -75,6 +175,7 @@ public:
     mutable QReadWriteLock lock;
     QString port;
     QextPortSettings Settings;
+    QextReadBuffer readBuffer;
     int settingsDirtyFlags;
     ulong lastErr;
     QextSerialPort::QueryMode _queryMode;
@@ -129,6 +230,7 @@ public:
 #ifdef Q_OS_WIN
     void _q_onWinEvent(HANDLE h);
 #endif
+    void _q_canRead();
 
     QextSerialPort * q_ptr;
 };

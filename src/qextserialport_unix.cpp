@@ -88,7 +88,7 @@ bool QextSerialPortPrivate::open_sys(QIODevice::OpenMode mode)
 
         if (_queryMode == QextSerialPort::EventDriven) {
             readNotifier = new QSocketNotifier(fd, QSocketNotifier::Read, q);
-            q->connect(readNotifier, SIGNAL(activated(int)), q, SIGNAL(readyRead()));
+            q->connect(readNotifier, SIGNAL(activated(int)), q, SLOT(_q_canRead()));
         }
         return true;
     } else {

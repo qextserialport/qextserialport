@@ -81,7 +81,7 @@ void Dialog::changeEvent(QEvent *e)
     }
 }
 
-void Dialog::onPortNameChanged(const QString &name)
+void Dialog::onPortNameChanged(const QString & /*name*/)
 {
     if (port->isOpen()) {
         port->close();
@@ -148,10 +148,12 @@ void Dialog::onSendButtonClicked()
 
 void Dialog::onReadyRead()
 {
-    if (port->queryMode()==QextSerialPort::EventDriven){
+    //EventDriven test.
+    if (qApp->arguments().contains("--debug") && port->queryMode()==QextSerialPort::EventDriven){
         ui->recvEdit->appendPlainText(QString::number(port->bytesAvailable()));
         return;
     }
+
     if (port->bytesAvailable()) {
         ui->recvEdit->moveCursor(QTextCursor::End);
         ui->recvEdit->insertPlainText(QString::fromLatin1(port->readAll()));

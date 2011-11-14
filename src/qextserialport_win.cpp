@@ -289,7 +289,7 @@ void QextSerialPortPrivate::_q_onWinEvent(HANDLE h)
     if(h == overlap.hEvent) {
         if (eventMask & EV_RXCHAR) {
             if (q->sender() != q && bytesAvailable_sys() > 0)
-                Q_EMIT q->readyRead();
+                _q_canRead();
         }
         if (eventMask & EV_TXEMPTY) {
             /*

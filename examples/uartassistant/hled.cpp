@@ -155,7 +155,7 @@ void HLed::blinkToggle()
     update();
 }
 
-void HLed::paintEvent(QPaintEvent* event)
+void HLed::paintEvent(QPaintEvent* /* event*/)
 {
     if (paintCachedPixmap())
     {

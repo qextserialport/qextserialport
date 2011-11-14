@@ -274,6 +274,20 @@ void QextSerialPortPrivate::setPortSettings(const QextPortSettings &settings, bo
         updatePortSettings();
 }
 
+
+void QextSerialPortPrivate::_q_canRead()
+{
+    qint64 maxSize = bytesAvailable_sys();
+    if (maxSize > 0) {
+        char * writePtr = readBuffer.reserve(size_t(maxSize));
+        qint64 bytesRead = readData_sys(writePtr, maxSize);
+        if (bytesRead < maxSize)
+            readBuffer.chop(maxSize - bytesRead);
+        Q_Q(QextSerialPort);
+        Q_EMIT q->readyRead();
+    }
+}
+
 /*! \class QextSerialPort
 
     \brief The QextSerialPort class encapsulates a serial port on both POSIX and Windows systems.
@@ -460,6 +474,7 @@ void QextSerialPort::close()
         //  so the aboutToClose() signal is emitted at the proper time
         QIODevice::close(); // mark ourselves as closed
         d->close_sys();
+        d->readBuffer.clear();
     }
 }
 
@@ -484,10 +499,12 @@ qint64 QextSerialPort::bytesAvailable() const
     QWriteLocker locker(&d_func()->lock);
     if (isOpen()) {
         qint64 bytes = d_func()->bytesAvailable_sys();
-        if (bytes != -1)
-            return bytes + QIODevice::bytesAvailable();
-        else
+        if (bytes != -1) {
+            return bytes + d_func()->readBuffer.size()
+                    + QIODevice::bytesAvailable();
+        } else {
             return -1;
+        }
     }
     return 0;
 }
@@ -919,7 +936,17 @@ qint64 QextSerialPort::readData(char *data, qint64 maxSize)
 {
     Q_D(QextSerialPort);
     QWriteLocker locker(&d->lock);
-    return d->readData_sys(data, maxSize);
+    qint64 bytesFromBuffer = 0;
+    if (!d->readBuffer.isEmpty()) {
+        bytesFromBuffer = d->readBuffer.read(data, maxSize);
+        if (bytesFromBuffer == maxSize)
+            return bytesFromBuffer;
+    }
+    qint64 bytesFromDevice = d->readData_sys(data+bytesFromBuffer, maxSize-bytesFromBuffer);
+    if (bytesFromDevice < 0) {
+        return -1;
+    }
+    return bytesFromBuffer + bytesFromDevice;
 }
 
 /*! \reimp
