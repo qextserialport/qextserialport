@@ -35,6 +35,67 @@
 #include <QtCore/QReadLocker>
 #include <QtCore/QWriteLocker>
 
+/*!
+    \enum BaudRateType
+
+    baud rate values support.
+*/
+
+/*!
+    \enum DataBitsType
+*/
+
+/*!
+    \enum ParityType
+*/
+
+/*!
+    \enum StopBitsType
+
+    \value STOP_1
+    \value STOP_1_5
+    \value STOP_2
+*/
+
+/*!
+    \enum FlowType
+*/
+
+/*!
+    \class PortSettings
+
+    \brief The PortSettings class contain port settings
+
+    Structure to contain port settings.
+*/
+
+
+/*
+  \class QextPortSettings
+
+    \brief The QextPortSettings class contain port settings
+
+    structure to contain port settings.
+*/
+
+QextPortSettings::QextPortSettings(BaudRateType b, DataBitsType d, ParityType p
+                                   ,StopBitsType s, FlowType f, long timeout, int customBaudRate)
+    :BaudRate(b), DataBits(d), Parity(p), StopBits(s), FlowControl(f)
+    , Timeout_Millisec(timeout), CustomBaudRate(customBaudRate)
+{
+    if (BaudRate==BAUDCustom && customBaudRate ==-1) {
+        QESP_WARNING("QextPortSettings: Wrong custom BaudRate");
+        BaudRate = BAUD9600;
+    }
+}
+
+QextPortSettings::QextPortSettings(const PortSettings &s)
+    :BaudRate(s.BaudRate), DataBits(s.DataBits), Parity(s.Parity), StopBits(s.StopBits)
+    , FlowControl(s.FlowControl), Timeout_Millisec(s.Timeout_Millisec), CustomBaudRate(-1)
+{
+
+}
+
 QextSerialPortPrivate::QextSerialPortPrivate(QextSerialPort *q)
     :lock(QReadWriteLock::Recursive), q_ptr(q)
 {
@@ -422,7 +483,7 @@ QextSerialPort::QextSerialPort(const QString & name, QextSerialPort::QueryMode m
 
     Constructs a port with default name and specified settings.
 */
-QextSerialPort::QextSerialPort(const QextPortSettings& settings, QextSerialPort::QueryMode mode, QObject *parent)
+QextSerialPort::QextSerialPort(const PortSettings& settings, QextSerialPort::QueryMode mode, QObject *parent)
     : QIODevice(parent), d_ptr(new QextSerialPortPrivate(this))
 {
     Q_D(QextSerialPort);
@@ -435,7 +496,7 @@ QextSerialPort::QextSerialPort(const QextPortSettings& settings, QextSerialPort:
 
     Constructs a port with specified name and settings.
 */
-QextSerialPort::QextSerialPort(const QString & name, const QextPortSettings& settings, QextSerialPort::QueryMode mode, QObject *parent)
+QextSerialPort::QextSerialPort(const QString & name, const PortSettings& settings, QextSerialPort::QueryMode mode, QObject *parent)
     : QIODevice(parent), d_ptr(new QextSerialPortPrivate(this))
 {
     Q_D(QextSerialPort);
@@ -917,7 +978,8 @@ void QextSerialPort::setDtr(bool set)
 }
 
 /*!
-    Sets RTS line to the requested state (high by default).  This function will have no effect if
+    Sets RTS line to the requested state \a set (high by default).
+    This function will have no effect if
     the port associated with the class is not currently open.
 */
 void QextSerialPort::setRts(bool set)

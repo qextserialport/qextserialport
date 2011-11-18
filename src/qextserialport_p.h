@@ -154,6 +154,28 @@ private:
     size_t basicBlockSize;
 };
 
+
+class QextPortSettings
+{
+public:
+    explicit QextPortSettings(BaudRateType b=BAUD9600
+            , DataBitsType d=DATA_8
+            , ParityType p=PAR_NONE
+            , StopBitsType s=STOP_1
+            , FlowType f=FLOW_OFF
+            , long timeout=10
+            , int customBaudRate=-1);
+    QextPortSettings(const PortSettings &);
+
+    BaudRateType BaudRate;
+    DataBitsType DataBits;
+    ParityType Parity;
+    StopBitsType StopBits;
+    FlowType FlowControl;
+    long Timeout_Millisec;
+    int CustomBaudRate;
+};
+
 class QextWinEventNotifier;
 class QWinEventNotifier;
 class QReadWriteLock;
