@@ -314,8 +314,9 @@ void QextSerialPortPrivate::setTimeout(long millisec, bool update)
 
 void QextSerialPortPrivate::setCustomBaudRate(int customBaudRate, bool update)
 {
+    if (customBaudRate != -1)
+        Settings.BaudRate = BAUDCustom;
     Settings.CustomBaudRate = customBaudRate;
-    Settings.BaudRate = BAUDCustom;
     settingsDirtyFlags |= DFE_BaudRate;
     if (update && q_func()->isOpen())
         updatePortSettings();
