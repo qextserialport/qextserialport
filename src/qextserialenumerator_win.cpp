@@ -39,11 +39,10 @@
 #include <dbt.h>
 #include "qextserialport.h"
 
-#ifdef QT_GUI_LIB
-#include <QtGui/QWidget>
+#ifdef HAS_QWIDGET
+#include <QWidget>
 class QextSerialRegistrationWidget : public QWidget
 {
-    Q_OBJECT
 public:
     QextSerialRegistrationWidget(QextSerialEnumeratorPrivate* qese) {
         this->qese = qese;
@@ -63,13 +62,13 @@ private:
     QextSerialEnumeratorPrivate* qese;
 };
 
-#endif // QT_GUI_LIB
+#endif // HAS_QWIDGET
 
 void QextSerialEnumeratorPrivate::platformSpecificInit()
 {
-#ifdef QT_GUI_LIB
+#ifdef HAS_QWIDGET
     notificationWidget = 0;
-#endif // QT_GUI_LIB
+#endif // HAS_QWIDGET
 }
 
 /*!
@@ -77,7 +76,7 @@ void QextSerialEnumeratorPrivate::platformSpecificInit()
 */
 void QextSerialEnumeratorPrivate::platformSpecificDestruct()
 {
-#ifdef QT_GUI_LIB
+#ifdef HAS_QWIDGET
     if( notificationWidget )
         delete notificationWidget;
 #endif
@@ -218,10 +217,11 @@ QList<QextPortInfo> QextSerialEnumeratorPrivate::getPorts_sys()
 */
 bool QextSerialEnumeratorPrivate::setUpNotifications_sys(bool setup)
 {
-#ifndef QT_GUI_LIB
+#ifndef HAS_QWIDGET
+    Q_UNUSED(setup)
     QESP_WARNING("QextSerialEnumerator: GUI not enabled - can't register for device notifications.");
     return false;
-#endif
+#else
     Q_Q(QextSerialEnumerator);
     if(setup && notificationWidget) //already setup
         return true;
@@ -232,7 +232,7 @@ bool QextSerialEnumeratorPrivate::setUpNotifications_sys(bool setup)
     dbh.dbcc_size = sizeof(dbh);
     dbh.dbcc_devicetype = DBT_DEVTYP_DEVICEINTERFACE;
     ::CopyMemory(&dbh.dbcc_classguid, &GUID_DEVCLASS_PORTS, sizeof(GUID));
-    if(::RegisterDeviceNotification(notificationWidget->winId(), &dbh, DEVICE_NOTIFY_WINDOW_HANDLE ) == NULL) {
+    if(::RegisterDeviceNotification((HWND)notificationWidget->winId(), &dbh, DEVICE_NOTIFY_WINDOW_HANDLE ) == NULL) {
         QESP_WARNING() << "RegisterDeviceNotification failed:" << GetLastError();
         return false;
     }
@@ -241,6 +241,7 @@ bool QextSerialEnumeratorPrivate::setUpNotifications_sys(bool setup)
     foreach(QextPortInfo port, getPorts_sys())
       Q_EMIT q->deviceDiscovered(port);
     return true;
+#endif
 }
 
 LRESULT QextSerialEnumeratorPrivate::onDeviceChanged( WPARAM wParam, LPARAM lParam )
@@ -287,5 +288,3 @@ bool QextSerialEnumeratorPrivate::matchAndDispatchChangedDevice(const QString & 
     }
     return rv;
 }
-
-#include "qextserialenumerator_win.moc"

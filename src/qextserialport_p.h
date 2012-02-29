@@ -110,7 +110,7 @@ public:
             first = buf;
         }
         char* writePtr = first + len;
-        len += size;
+        len += (int)size;
         return writePtr;
     }
 
@@ -217,7 +217,7 @@ public:
     OVERLAPPED overlap;
     COMMCONFIG Win_CommConfig;
     COMMTIMEOUTS Win_CommTimeouts;
-#  ifndef QESP_NO_QT_PRIVATE
+#  ifndef QESP_NO_QT4_PRIVATE
     QWinEventNotifier *winEventNotifier;
 #  else
     QextWinEventNotifier *winEventNotifier;

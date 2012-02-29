@@ -1,6 +1,7 @@
 TEMPLATE = app
 DEPENDPATH += .
-
+QT += core gui
+contains(QT_VERSION, ^5\\..*\\..*): QT += widgets
 HEADERS += MainWindow.h \
 		MessageWindow.h \
         QespTest.h

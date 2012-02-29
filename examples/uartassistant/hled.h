@@ -1,7 +1,7 @@
 #ifndef HLED_H
 #define HLED_H
 
-#include <QtGui/QWidget>
+#include <QWidget>
 
 class QColor;
 class QTimer;
