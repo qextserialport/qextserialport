@@ -33,7 +33,9 @@
 
 #include <QtCore/QIODevice>
 #include "qextserialport_global.h"
-
+#ifdef Q_OS_MAC
+  #include <termios.h> //for B76800
+#endif
 /*line status constants*/
 // ### QESP2.0 move to enum
 #define LS_CTS  0x01

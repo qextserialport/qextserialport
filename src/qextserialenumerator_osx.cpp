@@ -174,23 +174,20 @@ bool QextSerialEnumeratorPrivate::getServiceDetailsOSX( io_object_t service, Qex
 }
 
 // IOKit callbacks registered via setupNotifications()
-void deviceDiscoveredCallbackOSX( void *ctxt, io_iterator_t serialPortIterator );
-void deviceTerminatedCallbackOSX( void *ctxt, io_iterator_t serialPortIterator );
-
 void deviceDiscoveredCallbackOSX( void *ctxt, io_iterator_t serialPortIterator )
 {
-    QextSerialEnumerator* qese = (QextSerialEnumerator*)ctxt;
+    QextSerialEnumeratorPrivate* d = (QextSerialEnumeratorPrivate*)ctxt;
     io_object_t serialService;
     while ((serialService = IOIteratorNext(serialPortIterator)))
-        qese->onDeviceDiscoveredOSX(serialService);
+        d->onDeviceDiscoveredOSX(serialService);
 }
 
 void deviceTerminatedCallbackOSX( void *ctxt, io_iterator_t serialPortIterator )
 {
-    QextSerialEnumerator* qese = (QextSerialEnumerator*)ctxt;
+    QextSerialEnumeratorPrivate* d = (QextSerialEnumeratorPrivate*)ctxt;
     io_object_t serialService;
     while ((serialService = IOIteratorNext(serialPortIterator)))
-        qese->onDeviceTerminatedOSX(serialService);
+        d->onDeviceTerminatedOSX(serialService);
 }
 
 /*
