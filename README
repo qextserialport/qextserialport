@@ -1,38 +1,103 @@
-1) introduction
+http://code.google.com/r/dbzhang800-qextserialport/
 
-    QextSerialPort provides an interface to old fashioned serial ports for
-    Qt-based applications. It currently supports Mac OS X, Windows, Linux,
-    FreeBSD.
+= About QextSerialPort =
 
-    This is Debao's clone. Improvements have been made for the windows 
-    environment. This Clone can theoretically run on other platforms, 
-    but not guaranteed.
+QextSerialPort provides an interface to old fashioned serial ports for Qt-based applications. It currently supports Mac OS X, Windows, Linux, FreeBSD. 
 
-    You can use QexSerailPort in three ways by writing a config.pri file.
-    (read config_example.pri for reference):
-        * shared library
-        * static library
-        * just include the source files
-    
-    Tested on:
-        * Qt 4.7 / Windows XP / MSVC 2008
-        * Qt 4.7 / Windows XP / MinGW
-        * QT 4.7 / Linux / GCC
-    
-2) build(examples and library if any)
-    * qmake
-    * make (or nmake)
+Please note that:
 
-3) build documents
-    Run qdoc3 from the doc directory.
-    * qdoc3 qextserialport.qdocconf
- 
-4) use
-    No matter which way you selected, all you need is: Add following line to
-    your qmake project file:
-       include(pathToPri/qextserialport.pri)
+ * Revision {{{0.9.x}}} is Qt 2 & 3 compatible. 
+ * Revision {{{1.x.x}}} is Qt 4 compatible.
 
-5) for msvc user
-    If you use vcproj instead of nmake, you can try following line:
-        qmake -tp vc -r
-    But this works not well if you use qextserialport as shared or static library.
+And I hope that:
+
+ * Revision {{{2.x.x}}} will be Qt 5 compatible 
+
+But I am not the owner of the project, so I have no right to release new version. 
+
+= About dbzhang800-QextSerialPort =
+
+This is Debao's clone, and I hope that it will be usefull for you.
+
+== Refactor ==
+
+I have made some code refactoring for QextSerialPort
+
+ # D-pointer and Q_PRIVATE_SLOT are used to moving private members from QextSerialPort to QextSerialPortPrivate
+ # qdoc3 instead of doxygen is used for generating documents
+ # MIT license header add to all sources files
+ # add a helper class QextWinEventNotifier for windows user, when user's SDK doesnot contain Qt's private files, this class will be auto selected.
+ # Support platform custom baudrate. Macros such as B230400 / B460800 can be used directly if you OS support it.
+ # many bugs have been fixed.
+ # source compatible with old versions.
+
+== How to use (1) ==
+
+ * Download the source code. Note: [http://mercurial.selenic.com/downloads/ Mercurial] is needed .
+
+            hg clone https://code.google.com/r/dbzhang800-qextserialport/
+
+
+ * Put the source code in any directory you like. For example, 3rdparty:
+
+            |-- project.pro
+            |-- ....
+            |-- 3rdparty\
+            |     |-- qextserialport\
+            |     |
+
+ * Add following line to your qmake project file:
+
+            include(3rdparty/qextserialport/src/qextserialport.pri)
+
+ * Using QextSerialPort in your code. Enjoy it!
+
+            #include "qextserialport.h"
+            ....
+            QextSerialPort * port = new QextSerialPort();
+            ....
+            
+== How to use (2) ==
+
+It's very easy to compile QextSerialPort directly into your application(see above section), however, we would prefer to use it as a static or shared library.
+
+ * Download the source code, and put it in any location you like.
+
+           |-- yourpath\
+           |     |-- qextserialport\
+           |     |
+
+ * Create a config.pri file, and put into qextserialport's directory.
+
+           |-- yourpath\
+           |     |-- qextserialport\
+           |     |     |-- config.pri
+           
+  * Contents of config_example.pri
+  
+           # uncomment the following line if you want to use qextserialport as library
+           # QEXTSERIALPORT_LIBRARY = yes
+
+           # uncomment the following line too if you want to use it as static library
+           # QEXTSERIALPORT_STATIC = yes
+
+ * Goto qextserialport/buildlib, and run following command to generate library.
+
+           qmake
+           make (or nmake)
+
+ * Add following line to your qmake project file. Enjoy it!
+
+           include(pathToQextserialport/src/qextserialport.pri)
+
+== Build (optional) ==
+
+ * Run qmake from the toplevel directory.(If your has create a config.pri file properly, this will generate the library, and then all examples will use the library. Otherwise, qextserialport will be directly compiled into the examples)
+
+           qmake (or qmake -r)
+           make (or nmake)
+
+ * Run qdoc3 from the doc directory.
+
+           qdoc3 qextserialport.qdocconf
+

@@ -67,6 +67,7 @@ Dialog::Dialog(QWidget *parent) :
 Dialog::~Dialog()
 {
     delete ui;
+    delete port;
 }
 
 void Dialog::changeEvent(QEvent *e)
