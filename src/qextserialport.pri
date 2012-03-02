@@ -38,7 +38,7 @@ qextserialport-library:!qextserialport-buildlib {
     }
 
     # For building shared library only
-    contains(TEMPLATE, lib):contains(CONFIG, shared): DEFINES += QEXTSERIALPORT_BUILD_SHARED
+    contains(TEMPLATE, .*lib):contains(CONFIG, shared): DEFINES += QEXTSERIALPORT_BUILD_SHARED
 }
 
 macx:LIBS              += -framework IOKit -framework CoreFoundation
