@@ -158,7 +158,7 @@ static bool getDeviceDetailsWin( QextPortInfo* portInfo, HDEVINFO devInfo, PSP_D
     QString hardwareIDs = getDeviceProperty(devInfo, devData, SPDRP_HARDWAREID);
     HKEY devKey = ::SetupDiOpenDevRegKey(devInfo, devData, DICS_FLAG_GLOBAL, 0, DIREG_DEV, KEY_QUERY_VALUE);
     portInfo->portName = getRegKeyValue(devKey, TEXT("PortName"));
-    QRegExp idRx("VID_(\\w+)&PID_(\\w+)");
+    QRegExp idRx(QLatin1String("VID_(\\w+)&PID_(\\w+)"));
     if(hardwareIDs.toUpper().contains(idRx)) {
         bool dummy;
         portInfo->vendorID = idRx.cap(1).toInt(&dummy, 16);
@@ -251,7 +251,7 @@ LRESULT QextSerialEnumeratorPrivate::onDeviceChanged( WPARAM wParam, LPARAM lPar
         if(pHdr->dbch_devicetype == DBT_DEVTYP_DEVICEINTERFACE ) {
             PDEV_BROADCAST_DEVICEINTERFACE pDevInf = (PDEV_BROADCAST_DEVICEINTERFACE)pHdr;
              // delimiters are different across APIs...change to backslash.  ugh.
-            QString deviceID = TCHARToQString(pDevInf->dbcc_name).toUpper().replace("#", "\\");
+            QString deviceID = TCHARToQString(pDevInf->dbcc_name).toUpper().replace(QLatin1String("#"), QLatin1String("\\"));
 
             matchAndDispatchChangedDevice(deviceID, GUID_DEVCLASS_PORTS, wParam);
         }

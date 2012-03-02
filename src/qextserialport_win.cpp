@@ -70,10 +70,10 @@ void QextSerialPortPrivate::platformSpecificDestruct() {
 */
 static QString fullPortNameWin(const QString & name)
 {
-    QRegExp rx("^COM(\\d+)");
+    QRegExp rx(QLatin1String("^COM(\\d+)"));
     QString fullName(name);
     if(fullName.contains(rx))
-        fullName.prepend("\\\\.\\");
+        fullName.prepend(QLatin1String("\\\\.\\"));
     return fullName;
 }
 
