@@ -47,9 +47,9 @@ QList<QextPortInfo> QextSerialEnumeratorPrivate::getPorts_sys()
     QList<QextPortInfo> infoList;
 #ifdef Q_OS_LINUX
     QStringList portNamePrefixes, portNameList;
-    portNamePrefixes << "ttyS*"; // list normal serial ports first
+    portNamePrefixes << QLatin1String("ttyS*"); // list normal serial ports first
 
-    QDir dir("/dev");
+    QDir dir(QLatin1String("/dev"));
     portNameList = dir.entryList(portNamePrefixes, (QDir::System | QDir::Files), QDir::Name);
 
     // remove the values which are not serial ports for e.g.  /dev/ttysa
@@ -68,24 +68,24 @@ QList<QextPortInfo> QextSerialEnumeratorPrivate::getPorts_sys()
     // (USB-serial, bluetooth-serial, 18F PICs, and so on)
     // if you know an other name prefix for serial ports please let us know
     portNamePrefixes.clear();
-    portNamePrefixes << "ttyACM*" << "ttyUSB*" << "rfcomm*";
+    portNamePrefixes << QLatin1String("ttyACM*") << QLatin1String("ttyUSB*") << QLatin1String("rfcomm*");
     portNameList.append(dir.entryList(portNamePrefixes, (QDir::System | QDir::Files), QDir::Name));
 
     foreach (QString str , portNameList) {
         QextPortInfo inf;
-        inf.physName = "/dev/"+str;
+        inf.physName = QLatin1String("/dev/")+str;
         inf.portName = str;
 
-        if (str.contains("ttyS")) {
-            inf.friendName = "Serial port "+str.remove(0, 4);
+        if (str.contains(QLatin1String("ttyS"))) {
+            inf.friendName = QLatin1String("Serial port ")+str.remove(0, 4);
         }
-        else if (str.contains("ttyUSB")) {
-            inf.friendName = "USB-serial adapter "+str.remove(0, 6);
+        else if (str.contains(QLatin1String("ttyUSB"))) {
+            inf.friendName = QLatin1String("USB-serial adapter ")+str.remove(0, 6);
         }
-        else if (str.contains("rfcomm")) {
-            inf.friendName = "Bluetooth-serial adapter "+str.remove(0, 6);
+        else if (str.contains(QLatin1String("rfcomm"))) {
+            inf.friendName = QLatin1String("Bluetooth-serial adapter ")+str.remove(0, 6);
         }
-        inf.enumName = "/dev"; // is there a more helpful name for this?
+        inf.enumName = QLatin1String("/dev"); // is there a more helpful name for this?
         infoList.append(inf);
     }
 #endif

@@ -439,28 +439,28 @@ QextSerialPort::QextSerialPort(QextSerialPort::QueryMode mode, QObject *parent)
     : QIODevice(parent), d_ptr(new QextSerialPortPrivate(this))
 {
 #ifdef Q_OS_WIN
-    setPortName("COM1");
+    setPortName(QLatin1String("COM1"));
 
 #elif defined(Q_OS_IRIX)
-    setPortName("/dev/ttyf1");
+    setPortName(QLatin1String("/dev/ttyf1"));
 
 #elif defined(Q_OS_HPUX)
-    setPortName("/dev/tty1p0");
+    setPortName(QLatin1String("/dev/tty1p0"));
 
 #elif defined(Q_OS_SOLARIS)
-    setPortName("/dev/ttya");
+    setPortName(QLatin1String("/dev/ttya"));
 
 #elif defined(Q_OS_OSF) //formally DIGITAL UNIX
-    setPortName("/dev/tty01");
+    setPortName(QLatin1String("/dev/tty01"));
 
 #elif defined(Q_OS_FREEBSD)
-    setPortName("/dev/ttyd1");
+    setPortName(QLatin1String("/dev/ttyd1"));
 
 #elif defined(Q_OS_OPENBSD)
-    setPortName("/dev/tty00");
+    setPortName(QLatin1String("/dev/tty00"));
 
 #else
-    setPortName("/dev/ttyS0");
+    setPortName(QLatin1String("/dev/ttyS0"));
 #endif
     setQueryMode(mode);
 }
@@ -750,23 +750,23 @@ QString QextSerialPort::errorString()
     Q_D(QextSerialPort);
     QReadLocker locker(&d->lock);
     switch(d->lastErr) {
-        case E_NO_ERROR: return "No Error has occurred";
-        case E_INVALID_FD: return "Invalid file descriptor (port was not opened correctly)";
-        case E_NO_MEMORY: return "Unable to allocate memory tables (POSIX)";
-        case E_CAUGHT_NON_BLOCKED_SIGNAL: return "Caught a non-blocked signal (POSIX)";
-        case E_PORT_TIMEOUT: return "Operation timed out (POSIX)";
-        case E_INVALID_DEVICE: return "The file opened by the port is not a valid device";
-        case E_BREAK_CONDITION: return "The port detected a break condition";
-        case E_FRAMING_ERROR: return "The port detected a framing error (usually caused by incorrect baud rate settings)";
-        case E_IO_ERROR: return "There was an I/O error while communicating with the port";
-        case E_BUFFER_OVERRUN: return "Character buffer overrun";
-        case E_RECEIVE_OVERFLOW: return "Receive buffer overflow";
-        case E_RECEIVE_PARITY_ERROR: return "The port detected a parity error in the received data";
-        case E_TRANSMIT_OVERFLOW: return "Transmit buffer overflow";
-        case E_READ_FAILED: return "General read operation failure";
-        case E_WRITE_FAILED: return "General write operation failure";
-        case E_FILE_NOT_FOUND: return "The "+this->portName()+" file doesn't exists";
-        default: return QString("Unknown error: %1").arg(d->lastErr);
+        case E_NO_ERROR: return QLatin1String("No Error has occurred");
+        case E_INVALID_FD: return QLatin1String("Invalid file descriptor (port was not opened correctly)");
+        case E_NO_MEMORY: return QLatin1String("Unable to allocate memory tables (POSIX)");
+        case E_CAUGHT_NON_BLOCKED_SIGNAL: return QLatin1String("Caught a non-blocked signal (POSIX)");
+        case E_PORT_TIMEOUT: return QLatin1String("Operation timed out (POSIX)");
+        case E_INVALID_DEVICE: return QLatin1String("The file opened by the port is not a valid device");
+        case E_BREAK_CONDITION: return QLatin1String("The port detected a break condition");
+        case E_FRAMING_ERROR: return QLatin1String("The port detected a framing error (usually caused by incorrect baud rate settings)");
+        case E_IO_ERROR: return QLatin1String("There was an I/O error while communicating with the port");
+        case E_BUFFER_OVERRUN: return QLatin1String("Character buffer overrun");
+        case E_RECEIVE_OVERFLOW: return QLatin1String("Receive buffer overflow");
+        case E_RECEIVE_PARITY_ERROR: return QLatin1String("The port detected a parity error in the received data");
+        case E_TRANSMIT_OVERFLOW: return QLatin1String("Transmit buffer overflow");
+        case E_READ_FAILED: return QLatin1String("General read operation failure");
+    case E_WRITE_FAILED: return QLatin1String("General write operation failure");
+    case E_FILE_NOT_FOUND: return QString::fromLatin1("The %1 file doesn't exists").arg(this->portName());
+    default: return QString::fromLatin1("Unknown error: %1").arg(d->lastErr);
     }
 }
 

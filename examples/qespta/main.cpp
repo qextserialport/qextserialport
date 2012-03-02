@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
 	qInstallMsgHandler(MessageWindow::AppendMsgWrapper);
     //! [0]
 
-    MainWindow mainWindow("QextSerialPort Test Application");
+	MainWindow mainWindow(QLatin1String("QextSerialPort Test Application"));
 	mainWindow.show();
 	exec = app.exec();
 	return exec;

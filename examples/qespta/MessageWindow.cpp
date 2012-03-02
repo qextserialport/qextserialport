@@ -30,15 +30,15 @@ QString MessageWindow::QtMsgToQString(QtMsgType type, const char *msg)
 {
 	switch (type) {
 		case QtDebugMsg:
-			return QString("Debug: ")+QString(msg);
+			return QLatin1String("Debug: ")+QLatin1String(msg);
 		case QtWarningMsg:
-			return QString("Warning: ")+QString(msg);
+			return QLatin1String("Warning: ")+QLatin1String(msg);
 		case QtCriticalMsg:
-			return QString("Critical: ")+QString(msg);
+			return QLatin1String("Critical: ")+QLatin1String(msg);
 		case QtFatalMsg:
-			return QString("Fatal: ")+QString(msg);
+			return QLatin1String("Fatal: ")+QLatin1String(msg);
 		default:
-			return QString("Unrecognized message type: ")+QString(msg);
+			return QLatin1String("Unrecognized message type: ")+QLatin1String(msg);
 	}
 }
 
@@ -51,13 +51,13 @@ void MessageWindow::AppendMsgWrapper(QtMsgType type, const char* msg)
 	if (MessageWindow::MsgHandler != NULL)
 		return MessageWindow::MsgHandler->postMsgEvent(type, msg);
 	else
-		fprintf(stderr, MessageWindow::QtMsgToQString(type, msg).toAscii());
+		fprintf(stderr, MessageWindow::QtMsgToQString(type, msg).toLatin1().data());
 }
 
 void MessageWindow::customEvent(QEvent* event)
 {
-    if (static_cast<MessageWindow::EventType>(event->type()) == MessageWindow::MessageEventType)
-        msgTextEdit.append(dynamic_cast<MessageEvent* >(event)->msg);
+	if (static_cast<MessageWindow::EventType>(event->type()) == MessageWindow::MessageEventType)
+		msgTextEdit.append(dynamic_cast<MessageEvent* >(event)->msg);
 }
 
 void MessageWindow::postMsgEvent(QtMsgType type, const char* msg)
@@ -67,29 +67,29 @@ void MessageWindow::postMsgEvent(QtMsgType type, const char* msg)
 		case QtDebugMsg:
 			break;
 		case QtWarningMsg:
-			qmsg.prepend("<FONT color=\"#FF0000\">");
-			qmsg.append("</FONT>");
+			qmsg.prepend(QLatin1String("<FONT color=\"#FF0000\">"));
+			qmsg.append(QLatin1String("</FONT>"));
 			break;
 		case QtCriticalMsg:
-			if (QMessageBox::critical(this, "Critical Error", qmsg, 
+			if (QMessageBox::critical(this, QLatin1String("Critical Error"), qmsg,
 					QMessageBox::Ignore,
 					QMessageBox::Abort,
 					QMessageBox::NoButton) == QMessageBox::Abort)
 				abort(); // core dump
-			qmsg.prepend("<B><FONT color=\"#FF0000\">");
-			qmsg.append("</FONT></B>");
+			qmsg.prepend(QLatin1String("<B><FONT color=\"#FF0000\">"));
+			qmsg.append(QLatin1String("</FONT></B>"));
 			break;
 		case QtFatalMsg:
-			QMessageBox::critical(this, "Fatal Error", qmsg, QMessageBox::Ok, QMessageBox::NoButton, QMessageBox::NoButton);
+			QMessageBox::critical(this, QLatin1String("Fatal Error"), qmsg, QMessageBox::Ok, QMessageBox::NoButton, QMessageBox::NoButton);
 			abort(); // deliberately core dump
 	}
 	//it's impossible to change GUI directly from thread other than the main thread 
 	//so post message encapsulated by MessageEvent to the main thread's event queue
-    QCoreApplication::postEvent(this, new MessageEvent(qmsg));
+	QCoreApplication::postEvent(this, new MessageEvent(qmsg));
 }
 
 MessageEvent::MessageEvent(QString & msg):
-    QEvent(static_cast<QEvent::Type>(MessageWindow::MessageEventType))
+	QEvent(static_cast<QEvent::Type>(MessageWindow::MessageEventType))
 {
 	this->msg = msg;
 }

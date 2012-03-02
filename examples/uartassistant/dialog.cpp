@@ -12,35 +12,35 @@ Dialog::Dialog(QWidget *parent) :
     ui->setupUi(this);
 
 #ifdef Q_OS_WIN
-    ui->portBox->addItems(QStringList()<<"COM1"<<"COM2"<<"COM3"<<"COM4");
+    ui->portBox->addItems(QStringList()<<QLatin1String("COM1")<<QLatin1String("COM2")<<QLatin1String("COM3")<<QLatin1String("COM4"));
 #else
-    ui->portBox->addItems(QStringList()<<"/dev/ttyS0"<<"/dev/ttyS1"<<"/dev/ttyUSB0"<<"/dev/ttyUSB1");
+    ui->portBox->addItems(QStringList()<<QLatin1String("/dev/ttyS0")<<QLatin1String("/dev/ttyS1")<<QLatin1String("/dev/ttyUSB0")<<QLatin1String("/dev/ttyUSB1"));
 #endif
     //make sure user can input their own port name!
     ui->portBox->setEditable(true);
 
-    ui->baudRateBox->addItem("1200", BAUD1200);
-    ui->baudRateBox->addItem("2400", BAUD2400);
-    ui->baudRateBox->addItem("4800", BAUD4800);
-    ui->baudRateBox->addItem("9600", BAUD9600);
-    ui->baudRateBox->addItem("19200", BAUD19200);
+    ui->baudRateBox->addItem(QLatin1String("1200"), BAUD1200);
+    ui->baudRateBox->addItem(QLatin1String("2400"), BAUD2400);
+    ui->baudRateBox->addItem(QLatin1String("4800"), BAUD4800);
+    ui->baudRateBox->addItem(QLatin1String("9600"), BAUD9600);
+    ui->baudRateBox->addItem(QLatin1String("19200"), BAUD19200);
     ui->baudRateBox->setCurrentIndex(3);
 
-    ui->parityBox->addItem("NONE", PAR_NONE);
-    ui->parityBox->addItem("ODD", PAR_ODD);
-    ui->parityBox->addItem("EVEN", PAR_EVEN);
+    ui->parityBox->addItem(QLatin1String("NONE"), PAR_NONE);
+    ui->parityBox->addItem(QLatin1String("ODD"), PAR_ODD);
+    ui->parityBox->addItem(QLatin1String("EVEN"), PAR_EVEN);
 
-    ui->dataBitsBox->addItem("5", DATA_5);
-    ui->dataBitsBox->addItem("6", DATA_6);
-    ui->dataBitsBox->addItem("7", DATA_7);
-    ui->dataBitsBox->addItem("8", DATA_8);
+    ui->dataBitsBox->addItem(QLatin1String("5"), DATA_5);
+    ui->dataBitsBox->addItem(QLatin1String("6"), DATA_6);
+    ui->dataBitsBox->addItem(QLatin1String("7"), DATA_7);
+    ui->dataBitsBox->addItem(QLatin1String("8"), DATA_8);
     ui->dataBitsBox->setCurrentIndex(3);
 
-    ui->stopBitsBox->addItem("1", STOP_1);
-    ui->stopBitsBox->addItem("2", STOP_2);
+    ui->stopBitsBox->addItem(QLatin1String("1"), STOP_1);
+    ui->stopBitsBox->addItem(QLatin1String("2"), STOP_2);
 
-    ui->queryModeBox->addItem("Polling", QextSerialPort::Polling);
-    ui->queryModeBox->addItem("EventDriven", QextSerialPort::EventDriven);
+    ui->queryModeBox->addItem(QLatin1String("Polling"), QextSerialPort::Polling);
+    ui->queryModeBox->addItem(QLatin1String("EventDriven"), QextSerialPort::EventDriven);
 
     ui->led->turnOff();
 
@@ -150,7 +150,7 @@ void Dialog::onSendButtonClicked()
 void Dialog::onReadyRead()
 {
     //EventDriven test.
-    if (qApp->arguments().contains("--debug") && port->queryMode()==QextSerialPort::EventDriven){
+    if (qApp->arguments().contains(QLatin1String("--debug")) && port->queryMode()==QextSerialPort::EventDriven){
         ui->recvEdit->appendPlainText(QString::number(port->bytesAvailable()));
         return;
     }
