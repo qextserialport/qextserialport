@@ -196,7 +196,7 @@ void deviceTerminatedCallbackOSX( void *ctxt, io_iterator_t serialPortIterator )
 */
 void QextSerialEnumeratorPrivate::onDeviceDiscoveredOSX( io_object_t service )
 {
-    Q_Q(QextSerialEnumeratorPrivate);
+    Q_Q(QextSerialEnumerator);
     QextPortInfo info;
     info.vendorID = 0;
     info.productID = 0;
@@ -210,7 +210,7 @@ void QextSerialEnumeratorPrivate::onDeviceDiscoveredOSX( io_object_t service )
 */
 void QextSerialEnumeratorPrivate::onDeviceTerminatedOSX( io_object_t service )
 {
-    Q_Q(QextSerialEnumeratorPrivate);
+    Q_Q(QextSerialEnumerator);
     QextPortInfo info;
     info.vendorID = 0;
     info.productID = 0;
