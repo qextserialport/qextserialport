@@ -467,8 +467,6 @@ QextSerialPort::QextSerialPort(QextSerialPort::QueryMode mode, QObject *parent)
 }
 
 /*!
-    \overload
-
     Constructs a serial port attached to the port specified by name.
     \a name is the name of the device, which is windowsystem-specific,
     e.g."COM1" or "/dev/ttyS0". \a mode
@@ -481,9 +479,7 @@ QextSerialPort::QextSerialPort(const QString & name, QextSerialPort::QueryMode m
 }
 
 /*!
-    \overload
-
-    Constructs a port with default name and specified settings.
+    Constructs a port with default name and specified \a settings.
 */
 QextSerialPort::QextSerialPort(const PortSettings& settings, QextSerialPort::QueryMode mode, QObject *parent)
     : QIODevice(parent), d_ptr(new QextSerialPortPrivate(this))
@@ -494,9 +490,7 @@ QextSerialPort::QextSerialPort(const PortSettings& settings, QextSerialPort::Que
 }
 
 /*!
-    \overload
-
-    Constructs a port with specified name and settings.
+    Constructs a port with specified \a name , \a mode and \a settings.
 */
 QextSerialPort::QextSerialPort(const QString & name, const PortSettings& settings, QextSerialPort::QueryMode mode, QObject *parent)
     : QIODevice(parent), d_ptr(new QextSerialPortPrivate(this))
@@ -749,6 +743,9 @@ unsigned long QextSerialPort::lineStatus()
     return 0;
 }
 
+/*!
+  Returns a human-readable description of the last device error that occurred.
+*/
 QString QextSerialPort::errorString()
 {
     Q_D(QextSerialPort);
