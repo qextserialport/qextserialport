@@ -114,7 +114,7 @@ QextSerialEnumeratorPrivate::~QextSerialEnumeratorPrivate()
 */
 
 /*!
-   Constructs a QextSerialEnumerator object with the given parent.
+   Constructs a QextSerialEnumerator object with the given \a parent.
 */
 QextSerialEnumerator::QextSerialEnumerator(QObject *parent)
     :QObject(parent), d_ptr(new QextSerialEnumeratorPrivate(this))

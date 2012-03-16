@@ -413,27 +413,27 @@ void QextSerialPortPrivate::_q_canRead()
  */
 
 /*!
-    Default constructor.  Note that the name of the device used by a QextSerialPort constructed with
-    this constructor will be determined by #defined constants, or lack thereof - the default behavior
-    is the same as Q_OS_LINUX.  Possible naming conventions and their associated constants are:
+    Default constructor.  Note that the name of the device used by a QextSerialPort is dependent on
+    your OS. Possible naming conventions and their associated OS are:
 
     \code
 
-    Constant         Used By         Naming Convention
-    ----------       -------------   ------------------------
+    OS Constant       Used By         Naming Convention
+    -------------     -------------   ------------------------
     Q_OS_WIN          Windows         COM1, COM2
     Q_OS_IRIX         SGI/IRIX        /dev/ttyf1, /dev/ttyf2
     Q_OS_HPUX         HP-UX           /dev/tty1p0, /dev/tty2p0
-    Q_OS_SOLARIS      SunOS/Solaris   /dev/ttya, /dev/ttyb
+    Q_OS_SOLARIS      SunOS/Slaris    /dev/ttya, /dev/ttyb
     Q_OS_OSF          Digital UNIX    /dev/tty01, /dev/tty02
     Q_OS_FREEBSD      FreeBSD         /dev/ttyd0, /dev/ttyd1
     Q_OS_OPENBSD      OpenBSD         /dev/tty00, /dev/tty01
     Q_OS_LINUX        Linux           /dev/ttyS0, /dev/ttyS1
-    <none>            Linux           /dev/ttyS0, /dev/ttyS1
+    <none>                            /dev/ttyS0, /dev/ttyS1
     \endcode
 
     This constructor assigns the device name to the name of the first port on the specified system.
-    See the other constructors if you need to open a different port.
+    See the other constructors if you need to open a different port. Default \a mode is EventDriven.
+    As a subclass of QObject, \a parent can be specified.
 */
 
 QextSerialPort::QextSerialPort(QextSerialPort::QueryMode mode, QObject *parent)
@@ -644,7 +644,7 @@ QByteArray QextSerialPort::readAll()
     Returns the baud rate of the serial port.  For a list of possible return values see
     the definition of the enum BaudRateType.
 */
-BaudRateType QextSerialPort::baudRate(void) const
+BaudRateType QextSerialPort::baudRate() const
 {
     QReadLocker locker(&d_func()->lock);
     return d_func()->Settings.BaudRate;
@@ -709,6 +709,9 @@ bool QextSerialPort::isSequential() const
     return true;
 }
 
+/*!
+    Return the error number, or 0 if no error occurred.
+*/
 ulong QextSerialPort::lastError() const
 {
     QReadLocker locker(&d_func()->lock);

@@ -1,35 +1,9 @@
-http://code.google.com/r/dbzhang800-qextserialport/
 
 = About QextSerialPort =
 
 QextSerialPort provides an interface to old fashioned serial ports for Qt-based applications. It currently supports Mac OS X, Windows, Linux, FreeBSD. 
 
-Please note that:
-
- * Revision {{{0.9.x}}} is Qt 2 & 3 compatible. 
- * Revision {{{1.x.x}}} is Qt 4 compatible.
-
-And I hope that:
-
- * Revision {{{2.x.x}}} will be Qt 5 compatible 
-
-But I am not the owner of the project, so I have no right to release new version. 
-
-= About dbzhang800-QextSerialPort =
-
-This is Debao's clone, and I hope that it will be usefull for you.
-
-== Refactor ==
-
-I have made some code refactoring for QextSerialPort
-
- # D-pointer and Q_PRIVATE_SLOT are used to moving private members from QextSerialPort to QextSerialPortPrivate
- # qdoc3 instead of doxygen is used for generating documents
- # MIT license header add to all sources files
- # add a helper class QextWinEventNotifier for windows user, when user's SDK doesnot contain Qt's private files, this class will be auto selected.
- # Support platform custom baudrate. Macros such as B230400 / B460800 can be used directly if you OS support it.
- # many bugs have been fixed.
- # source compatible with old versions.
+http://code.google.com/p/qextserialport/
 
 == How to use (1) ==
 

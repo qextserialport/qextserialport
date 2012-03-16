@@ -2,8 +2,14 @@ Change history for QextSerialPort (formerly QwSerialPort):
 (Lines beginning with + represent new functionality, * represent changed or
 fixed functionality, - represent removed or deprecated functionality)
 
+Version 1.2 beta1 (2012 Debao Zhang)
+  * D-pointer and Q_PRIVATE_SLOT are used to moving private members from QextSerialPort to QextSerialPortPrivate
+  * qdoc3 instead of doxygen is used for generating documents
+  * MIT license header add to all sources files
+  + add a helper class QextWinEventNotifier for windows user, when user's SDK doesnot contain Qt's private files, this class will be auto selected.
+  + Support platform custom baudrate. Macros such as B230400 / B460800 can be used directly if you OS support it. 
 
-Current CVS (Michal Policht)
+Version 1.2win-alpha (2007 Michal Policht)
   + Added QextSerialEnumerator pre-alpha. Works under W2k and later versions of Windows.
   + Event driven mechanism (alternative to polling) is now available on Windows.
   - Removed default (=0) parameter from open() functions.
@@ -25,12 +31,12 @@ Version 1.1 (official release)
 Version 1.0.1
   * Minor changes (mostly in test application)
 
-Version 1.0.0e (by Micha³ Policht)
+Version 1.0.0e (by Micha? Policht)
   * Fixed bytesAvailable(). Includes buffered bytes to the result.
   + Added isSequential() method.
   + Provided test application
 
-Version 1.0.0d ( changes by Micha³ Policht )
+Version 1.0.0d ( changes by Micha? Policht )
   - Removed isOpen() overriden declaration/implementation from qextserialport's classes. isOpen() relies on QIODevice now.
   - Removed bool portOpen variable. Replaced by internal QIODevice.openMode.
   - Removed getChar(), putChar() overriden declaration/implementation. QIODevice can handle this.

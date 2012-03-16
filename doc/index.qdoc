@@ -6,8 +6,10 @@
       QextSerialPort provides an interface to old fashioned serial ports for
       Qt-based applications. It currently supports Mac OS X, Windows, Linux, FreeBSD. 
 
+      From QextSerialPort 1.2-beta on, license of the project has been changed to MIT.
+
       \list
-         \o  Revision 0.9.x is Qt 2 & 3 compatible.
+         \o Revision 0.9.x is Qt 2 & 3 compatible.
          \o Revision 1.x.x is Qt 4 compatible.
       \endlist
 
@@ -55,6 +57,7 @@
       \code
         qdoc3 qextserialport.qdocconf
       \endcode
+      Note: qdoc3 has been renamed to qdoc under Qt5.
 
     \section1 Examples
       \list
