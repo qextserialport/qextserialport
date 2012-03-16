@@ -70,7 +70,7 @@ QList<QextPortInfo> QextSerialEnumeratorPrivate::getPorts_sys()
     // if you know an other name prefix for serial ports please let us know
     portNamePrefixes.clear();
     portNamePrefixes << QLatin1String("ttyACM*") << QLatin1String("ttyUSB*") << QLatin1String("rfcomm*");
-    portNameList.append(dir.entryList(portNamePrefixes, (QDir::System | QDir::Files), QDir::Name));
+    portNameList += dir.entryList(portNamePrefixes, (QDir::System | QDir::Files), QDir::Name);
 
     foreach (QString str , portNameList) {
         QextPortInfo inf;
