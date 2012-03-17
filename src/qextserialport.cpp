@@ -68,11 +68,21 @@
     \brief The PortSettings class contain port settings
 
     Structure to contain port settings.
+
+    \code
+    BaudRateType BaudRate;
+    DataBitsType DataBits;
+    ParityType Parity;
+    StopBitsType StopBits;
+    FlowType FlowControl;
+    long Timeout_Millisec;
+    \endcode
 */
 
 
-/*
-  \class QextPortSettings
+/*!
+    \internal
+    \class QextPortSettings
 
     \brief The QextPortSettings class contain port settings
 
@@ -362,7 +372,7 @@ void QextSerialPortPrivate::_q_canRead()
 
     \bold Example
     \code
-    QextSerialPort* port = new QextSerialPort("COM1", QextSerialPort::EventDriven);
+    QextSerialPort* port = new QextSerialPort("COM1");
     connect(port, SIGNAL(readyRead()), myClass, SLOT(onDataAvailable()));
     port->open();
 
@@ -381,8 +391,18 @@ void QextSerialPortPrivate::_q_canRead()
 
     \section1 Compatibility
     The user will be notified of errors and possible portability conflicts at run-time
-    by default - this behavior can be turned off by defining QESP_NO_WARN
-    (to turn off all warnings) or QESP_NO_PORTABILITY_WARN (to turn off portability warnings) in the project.
+    by default.
+
+    For example, if a application has used BAUD1800, when it is runing under unix, you
+    will get following message.
+
+    \code
+    QextSerialPort Portability Warning: Windows does not support baudRate:1800
+    \endcode
+
+    This behavior can be turned off by defining macro QESP_NO_WARN (to turn off all warnings)
+    or QESP_NO_PORTABILITY_WARN (to turn off portability warnings) in the project.
+
 
     \bold Author: Stefan Sander, Michal Policht, Brandon Fosdick, Liam Staskawicz, Debao Zhang
 */

@@ -162,7 +162,8 @@ qint64 QextSerialPortPrivate::bytesAvailable_sys() const
 /*
     Translates a system-specific error code to a QextSerialPort error code.  Used internally.
 */
-void QextSerialPortPrivate::translateError(ulong error) {
+void QextSerialPortPrivate::translateError(ulong error)
+{
     if (error&CE_BREAK) {
         lastErr=E_BREAK_CONDITION;
     }
