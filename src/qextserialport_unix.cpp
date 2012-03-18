@@ -61,11 +61,10 @@ bool QextSerialPortPrivate::open_sys(QIODevice::OpenMode mode)
     //note: linux 2.6.21 seems to ignore O_NDELAY flag
     if ((fd = ::open(port.toAscii() ,O_RDWR | O_NOCTTY | O_NDELAY)) != -1) {
 
-        /*In the Private class, I can not call QIODevice::open()*/
-//        QIODevice::open(mode);          // Flag the port as opened
-        q->setOpenMode(mode);
+        /*In the Private class, We can not call QIODevice::open()*/
+        q->setOpenMode(mode);             // Flag the port as opened
         ::tcgetattr(fd, &old_termios);    // Save the old termios
-        Posix_CommConfig = old_termios; // Make a working copy
+        Posix_CommConfig = old_termios;   // Make a working copy
         ::cfmakeraw(&Posix_CommConfig);   // Enable raw access
 
         /*set up other port settings*/
@@ -93,7 +92,7 @@ bool QextSerialPortPrivate::open_sys(QIODevice::OpenMode mode)
         }
         return true;
     } else {
-        lastErr = E_FILE_NOT_FOUND;
+        translateError(errno);
         return false;
     }
 }
@@ -133,16 +132,22 @@ qint64 QextSerialPortPrivate::bytesAvailable_sys() const
 void QextSerialPortPrivate::translateError(ulong error)
 {
     switch (error) {
-        case EBADF:
-        case ENOTTY:
-            lastErr = E_INVALID_FD;
-            break;
-        case EINTR:
-            lastErr = E_CAUGHT_NON_BLOCKED_SIGNAL;
-            break;
-        case ENOMEM:
-            lastErr = E_NO_MEMORY;
-            break;
+    case EBADF:
+    case ENOTTY:
+        lastErr = E_INVALID_FD;
+        break;
+    case EINTR:
+        lastErr = E_CAUGHT_NON_BLOCKED_SIGNAL;
+        break;
+    case ENOMEM:
+        lastErr = E_NO_MEMORY;
+        break;
+    case EACCES:
+        lastErr = E_PERMISSION_DENIED;
+        break;
+    case EAGAIN:
+        lastErr = E_AGAIN;
+        break;
     }
 }
 
@@ -212,7 +217,7 @@ qint64 QextSerialPortPrivate::writeData_sys(const char * data, qint64 maxSize)
 {
     int retVal = ::write(fd, data, maxSize);
     if (retVal == -1)
-       lastErr = E_WRITE_FAILED;
+        lastErr = E_WRITE_FAILED;
 
     return (qint64)retVal;
 }
@@ -229,7 +234,7 @@ static void setBaudRate2Termios(termios *config, int baudRate)
 }
 
 /*
-
+    All the platform settings was performed in this function.
 */
 void QextSerialPortPrivate::updatePortSettings()
 {
@@ -294,28 +299,24 @@ void QextSerialPortPrivate::updatePortSettings()
         case BAUD115200:
             setBaudRate2Termios(&Posix_CommConfig, B115200);
             break;
-        case BAUDCustom:
-            setBaudRate2Termios(&Posix_CommConfig, Settings.CustomBaudRate);
+        case BAUDPlatform:
+            setBaudRate2Termios(&Posix_CommConfig, Settings.PlatformBaudRate);
             break;
         }
     }
     if (settingsDirtyFlags & DFE_Parity) {
         switch (Settings.Parity) {
-        /*space parity*/
         case PAR_SPACE:
             /*space parity not directly supported - add an extra data bit to simulate it*/
             settingsDirtyFlags |= DFE_DataBits;
             break;
-        /*no parity*/
         case PAR_NONE:
             Posix_CommConfig.c_cflag &= (~PARENB);
             break;
-        /*even parity*/
         case PAR_EVEN:
             Posix_CommConfig.c_cflag &= (~PARODD);
             Posix_CommConfig.c_cflag |= PARENB;
             break;
-        /*odd parity*/
         case PAR_ODD:
             Posix_CommConfig.c_cflag |= (PARENB|PARODD);
             break;
@@ -360,11 +361,9 @@ void QextSerialPortPrivate::updatePortSettings()
     }
     if (settingsDirtyFlags & DFE_StopBits) {
         switch (Settings.StopBits) {
-        /*one stop bit*/
         case STOP_1:
             Posix_CommConfig.c_cflag &= (~CSTOPB);
             break;
-        /*two stop bits*/
         case STOP_2:
             Posix_CommConfig.c_cflag |= CSTOPB;
             break;
@@ -372,13 +371,12 @@ void QextSerialPortPrivate::updatePortSettings()
     }
     if (settingsDirtyFlags & DFE_Flow) {
         switch(Settings.FlowControl) {
-        /*no flow control*/
         case FLOW_OFF:
             Posix_CommConfig.c_cflag &= (~CRTSCTS);
             Posix_CommConfig.c_iflag &= (~(IXON|IXOFF|IXANY));
             break;
-        /*software (XON/XOFF) flow control*/
         case FLOW_XONXOFF:
+            /*software (XON/XOFF) flow control*/
             Posix_CommConfig.c_cflag &= (~CRTSCTS);
             Posix_CommConfig.c_iflag |= (IXON|IXOFF|IXANY);
             break;

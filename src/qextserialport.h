@@ -66,6 +66,8 @@
 #define E_READ_FAILED               13
 #define E_WRITE_FAILED              14
 #define E_FILE_NOT_FOUND            15
+#define E_PERMISSION_DENIED         16
+#define E_AGAIN                     17
 
 enum BaudRateType
 {
@@ -97,7 +99,7 @@ enum BaudRateType
     BAUD57600 = 57600,
     BAUD115200 = 115200,
 
-    BAUDCustom = 635 //magic number: 'C'+'u'+'s'+'t'+'o'+'m'
+    BAUDPlatform = 837 //magic number: 'P'+'l'+'a'+'t'+'f'+'o'+'r'+'m'
 };
 
 enum DataBitsType
@@ -176,7 +178,7 @@ public:
     ParityType parity() const;
     StopBitsType stopBits() const;
     FlowType flowControl() const;
-    int customBaudRate() const;
+    int platformBaudRate() const;
 
     bool open(OpenMode mode);
     bool isSequential() const;
@@ -199,7 +201,7 @@ public Q_SLOTS:
     void setStopBits(StopBitsType);
     void setFlowControl(FlowType);
     void setTimeout(long);
-    void setCustomBaudRate(int baudRate);
+    void setPlatformBaudRate(int baudRate);
 
     void setDtr(bool set=true);
     void setRts(bool set=true);

@@ -165,7 +165,7 @@ public:
             , StopBitsType s=STOP_1
             , FlowType f=FLOW_OFF
             , long timeout=10
-            , int customBaudRate=-1);
+            , int platformBaudRate=-1);
     QextPortSettings(const PortSettings &);
 
     BaudRateType BaudRate;
@@ -174,7 +174,7 @@ public:
     StopBitsType StopBits;
     FlowType FlowControl;
     long Timeout_Millisec;
-    int CustomBaudRate;
+    int PlatformBaudRate;
 };
 
 class QextWinEventNotifier;
@@ -236,7 +236,7 @@ public:
     void setStopBits(StopBitsType stopbits, bool update=true);
     void setFlowControl(FlowType flow, bool update=true);
     void setTimeout(long millisec, bool update=true);
-    void setCustomBaudRate(int customBaudRate, bool update=true);
+    void setPlatformBaudRate(int platformBaudRate, bool update=true);
     void setPortSettings(const QextPortSettings& settings, bool update=true);
 
     void platformSpecificDestruct();

@@ -90,19 +90,19 @@
 */
 
 QextPortSettings::QextPortSettings(BaudRateType b, DataBitsType d, ParityType p
-                                   ,StopBitsType s, FlowType f, long timeout, int customBaudRate)
+                                   ,StopBitsType s, FlowType f, long timeout, int platformBaudRate)
     :BaudRate(b), DataBits(d), Parity(p), StopBits(s), FlowControl(f)
-    , Timeout_Millisec(timeout), CustomBaudRate(customBaudRate)
+    , Timeout_Millisec(timeout), PlatformBaudRate(platformBaudRate)
 {
-    if (BaudRate==BAUDCustom && customBaudRate ==-1) {
-        QESP_WARNING("QextPortSettings: Wrong custom BaudRate");
+    if (BaudRate==BAUDPlatform && platformBaudRate ==-1) {
+        QESP_WARNING("QextPortSettings: Wrong platform BaudRate");
         BaudRate = BAUD9600;
     }
 }
 
 QextPortSettings::QextPortSettings(const PortSettings &s)
     :BaudRate(s.BaudRate), DataBits(s.DataBits), Parity(s.Parity), StopBits(s.StopBits)
-    , FlowControl(s.FlowControl), Timeout_Millisec(s.Timeout_Millisec), CustomBaudRate(-1)
+    , FlowControl(s.FlowControl), Timeout_Millisec(s.Timeout_Millisec), PlatformBaudRate(-1)
 {
 
 }
@@ -160,8 +160,8 @@ void QextSerialPortPrivate::setBaudRate(BaudRateType baudRate, bool update)
         if (update && q_func()->isOpen())
             updatePortSettings();
         break;
-    case BAUDCustom:
-        if (Settings.CustomBaudRate != -1) {
+    case BAUDPlatform:
+        if (Settings.PlatformBaudRate != -1) {
             Settings.BaudRate=baudRate;
             settingsDirtyFlags |= DFE_BaudRate;
             if (update && q_func()->isOpen())
@@ -323,11 +323,11 @@ void QextSerialPortPrivate::setTimeout(long millisec, bool update)
         updatePortSettings();
 }
 
-void QextSerialPortPrivate::setCustomBaudRate(int customBaudRate, bool update)
+void QextSerialPortPrivate::setPlatformBaudRate(int platformBaudRate, bool update)
 {
-    if (customBaudRate != -1)
-        Settings.BaudRate = BAUDCustom;
-    Settings.CustomBaudRate = customBaudRate;
+    if (platformBaudRate != -1)
+        Settings.BaudRate = BAUDPlatform;
+    Settings.PlatformBaudRate = platformBaudRate;
     settingsDirtyFlags |= DFE_BaudRate;
     if (update && q_func()->isOpen())
         updatePortSettings();
@@ -341,7 +341,7 @@ void QextSerialPortPrivate::setPortSettings(const QextPortSettings &settings, bo
     setParity(settings.Parity, false);
     setFlowControl(settings.FlowControl, false);
     setTimeout(settings.Timeout_Millisec, false);
-    setCustomBaudRate(settings.CustomBaudRate, false);
+    setPlatformBaudRate(settings.PlatformBaudRate, false);
     settingsDirtyFlags = DFE_ALL;
     if (update && q_func()->isOpen())
         updatePortSettings();
@@ -665,12 +665,15 @@ BaudRateType QextSerialPort::baudRate() const
 }
 
 /*!
-    Returns the baud rate of the serial port.
+    Returns the platform baud rate of the serial port.
+
+    such as B1200/B1800 under unix or CBR_1200/CBR_2400 under Windows.
+
 */
-int QextSerialPort::customBaudRate() const
+int QextSerialPort::platformBaudRate() const
 {
     QReadLocker locker(&d_func()->lock);
-    return baudRate()==BAUDCustom ? d_func()->Settings.CustomBaudRate : -1;
+    return baudRate()==BAUDPlatform ? d_func()->Settings.PlatformBaudRate : -1;
 }
 
 /*!
@@ -771,23 +774,44 @@ QString QextSerialPort::errorString()
     Q_D(QextSerialPort);
     QReadLocker locker(&d->lock);
     switch(d->lastErr) {
-        case E_NO_ERROR: return QLatin1String("No Error has occurred");
-        case E_INVALID_FD: return QLatin1String("Invalid file descriptor (port was not opened correctly)");
-        case E_NO_MEMORY: return QLatin1String("Unable to allocate memory tables (POSIX)");
-        case E_CAUGHT_NON_BLOCKED_SIGNAL: return QLatin1String("Caught a non-blocked signal (POSIX)");
-        case E_PORT_TIMEOUT: return QLatin1String("Operation timed out (POSIX)");
-        case E_INVALID_DEVICE: return QLatin1String("The file opened by the port is not a valid device");
-        case E_BREAK_CONDITION: return QLatin1String("The port detected a break condition");
-        case E_FRAMING_ERROR: return QLatin1String("The port detected a framing error (usually caused by incorrect baud rate settings)");
-        case E_IO_ERROR: return QLatin1String("There was an I/O error while communicating with the port");
-        case E_BUFFER_OVERRUN: return QLatin1String("Character buffer overrun");
-        case E_RECEIVE_OVERFLOW: return QLatin1String("Receive buffer overflow");
-        case E_RECEIVE_PARITY_ERROR: return QLatin1String("The port detected a parity error in the received data");
-        case E_TRANSMIT_OVERFLOW: return QLatin1String("Transmit buffer overflow");
-        case E_READ_FAILED: return QLatin1String("General read operation failure");
-    case E_WRITE_FAILED: return QLatin1String("General write operation failure");
-    case E_FILE_NOT_FOUND: return QString::fromLatin1("The %1 file doesn't exists").arg(this->portName());
-    default: return QString::fromLatin1("Unknown error: %1").arg(d->lastErr);
+    case E_NO_ERROR:
+        return tr("No Error has occurred");
+    case E_INVALID_FD:
+        return tr("Invalid file descriptor (port was not opened correctly)");
+    case E_NO_MEMORY:
+        return tr("Unable to allocate memory tables (POSIX)");
+    case E_CAUGHT_NON_BLOCKED_SIGNAL:
+        return tr("Caught a non-blocked signal (POSIX)");
+    case E_PORT_TIMEOUT:
+        return tr("Operation timed out (POSIX)");
+    case E_INVALID_DEVICE:
+        return tr("The file opened by the port is not a valid device");
+    case E_BREAK_CONDITION:
+        return tr("The port detected a break condition");
+    case E_FRAMING_ERROR:
+        return tr("The port detected a framing error (usually caused by incorrect baud rate settings)");
+    case E_IO_ERROR:
+        return tr("There was an I/O error while communicating with the port");
+    case E_BUFFER_OVERRUN:
+        return tr("Character buffer overrun");
+    case E_RECEIVE_OVERFLOW:
+        return tr("Receive buffer overflow");
+    case E_RECEIVE_PARITY_ERROR:
+        return tr("The port detected a parity error in the received data");
+    case E_TRANSMIT_OVERFLOW:
+        return tr("Transmit buffer overflow");
+    case E_READ_FAILED:
+        return tr("General read operation failure");
+    case E_WRITE_FAILED:
+        return tr("General write operation failure");
+    case E_FILE_NOT_FOUND:
+        return tr("The %1 file doesn't exists").arg(this->portName());
+    case E_PERMISSION_DENIED:
+        return tr("Permission denied");
+    case E_AGAIN:
+        return tr("Device is already locked");
+    default:
+        return tr("Unknown error: %1").arg(d->lastErr);
     }
 }
 
@@ -918,7 +942,7 @@ void QextSerialPort::setStopBits(StopBitsType stopBits)
        BAUD256000          256000           X
     \endcode
 
-    \sa setCustomBaudRate()
+    \sa setPlatformBaudRate()
 */
 
 void QextSerialPort::setBaudRate(BaudRateType baudRate)
@@ -939,18 +963,18 @@ void QextSerialPort::setBaudRate(BaudRateType baudRate)
   Under Windows System, this value will assigned to DCB's BaudRate member. Macros such
   as CBR_1200/CBR_2400/... can be used directly.
 
-  \sa setBaudRate(), customBaudRate()
+  \sa setBaudRate(), platformBaudRate()
 */
-void QextSerialPort::setCustomBaudRate(int baudRate)
+void QextSerialPort::setPlatformBaudRate(int baudRate)
 {
     if (baudRate == -1) {
-        QESP_WARNING("QextSerialPort: Invalid custom baud rate");
+        QESP_WARNING("QextSerialPort: Invalid platform baud rate");
         return;
     }
     Q_D(QextSerialPort);
     QWriteLocker locker(&d->lock);
-    if (d->Settings.CustomBaudRate != baudRate || d->Settings.BaudRate != BAUDCustom)
-        d->setCustomBaudRate(baudRate, true);
+    if (d->Settings.PlatformBaudRate != baudRate || d->Settings.BaudRate != BAUDPlatform)
+        d->setPlatformBaudRate(baudRate, true);
 }
 
 /*!
