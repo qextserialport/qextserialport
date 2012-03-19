@@ -593,7 +593,7 @@ void QextSerialPort::setQueryMode(QueryMode mode)
 }
 
 /*!
-    Sets the name of the device associated with the object, e.g. "COM1", or "/dev/ttyS0".
+    Sets the \a name of the device associated with the object, e.g. "COM1", or "/dev/ttyS0".
 */
 void QextSerialPort::setPortName(const QString & name)
 {
@@ -901,8 +901,8 @@ void QextSerialPort::setStopBits(StopBitsType stopBits)
        BAUD76800                X       76800
       *BAUD115200          115200      115200
        BAUD128000          128000           X
-       BAUD256000          256000           X
        BAUD230400               X      230400
+       BAUD256000          256000           X
        BAUD460800               X      460800
        BAUD500000               X      500000
        BAUD576000               X      576000

@@ -71,17 +71,17 @@
 
 enum BaudRateType
 {
-#ifdef Q_OS_UNIX
+#if defined(Q_OS_UNIX) || defined(qdoc)
     BAUD50 = 50,                //POSIX ONLY
     BAUD75 = 75,                //POSIX ONLY
     BAUD134 = 134,              //POSIX ONLY
     BAUD150 = 150,              //POSIX ONLY
     BAUD200 = 200,              //POSIX ONLY
     BAUD1800 = 1800,            //POSIX ONLY
-#  ifdef B76800
+#  if defined(B76800) || defined(qdoc)
     BAUD76800 = 76800,          //POSIX ONLY
 #  endif
-#  if defined(B230400) && defined(B4000000)
+#  if (defined(B230400) && defined(B4000000)) || defined(qdoc)
     BAUD230400 = 230400,        //POSIX ONLY
     BAUD460800 = 460800,        //POSIX ONLY
     BAUD500000 = 500000,        //POSIX ONLY
@@ -96,12 +96,13 @@ enum BaudRateType
     BAUD3500000 = 3500000,      //POSIX ONLY
     BAUD4000000 = 4000000,      //POSIX ONLY
 #  endif
-#elif defined(Q_OS_WIN)
+#endif //Q_OS_UNIX
+#if defined(Q_OS_WIN) || defined(qdoc)
     BAUD14400 = 14400,          //WINDOWS ONLY
     BAUD56000 = 56000,          //WINDOWS ONLY
     BAUD128000 = 128000,        //WINDOWS ONLY
     BAUD256000 = 256000,        //WINDOWS ONLY
-#endif //Q_OS_UNIX
+#endif  //Q_OS_WIN
     BAUD110 = 110,
     BAUD300 = 300,
     BAUD600 = 600,
@@ -128,7 +129,7 @@ enum ParityType
     PAR_NONE,
     PAR_ODD,
     PAR_EVEN,
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(qdoc)
     PAR_MARK,               //WINDOWS ONLY
 #endif
     PAR_SPACE
@@ -137,7 +138,7 @@ enum ParityType
 enum StopBitsType
 {
     STOP_1,
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || defined(qdoc)
     STOP_1_5,               //WINDOWS ONLY
 #endif
     STOP_2
@@ -179,8 +180,8 @@ public:
 
     explicit QextSerialPort(QueryMode mode = EventDriven, QObject* parent = 0);
     explicit QextSerialPort(const QString & name, QueryMode mode = EventDriven, QObject * parent = 0);
-    explicit QextSerialPort(PortSettings const& s, QueryMode mode = EventDriven, QObject * parent = 0);
-    QextSerialPort(const QString & name, PortSettings const& s, QueryMode mode = EventDriven, QObject *parent=0);
+    explicit QextSerialPort(const PortSettings & s, QueryMode mode = EventDriven, QObject * parent = 0);
+    QextSerialPort(const QString & name, const PortSettings& s, QueryMode mode = EventDriven, QObject *parent=0);
 
     ~QextSerialPort();
 
