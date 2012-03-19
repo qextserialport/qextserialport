@@ -1,4 +1,3 @@
-
 = About QextSerialPort =
 
 QextSerialPort provides an interface to old fashioned serial ports for Qt-based applications. It currently supports Mac OS X, Windows, Linux, FreeBSD. 
@@ -9,7 +8,7 @@ http://code.google.com/p/qextserialport/
 
  * Download the source code. Note: [http://mercurial.selenic.com/downloads/ Mercurial] is needed .
 
-            hg clone https://code.google.com/r/dbzhang800-qextserialport/
+            hg clone https://code.google.com/p/qextserialport/
 
 
  * Put the source code in any directory you like. For example, 3rdparty:
@@ -63,6 +62,46 @@ It's very easy to compile QextSerialPort directly into your application(see abov
  * Add following line to your qmake project file. Enjoy it!
 
            include(pathToQextserialport/src/qextserialport.pri)
+
+== How to use (3) ==
+Someone complains that, I want to used !QextSerialPort as a shared libaray, but I don't want to add the {{{include(***.pri)}}} to my project file. Otherwise, all the source files of !QextSerialPort will be shown in Qt Creator, which is very annoying.
+
+Ok, let's go!
+
+ * Download the source code, and put it in any location you like.
+ * Goto qextserialport/buildlib, and run following command to generate library. (Yes, config.pri is not needed.)
+
+          qmake
+          make (or nmake)
+
+ * Add following lines to your .pro file. And you need to specify the path to the lib and headers. Then Enjoy it!
+
+          #####
+          QEXTSERIALPORT_LIBDIR = #path_to_qextserialport_lib
+          QEXTSERIALPORT_INCDIR = #path_to_qextserialport_headers
+          #####
+
+          SAVE_TEMPLATE = $$TEMPLATE
+          TEMPLATE = fakelib
+          QEXTSERIALPORT_LIBNAME = $$qtLibraryTarget(qextserialport-1.2)
+          TEMPLATE = $$SAVE_TEMPLATE
+
+          INCLUDEPATH += QEXTSERIALPORT_INCDIR
+          LIBS += -L$$QEXTSERIALPORT_LIBDIR -l$$QEXTSERIALPORT_LIBNAME
+          DEFINES += QEXTSERIALPORT_USING_SHARED
+
+          unix:QMAKE_RPATHDIR += $$QEXTSERIALPORT_LIBDIR
+
+ * Note:
+  * If you do not want to add such lines to each of your projects. This is another solution too.
+  * Create a new file called *extserialport.prf* , then add above lines to this new file.
+  * Put this .prf file to one of feature paths, such as
+          
+          $QTDIR\mkspecs\features\
+          
+  * Add the following line to your .pro file. Enjoy it!
+
+          CONFIG += extserialport
 
 == Build (optional) ==
 
