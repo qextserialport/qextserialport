@@ -79,38 +79,16 @@
     \endcode
 */
 
-
-/*!
-    \internal
-    \class QextPortSettings
-
-    \brief The QextPortSettings class contain port settings
-
-    structure to contain port settings.
-*/
-
-QextPortSettings::QextPortSettings(BaudRateType b, DataBitsType d, ParityType p
-                                   ,StopBitsType s, FlowType f, long timeout, int platformBaudRate)
-    :BaudRate(b), DataBits(d), Parity(p), StopBits(s), FlowControl(f)
-    , Timeout_Millisec(timeout), PlatformBaudRate(platformBaudRate)
-{
-    if (BaudRate==BAUDPlatform && platformBaudRate ==-1) {
-        QESP_WARNING("QextPortSettings: Wrong platform BaudRate");
-        BaudRate = BAUD9600;
-    }
-}
-
-QextPortSettings::QextPortSettings(const PortSettings &s)
-    :BaudRate(s.BaudRate), DataBits(s.DataBits), Parity(s.Parity), StopBits(s.StopBits)
-    , FlowControl(s.FlowControl), Timeout_Millisec(s.Timeout_Millisec), PlatformBaudRate(-1)
-{
-
-}
-
 QextSerialPortPrivate::QextSerialPortPrivate(QextSerialPort *q)
     :lock(QReadWriteLock::Recursive), q_ptr(q)
 {
     lastErr = E_NO_ERROR;
+    Settings.BaudRate = BAUD9600;
+    Settings.Parity = PAR_NONE;
+    Settings.FlowControl = FLOW_OFF;
+    Settings.DataBits = DATA_8;
+    Settings.StopBits = STOP_1;
+    Settings.Timeout_Millisec = 10;
     settingsDirtyFlags = DFE_ALL;
 
     platformSpecificInit();
@@ -142,6 +120,21 @@ void QextSerialPortPrivate::setBaudRate(BaudRateType baudRate, bool update)
 #ifdef B76800
     case BAUD76800:
 #endif
+#if defined(B230400) && defined(B4000000)
+    case BAUD230400:
+    case BAUD460800:
+    case BAUD500000:
+    case BAUD576000:
+    case BAUD921600:
+    case BAUD1000000:
+    case BAUD1152000:
+    case BAUD1500000:
+    case BAUD2000000:
+    case BAUD2500000:
+    case BAUD3000000:
+    case BAUD3500000:
+    case BAUD4000000:
+#endif
         QESP_PORTABILITY_WARNING()<<"QextSerialPort Portability Warning: Windows does not support baudRate:"<<baudRate;
 #endif
     case BAUD110:
@@ -159,14 +152,6 @@ void QextSerialPortPrivate::setBaudRate(BaudRateType baudRate, bool update)
         settingsDirtyFlags |= DFE_BaudRate;
         if (update && q_func()->isOpen())
             updatePortSettings();
-        break;
-    case BAUDPlatform:
-        if (Settings.PlatformBaudRate != -1) {
-            Settings.BaudRate=baudRate;
-            settingsDirtyFlags |= DFE_BaudRate;
-            if (update && q_func()->isOpen())
-                updatePortSettings();
-        }
         break;
     default:
         QESP_WARNING()<<"QextSerialPort does not support baudRate:"<<baudRate;
@@ -323,17 +308,7 @@ void QextSerialPortPrivate::setTimeout(long millisec, bool update)
         updatePortSettings();
 }
 
-void QextSerialPortPrivate::setPlatformBaudRate(int platformBaudRate, bool update)
-{
-    if (platformBaudRate != -1)
-        Settings.BaudRate = BAUDPlatform;
-    Settings.PlatformBaudRate = platformBaudRate;
-    settingsDirtyFlags |= DFE_BaudRate;
-    if (update && q_func()->isOpen())
-        updatePortSettings();
-}
-
-void QextSerialPortPrivate::setPortSettings(const QextPortSettings &settings, bool update)
+void QextSerialPortPrivate::setPortSettings(const PortSettings &settings, bool update)
 {
     setBaudRate(settings.BaudRate, false);
     setDataBits(settings.DataBits, false);
@@ -341,7 +316,6 @@ void QextSerialPortPrivate::setPortSettings(const QextPortSettings &settings, bo
     setParity(settings.Parity, false);
     setFlowControl(settings.FlowControl, false);
     setTimeout(settings.Timeout_Millisec, false);
-    setPlatformBaudRate(settings.PlatformBaudRate, false);
     settingsDirtyFlags = DFE_ALL;
     if (update && q_func()->isOpen())
         updatePortSettings();
@@ -665,18 +639,6 @@ BaudRateType QextSerialPort::baudRate() const
 }
 
 /*!
-    Returns the platform baud rate of the serial port.
-
-    such as B1200/B1800 under unix or CBR_1200/CBR_2400 under Windows.
-
-*/
-int QextSerialPort::platformBaudRate() const
-{
-    QReadLocker locker(&d_func()->lock);
-    return baudRate()==BAUDPlatform ? d_func()->Settings.PlatformBaudRate : -1;
-}
-
-/*!
     Returns the number of data bits used by the port.  For a list of possible values returned by
     this function, see the definition of the enum DataBitsType.
 */
@@ -940,9 +902,20 @@ void QextSerialPort::setStopBits(StopBitsType stopBits)
       *BAUD115200          115200      115200
        BAUD128000          128000           X
        BAUD256000          256000           X
+       BAUD230400               X      230400
+       BAUD460800               X      460800
+       BAUD500000               X      500000
+       BAUD576000               X      576000
+       BAUD921600               X      921600
+       BAUD1000000              X     1000000
+       BAUD1152000              X     1152000
+       BAUD1500000              X     1500000
+       BAUD2000000              X     2000000
+       BAUD2500000              X     2500000
+       BAUD3000000              X     3000000
+       BAUD3500000              X     3500000
+       BAUD4000000              X     4000000
     \endcode
-
-    \sa setPlatformBaudRate()
 */
 
 void QextSerialPort::setBaudRate(BaudRateType baudRate)
@@ -951,30 +924,6 @@ void QextSerialPort::setBaudRate(BaudRateType baudRate)
     QWriteLocker locker(&d->lock);
     if (d->Settings.BaudRate != baudRate)
         d->setBaudRate(baudRate, true);
-}
-
-/*!
-  Sets the baud rate of the serial port to \a baudRate. Be careful
-  when using this function.
-
-  Under Posix System, this value will tranfer to ::cfsetispeed(). So you can directly
-  using B1200/B1800/...
-
-  Under Windows System, this value will assigned to DCB's BaudRate member. Macros such
-  as CBR_1200/CBR_2400/... can be used directly.
-
-  \sa setBaudRate(), platformBaudRate()
-*/
-void QextSerialPort::setPlatformBaudRate(int baudRate)
-{
-    if (baudRate == -1) {
-        QESP_WARNING("QextSerialPort: Invalid platform baud rate");
-        return;
-    }
-    Q_D(QextSerialPort);
-    QWriteLocker locker(&d->lock);
-    if (d->Settings.PlatformBaudRate != baudRate || d->Settings.BaudRate != BAUDPlatform)
-        d->setPlatformBaudRate(baudRate, true);
 }
 
 /*!
