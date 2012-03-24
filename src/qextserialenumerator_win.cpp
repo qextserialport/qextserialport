@@ -40,9 +40,14 @@
 #include <dbt.h>
 #include "qextserialport.h"
 
-#ifdef HAS_QWIDGET
-#include <QWidget>
+#ifdef QT_GUI_LIB
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+#include <QtGui/QWidget>
 class QextSerialRegistrationWidget : public QWidget
+#else
+#include <QtGui/QWindow>
+class QextSerialRegistrationWidget : public QWindow
+#endif
 {
 public:
     QextSerialRegistrationWidget(QextSerialEnumeratorPrivate* qese) {
@@ -51,7 +56,13 @@ public:
     ~QextSerialRegistrationWidget() {}
 
 protected:
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
     bool winEvent( MSG* message, long* result ) {
+#else
+    bool nativeEvent(const QByteArray & /*eventType*/, void *msg, long *result) {
+        MSG *message = static_cast<MSG*>(msg);
+#endif
         if ( message->message == WM_DEVICECHANGE ) {
             qese->onDeviceChanged(message->wParam, message->lParam );
             *result = 1;
@@ -63,13 +74,13 @@ private:
     QextSerialEnumeratorPrivate* qese;
 };
 
-#endif // HAS_QWIDGET
+#endif // QT_GUI_LIB
 
 void QextSerialEnumeratorPrivate::platformSpecificInit()
 {
-#ifdef HAS_QWIDGET
+#ifdef QT_GUI_LIB
     notificationWidget = 0;
-#endif // HAS_QWIDGET
+#endif // QT_GUI_LIB
 }
 
 /*!
@@ -77,7 +88,7 @@ void QextSerialEnumeratorPrivate::platformSpecificInit()
 */
 void QextSerialEnumeratorPrivate::platformSpecificDestruct()
 {
-#ifdef HAS_QWIDGET
+#ifdef QT_GUI_LIB
     if( notificationWidget )
         delete notificationWidget;
 #endif
@@ -218,7 +229,7 @@ QList<QextPortInfo> QextSerialEnumeratorPrivate::getPorts_sys()
 */
 bool QextSerialEnumeratorPrivate::setUpNotifications_sys(bool setup)
 {
-#ifndef HAS_QWIDGET
+#ifndef QT_GUI_LIB
     Q_UNUSED(setup)
     QESP_WARNING("QextSerialEnumerator: GUI not enabled - can't register for device notifications.");
     return false;
@@ -242,7 +253,7 @@ bool QextSerialEnumeratorPrivate::setUpNotifications_sys(bool setup)
     foreach(QextPortInfo port, getPorts_sys())
       Q_EMIT q->deviceDiscovered(port);
     return true;
-#endif
+#endif // QT_GUI_LIB
 }
 
 LRESULT QextSerialEnumeratorPrivate::onDeviceChanged( WPARAM wParam, LPARAM lParam )

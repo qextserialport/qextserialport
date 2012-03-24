@@ -60,10 +60,6 @@
 #  include <IOKit/usb/IOUSBLib.h>
 #endif /*Q_OS_MAC*/
 
-#if (defined(QT_GUI_LIB) && QT_VERSION < QT_VERSION_CHECK(5, 0, 0)) || defined(QT_WIDGETS_LIB)
-#  define HAS_QWIDGET
-#endif
-
 class QextSerialRegistrationWidget;
 class QextSerialEnumeratorPrivate
 {
@@ -80,7 +76,7 @@ public:
 #ifdef Q_OS_WIN
     LRESULT onDeviceChanged( WPARAM wParam, LPARAM lParam );
     bool matchAndDispatchChangedDevice(const QString & deviceID, const GUID & guid, WPARAM wParam);
-#  ifdef HAS_QWIDGET
+#  ifdef QT_GUI_LIB
     QextSerialRegistrationWidget* notificationWidget;
 #  endif
 #endif /*Q_OS_WIN*/
