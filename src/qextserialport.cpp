@@ -561,6 +561,15 @@ qint64 QextSerialPort::bytesAvailable() const
     return 0;
 }
 
+/*! \reimp
+
+*/
+bool QextSerialPort::canReadLine() const
+{
+    QReadLocker locker(&d_func()->lock);
+    return QIODevice::canReadLine() || d_func()->readBuffer.canReadLine();
+}
+
 /*!
  * Set desired serial communication handling style. You may choose from polling
  * or event driven approach. This function does nothing when port is open; to

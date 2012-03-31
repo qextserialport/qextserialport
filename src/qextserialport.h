@@ -198,6 +198,7 @@ public:
     void close();
     void flush();
     qint64 bytesAvailable() const;
+    bool canReadLine() const;
     QByteArray readAll();
 
     ulong lastError() const;

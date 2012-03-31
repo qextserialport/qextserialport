@@ -147,6 +147,21 @@ public:
         return QByteArray(f, l);
     }
 
+    inline int readLine(char* target, int size) {
+        int r = qMin(size, len);
+        char* eol = static_cast<char*>(memchr(first, '\n', r));
+        if (eol)
+            r = 1+(eol-first);
+        memcpy(target, first, r);
+        len -= r;
+        first += r;
+        return int(r);
+    }
+
+    inline bool canReadLine() const {
+        return memchr(first, '\n', len);
+    }
+
 private:
     int len;
     char* first;
