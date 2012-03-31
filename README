@@ -2,14 +2,11 @@
 
 QextSerialPort provides an interface to old fashioned serial ports for Qt-based applications. It currently supports Mac OS X, Windows, Linux, FreeBSD. 
 
-http://code.google.com/p/qextserialport/
+    http://code.google.com/p/qextserialport/
 
 == How to use (1) ==
 
- * Download the source code. Note: [http://mercurial.selenic.com/downloads/ Mercurial] is needed .
-
-            hg clone https://code.google.com/p/qextserialport/
-
+ * Download the source code.
 
  * Put the source code in any directory you like. For example, 3rdparty:
 
@@ -32,7 +29,9 @@ http://code.google.com/p/qextserialport/
             
 == How to use (2) ==
 
-It's very easy to compile QextSerialPort directly into your application(see above section), however, we would prefer to use it as a static or shared library.
+It's very easy to compile QextSerialPort directly into your application
+(see above section), however, we would prefer to use it as a static or
+ shared library.
 
  * Download the source code, and put it in any location you like.
 
@@ -46,9 +45,9 @@ It's very easy to compile QextSerialPort directly into your application(see abov
            |     |-- qextserialport\
            |     |     |-- config.pri
            
-  * Contents of config_example.pri
+   * Contents of config_example.pri
   
-           # uncomment the following line if you want to use qextserialport as library
+           # uncomment the following line if you want to use qesp as library
            # QEXTSERIALPORT_LIBRARY = yes
 
            # uncomment the following line too if you want to use it as static library
@@ -64,11 +63,16 @@ It's very easy to compile QextSerialPort directly into your application(see abov
            include(pathToQextserialport/src/qextserialport.pri)
 
 == How to use (3) ==
-Someone complains that, I want to used !QextSerialPort as a shared libaray, but I don't want to add the {{{include(***.pri)}}} to my project file. Otherwise, all the source files of !QextSerialPort will be shown in Qt Creator, which is very annoying.
+
+Someone complains that, I want to used !QextSerialPort as a shared libaray, but
+I don't want to add the {{{include(***.pri)}}} to my project file. Otherwise,
+all the source files of !QextSerialPort will be shown in Qt Creator, which is
+very annoying.
 
 Ok, let's go!
 
  * Download the source code, and put it in any location you like.
+
  * Goto qextserialport/buildlib, and run following command to generate library. (Yes, config.pri is not needed.)
 
           qmake
@@ -76,21 +80,32 @@ Ok, let's go!
 
  * Add following lines to your .pro file. And you need to specify the path to the lib and headers. Then Enjoy it!
 
-          #####
-          QEXTSERIALPORT_LIBDIR = #path_to_qextserialport_lib
-          QEXTSERIALPORT_INCDIR = #path_to_qextserialport_headers
-          #####
+          # Specify lib and headers path if they are not in standard locations.
+          # Otherwise, your can ignore this.
+          unix{
+             QEXTSERIALPORT_LIBDIR = #path_to_qextserialport_lib
+             QEXTSERIALPORT_INCDIR = #path_to_qextserialport_headers
+          }else{
+             QEXTSERIALPORT_LIBDIR = #path_to_qextserialport_lib
+             QEXTSERIALPORT_INCDIR = #path_to_qextserialport_headers
+          }
 
           SAVE_TEMPLATE = $$TEMPLATE
           TEMPLATE = fakelib
           QEXTSERIALPORT_LIBNAME = $$qtLibraryTarget(qextserialport-1.2)
           TEMPLATE = $$SAVE_TEMPLATE
 
-          INCLUDEPATH += QEXTSERIALPORT_INCDIR
+          INCLUDEPATH += $$QEXTSERIALPORT_INCDIR
           LIBS += -L$$QEXTSERIALPORT_LIBDIR -l$$QEXTSERIALPORT_LIBNAME
           DEFINES += QEXTSERIALPORT_USING_SHARED
 
           unix:QMAKE_RPATHDIR += $$QEXTSERIALPORT_LIBDIR
+
+ * Oh, this file looks a bit complicated, as we need cross-platform. If you don't care cross-platform. It will be very simple :-) , for example
+      
+          INCLUDEPATH += /home/xxxx/download/qextserialport/src
+          LIBS += /home/xxxx/download/qextserialport/lib/libqextsrialport-1.2.so
+          DEFINES += QEXTSERIALPORT_USING_SHARED
 
  * Note:
   * If you do not want to add such lines to each of your projects. This is another solution too.
