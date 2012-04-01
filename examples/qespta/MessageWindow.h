@@ -8,7 +8,6 @@
 #ifndef MESSAGEWINDOW_H_
 #define MESSAGEWINDOW_H_
 
-
 #include <QDockWidget>
 #include <QTextEdit>
 #include <QEvent>

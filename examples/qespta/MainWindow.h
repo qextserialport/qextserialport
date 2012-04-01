@@ -17,12 +17,10 @@ class MainWindow : public QMainWindow
 {
 	Q_OBJECT
 
-    //@{
 	QMenu *fileMenu;
     QAction *exitAct;
 	QMenu *helpMenu;
     QAction *aboutAct;
-    //@}
 	
 private:
     void createMenus();
@@ -32,7 +30,7 @@ private slots:
     void about();
 
 public:
-    MainWindow(const QString &title);
+    MainWindow();
 
 };
 

@@ -12,9 +12,8 @@
 #include "MessageWindow.h"
 #include "QespTest.h"
 
-MainWindow::MainWindow(const QString &title)
+MainWindow::MainWindow()
 {
-	setWindowTitle(title);
     //central widget
 	QespTest* qespTest = new QespTest();
     setCentralWidget(qespTest);
@@ -24,6 +23,8 @@ MainWindow::MainWindow(const QString &title)
 
 	createActions();
 	createMenus();
+
+    setWindowTitle(tr("QextSerialPort Test Application"));
 }
 
 void MainWindow::about()
