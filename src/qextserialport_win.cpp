@@ -102,6 +102,8 @@ bool QextSerialPortPrivate::open_sys(QIODevice::OpenMode mode)
         Win_CommConfig.dcb.fOutX=FALSE;
         Win_CommConfig.dcb.fAbortOnError=FALSE;
         Win_CommConfig.dcb.fNull=FALSE;
+        /* Dtr default to true. See Issue 122*/
+        Win_CommConfig.dcb.fDtrControl=TRUE;
         /*flush all settings*/
         settingsDirtyFlags = DFE_ALL;
         updatePortSettings();
