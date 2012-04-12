@@ -94,8 +94,8 @@ void QextSerialEnumeratorPrivate::platformSpecificDestruct()
 #endif
 }
 
-// ### This url has broken, anyone can fix it?
-// see http://msdn.microsoft.com/en-us/library/ms791134.aspx for list of GUID classes
+// see http://msdn.microsoft.com/en-us/library/windows/hardware/ff553426(v=vs.85).aspx
+// for list of GUID classes
 #ifndef GUID_DEVCLASS_PORTS
     DEFINE_GUID(GUID_DEVCLASS_PORTS, 0x4D36E978, 0xE325, 0x11CE, 0xBF, 0xC1, 0x08, 0x00, 0x2B, 0xE1, 0x03, 0x18 );
 #endif
