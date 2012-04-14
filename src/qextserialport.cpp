@@ -37,32 +37,6 @@
 #include <QtCore/QWriteLocker>
 
 /*!
-    \enum BaudRateType
-
-    baud rate values support.
-*/
-
-/*!
-    \enum DataBitsType
-*/
-
-/*!
-    \enum ParityType
-*/
-
-/*!
-    \enum StopBitsType
-
-    \value STOP_1
-    \value STOP_1_5
-    \value STOP_2
-*/
-
-/*!
-    \enum FlowType
-*/
-
-/*!
     \class PortSettings
 
     \brief The PortSettings class contain port settings
@@ -350,16 +324,10 @@ void QextSerialPortPrivate::_q_canRead()
     connect(port, SIGNAL(readyRead()), myClass, SLOT(onDataAvailable()));
     port->open();
 
-    void MyClass::onDataAvailable() {
-        int avail = port->bytesAvailable();
-        if( avail > 0 ) {
-            QByteArray usbdata;
-            usbdata.resize(avail);
-            int read = port->read(usbdata.data(), usbdata.size());
-            if( read > 0 ) {
-                processNewData(usbdata);
-            }
-        }
+    void MyClass::onDataAvailable()
+    {
+        QByteArray data = port->readAll();
+        processNewData(usbdata);
     }
     \endcode
 
@@ -688,6 +656,7 @@ FlowType QextSerialPort::flowControl() const
 }
 
 /*!
+    \reimp
     Returns true if device is sequential, otherwise returns false. Serial port is sequential device
     so this function always returns true. Check QIODevice::isSequential() documentation for more
     information.
