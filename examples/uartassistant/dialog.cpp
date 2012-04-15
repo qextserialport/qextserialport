@@ -1,7 +1,7 @@
+#include "qextserialport.h"
 #include "dialog.h"
 #include "ui_dialog.h"
 #include <QtCore>
-#include "qextserialport.h"
 
 Dialog::Dialog(QWidget *parent) :
     QDialog(parent),
@@ -9,6 +9,7 @@ Dialog::Dialog(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    //! [0]
 #ifdef Q_OS_WIN
     ui->portBox->addItems(QStringList()<<"COM1"<<"COM2"<<"COM3"<<"COM4");
 #else
@@ -39,14 +40,16 @@ Dialog::Dialog(QWidget *parent) :
 
     ui->queryModeBox->addItem("Polling", QextSerialPort::Polling);
     ui->queryModeBox->addItem("EventDriven", QextSerialPort::EventDriven);
+    //! [0]
 
     ui->led->turnOff();
 
     timer = new QTimer(this);
     timer->setInterval(40);
+    //! [1]
     PortSettings settings = {BAUD9600, DATA_8, PAR_NONE, STOP_1, FLOW_OFF, 10};
     port = new QextSerialPort(ui->portBox->currentText(), settings, QextSerialPort::Polling);
-
+    //! [1]
     connect(ui->baudRateBox, SIGNAL(currentIndexChanged(int)), SLOT(onBaudRateChanged(int)));
     connect(ui->parityBox, SIGNAL(currentIndexChanged(int)), SLOT(onParityChanged(int)));
     connect(ui->dataBitsBox, SIGNAL(currentIndexChanged(int)), SLOT(onDataBitsChanged(int)));
@@ -87,7 +90,7 @@ void Dialog::onPortNameChanged(const QString & /*name*/)
         ui->led->turnOff();
     }
 }
-
+//! [2]
 void Dialog::onBaudRateChanged(int idx)
 {
     port->setBaudRate((BaudRateType)ui->baudRateBox->itemData(idx).toInt());
@@ -117,7 +120,8 @@ void Dialog::onTimeoutChanged(int val)
 {
     port->setTimeout(val);
 }
-
+//! [2]
+//! [3]
 void Dialog::onOpenCloseButtonClicked()
 {
     if (!port->isOpen()) {
@@ -137,7 +141,8 @@ void Dialog::onOpenCloseButtonClicked()
     //update led's status
     ui->led->turnOn(port->isOpen());
 }
-
+//! [3]
+//! [4]
 void Dialog::onSendButtonClicked()
 {
     if (port->isOpen() && !ui->sendEdit->toPlainText().isEmpty())
@@ -151,3 +156,4 @@ void Dialog::onReadyRead()
         ui->recvEdit->insertPlainText(QString::fromLatin1(port->readAll()));
     }
 }
+//! [4]
