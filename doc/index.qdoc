@@ -36,8 +36,8 @@
       ... 
       MyClass::MyClass()
       {
-          QextSerialPort* port = new QextSerialPort("COM1");
-          connect(port, SIGNAL(readyRead()), myClass, SLOT(onDataAvailable()));
+          port = new QextSerialPort("COM1");
+          connect(port, SIGNAL(readyRead()), this, SLOT(onDataAvailable()));
           port->open();
       }
   
