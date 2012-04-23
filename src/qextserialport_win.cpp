@@ -114,7 +114,7 @@ bool QextSerialPortPrivate::open_sys(QIODevice::OpenMode mode)
                 QESP_WARNING()<<"failed to set Comm Mask. Error code:"<<GetLastError();
                 return false;
             }
-            winEventNotifier = new WinEventNotifier(overlap.hEvent);
+            winEventNotifier = new WinEventNotifier(overlap.hEvent, q);
             qRegisterMetaType<HANDLE>("HANDLE");
             q->connect(winEventNotifier, SIGNAL(activated(HANDLE)), q, SLOT(_q_onWinEvent(HANDLE)), Qt::DirectConnection);
             WaitCommEvent(Win_Handle, &eventMask, &overlap);
