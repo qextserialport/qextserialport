@@ -91,10 +91,10 @@ void QextSerialPortPrivate::setBaudRate(BaudRateType baudRate, bool update)
     case BAUD150:
     case BAUD200:
     case BAUD1800:
-#ifdef B76800
+#  ifdef B76800
     case BAUD76800:
-#endif
-#if defined(B230400) && defined(B4000000)
+#  endif
+#  if defined(B230400) && defined(B4000000)
     case BAUD230400:
     case BAUD460800:
     case BAUD500000:
@@ -108,7 +108,7 @@ void QextSerialPortPrivate::setBaudRate(BaudRateType baudRate, bool update)
     case BAUD3000000:
     case BAUD3500000:
     case BAUD4000000:
-#endif
+#  endif
         QESP_PORTABILITY_WARNING()<<"QextSerialPort Portability Warning: Windows does not support baudRate:"<<baudRate;
 #endif
     case BAUD110:
@@ -122,13 +122,18 @@ void QextSerialPortPrivate::setBaudRate(BaudRateType baudRate, bool update)
     case BAUD38400:
     case BAUD57600:
     case BAUD115200:
+#ifdef Q_OS_WIN
+    default:
+#endif
         Settings.BaudRate=baudRate;
         settingsDirtyFlags |= DFE_BaudRate;
         if (update && q_func()->isOpen())
             updatePortSettings();
         break;
+#ifndef Q_OS_WIN
     default:
         QESP_WARNING()<<"QextSerialPort does not support baudRate:"<<baudRate;
+#endif
     }
 }
 
