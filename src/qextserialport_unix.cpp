@@ -55,11 +55,18 @@ void QextSerialPortPrivate::platformSpecificDestruct()
 {
 }
 
+static QString fullPortName(const QString &name)
+{
+    if (name.startsWith(QLatin1Char('/')))
+        return name;
+    return QLatin1String("/dev/")+name;
+}
+
 bool QextSerialPortPrivate::open_sys(QIODevice::OpenMode mode)
 {
     Q_Q(QextSerialPort);
     //note: linux 2.6.21 seems to ignore O_NDELAY flag
-    if ((fd = ::open(port.toAscii() ,O_RDWR | O_NOCTTY | O_NDELAY)) != -1) {
+    if ((fd = ::open(fullPortName(port).toLatin1() ,O_RDWR | O_NOCTTY | O_NDELAY)) != -1) {
 
         /*In the Private class, We can not call QIODevice::open()*/
         q->setOpenMode(mode);             // Flag the port as opened
