@@ -22,6 +22,11 @@
       \endlist
     
     \section1 Getting Started
+
+This simplest way to play with this library is using Qt Creator. You can open the toplevel qextserialport.pro with Qt Creator, or open other xxxx.pro seperately.
+
+    \section2 Build into user application directly
+
       The package contains a qextserialport.pri file that allows you to integrate the 
       component into programs that use qmake for the build step.
 
@@ -48,7 +53,36 @@
       }
       \endcode
 
-    \section2 Using QexSerialPort as library
+    \section2 Using QexSerialPort as a system library
+      Although QextSerialPort can be directly compiled into your application, You may prefer
+      to use QextSerailPort as an library, which is very easy too.
+
+     1. Download the source code, and put it in any location you like.
+    
+     2. Goto qextserialport/buildlib, and run following command to generate library. (Yes, config.pri is not needed.)
+    
+          \code
+          qmake
+          make (or nmake)
+          sudo make install (or nmake install)
+          \endcode
+    
+     3. Add following line to your project's file
+    
+          \code
+          CONFIG += extserialport
+          \endcode
+    
+     4. Using QextSerialPort in your code. Enjoy it!
+    
+          \code
+          #include "qextserialport.h"
+          ....
+          QextSerialPort * port = new QextSerialPort();
+          ....
+          \endcode
+    
+    \section2 Using QexSerialPort as a non-system library
       Although QextSerialPort can be directly compiled into your application, You may prefer
       to use QextSerailPort as an library, which is very easy too.
 

@@ -4,6 +4,14 @@ QextSerialPort provides an interface to old fashioned serial ports for Qt-based 
 
     http://code.google.com/p/qextserialport/
 
+== Getting started ==
+
+This simplest way to play with this library is using Qt Creator.
+
+You can open the toplevel qextserialport.pro with Qt Creator, or open other xxxx.pro seperately. For example,
+ * If want to build shared libaray, open buildlib.pro
+ * If want to run examples, open one xxxx.pro
+
 == How to use (1) ==
 
  * Download the source code.
@@ -28,10 +36,32 @@ QextSerialPort provides an interface to old fashioned serial ports for Qt-based 
             ....
             
 == How to use (2) ==
-
 It's very easy to compile QextSerialPort directly into your application
-(see above section), however, we would prefer to use it as a static or
- shared library.
+(see above section), however, we would prefer to use it as a shared library.
+
+ * Download the source code, and put it in any location you like.
+
+ * Goto qextserialport/buildlib, and run following command to generate library. (Yes, config.pri is not needed.)
+
+          qmake
+          make (or nmake)
+          sudo make install (or nmake install)
+
+ * Add following line to your project's file
+
+          CONFIG += extserialport
+
+ * Using QextSerialPort in your code. Enjoy it!
+
+            #include "qextserialport.h"
+            ....
+            QextSerialPort * port = new QextSerialPort();
+            ....
+
+== How to use (3) ==
+
+Someone complains that, I want to used !QextSerialPort as a shared or static libaray, but I don't want
+to install them to system. OK, let's go...
 
  * Download the source code, and put it in any location you like.
 
@@ -62,62 +92,6 @@ It's very easy to compile QextSerialPort directly into your application
 
            include(pathToQextserialport/src/qextserialport.pri)
 
-== How to use (3) ==
-
-Someone complains that, I want to used !QextSerialPort as a shared libaray, but
-I don't want to add the {{{include(***.pri)}}} to my project file. Otherwise,
-all the source files of !QextSerialPort will be shown in Qt Creator, which is
-very annoying.
-
-Ok, let's go!
-
- * Download the source code, and put it in any location you like.
-
- * Goto qextserialport/buildlib, and run following command to generate library. (Yes, config.pri is not needed.)
-
-          qmake
-          make (or nmake)
-
- * Add following lines to your .pro file. And you need to specify the path to the lib and headers. Then Enjoy it!
-
-          # Specify lib and headers path if they are not in standard locations.
-          # Otherwise, your can ignore this.
-          unix{
-             QEXTSERIALPORT_LIBDIR = #path_to_qextserialport_lib
-             QEXTSERIALPORT_INCDIR = #path_to_qextserialport_headers
-          }else{
-             QEXTSERIALPORT_LIBDIR = #path_to_qextserialport_lib
-             QEXTSERIALPORT_INCDIR = #path_to_qextserialport_headers
-          }
-
-          SAVE_TEMPLATE = $$TEMPLATE
-          TEMPLATE = fakelib
-          QEXTSERIALPORT_LIBNAME = $$qtLibraryTarget(qextserialport-1.2)
-          TEMPLATE = $$SAVE_TEMPLATE
-
-          INCLUDEPATH += $$QEXTSERIALPORT_INCDIR
-          LIBS += -L$$QEXTSERIALPORT_LIBDIR -l$$QEXTSERIALPORT_LIBNAME
-          DEFINES += QEXTSERIALPORT_USING_SHARED
-
-          unix:QMAKE_RPATHDIR += $$QEXTSERIALPORT_LIBDIR
-
- * Oh, this file looks a bit complicated, as we need cross-platform. If you don't care cross-platform. It will be very simple :-) , for example
-      
-          INCLUDEPATH += /home/xxxx/download/qextserialport/src
-          LIBS += /home/xxxx/download/qextserialport/lib/libqextsrialport-1.2.so
-          DEFINES += QEXTSERIALPORT_USING_SHARED
-
- * Note:
-  * If you do not want to add such lines to each of your projects. This is another solution too.
-  * Create a new file called *extserialport.prf* , then add above lines to this new file.
-  * Put this .prf file to one of feature paths, such as
-          
-          $QTDIR\mkspecs\features\
-          
-  * Add the following line to your .pro file. Enjoy it!
-
-          CONFIG += extserialport
-
 == Build (optional) ==
 
  * Run qmake from the toplevel directory.(If your has create a config.pri file properly, this will generate the library, and then all examples will use the library. Otherwise, qextserialport will be directly compiled into the examples)
@@ -128,4 +102,6 @@ Ok, let's go!
  * Run qdoc3 from the doc directory.
 
            qdoc3 qextserialport.qdocconf
+
+ * Note: qdoc3 has been renamed to qdoc under Qt5.
 
