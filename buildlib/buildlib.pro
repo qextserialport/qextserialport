@@ -13,5 +13,12 @@ win32:!qextserialport-static{
     DLLDESTDIR = $$[QT_INSTALL_BINS]
     QMAKE_DISTCLEAN += $$[QT_INSTALL_BINS]\\$${QEXTSERIALPORT_LIBNAME}.dll
 }
-target.path = $$DESTDIR
-INSTALLS += target
+
+target.path = $$[QT_INSTALL_LIBS]
+headers.files = ../src/qextserialport.h \
+                ../src/qextserialenumerator.h \
+                ../src/qextserialport_global.h
+headers.path = $$[QT_INSTALL_HEADERS]/QtExtSerialPort
+features.files = extserialport.prf
+features.path = $$[QMAKE_MKSPECS]/features
+INSTALLS += target headers features
