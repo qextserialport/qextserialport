@@ -158,10 +158,12 @@ QList<QextPortInfo> QextSerialEnumerator::getPorts()
 */
 void QextSerialEnumerator::setUpNotifications()
 {
-#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
+#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC) && !(defined(Q_OS_LINUX) && !defined(QESP_NO_UDEV))
     qCritical("Notifications for *Nix/FreeBSD are not implemented yet");
 #endif
     Q_D(QextSerialEnumerator);
     if (!d->setUpNotifications_sys(true))
         QESP_WARNING("Setup Notification Failed...");
 }
+
+#include "moc_qextserialenumerator.cpp"

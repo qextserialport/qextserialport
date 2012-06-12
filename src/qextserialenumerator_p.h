@@ -5,6 +5,7 @@
 ** Copyright (c) 2008 Brandon Fosdick
 ** Copyright (c) 2009-2010 Liam Staskawicz
 ** Copyright (c) 2011 Debao Zhang
+** Copyright (c) 2012 Doug Brown
 ** All right reserved.
 ** Web: http://code.google.com/p/qextserialport/
 **
@@ -60,6 +61,13 @@
 #  include <IOKit/usb/IOUSBLib.h>
 #endif /*Q_OS_MAC*/
 
+#if defined(Q_OS_LINUX) && !defined(QESP_NO_UDEV)
+#  include <QSocketNotifier>
+extern "C" {
+#  include <libudev.h>
+}
+#endif
+
 class QextSerialRegistrationWidget;
 class QextSerialEnumeratorPrivate
 {
@@ -95,6 +103,15 @@ public:
 
     IONotificationPortRef notificationPortRef;
 #endif // Q_OS_MAC
+
+#if defined(Q_OS_LINUX) && !defined(QESP_NO_UDEV)
+    QSocketNotifier *notifier;
+    int notifierFd;
+    struct udev *udev;
+    struct udev_monitor *monitor;
+
+    void _q_deviceEvent();
+#endif
 
 private:
     QextSerialEnumerator * q_ptr;

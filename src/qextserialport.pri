@@ -24,9 +24,16 @@ qextserialport-library:!qextserialport-buildlib {
                               $$PWD/qextserialport_global.h
     SOURCES                += $$PWD/qextserialport.cpp \
                               $$PWD/qextserialenumerator.cpp
-    unix:SOURCES           += $$PWD/qextserialport_unix.cpp
-    unix:!macx:SOURCES     += $$PWD/qextserialenumerator_unix.cpp
-    macx:SOURCES           += $$PWD/qextserialenumerator_osx.cpp
+    unix {
+        SOURCES            += $$PWD/qextserialport_unix.cpp
+        linux*:!qextserialport-no-udev {
+            SOURCES        += $$PWD/qextserialenumerator_linux.cpp
+        } else:macx {
+            SOURCES        += $$PWD/qextserialenumerator_osx.cpp
+        } else {
+            SOURCES        += $$PWD/qextserialenumerator_unix.cpp
+        }
+    }
     win32:SOURCES          += $$PWD/qextserialport_win.cpp \
                               $$PWD/qextserialenumerator_win.cpp
 
@@ -41,7 +48,13 @@ qextserialport-library:!qextserialport-buildlib {
     qextserialport-buildlib:contains(TEMPLATE, .*lib):contains(CONFIG, shared){
         DEFINES += QEXTSERIALPORT_BUILD_SHARED
     }
+
+    linux*:qextserialport-no-udev:DEFINES += QESP_NO_UDEV
 }
 
 macx:LIBS              += -framework IOKit -framework CoreFoundation
 win32:LIBS             += -lsetupapi -ladvapi32 -luser32
+linux*:!qextserialport-no-udev: LIBS += -ludev
+
+# moc doesn't detect Q_OS_LINUX correctly, so add this to make it work
+linux*:DEFINES += __linux__

@@ -9,3 +9,6 @@
 
 # uncomment the following line too if you want to use it as static library
 # QEXTSERIALPORT_STATIC = yes
+
+# comment following line if you always want to enable "udev" under linux
+# QEXTSERIALPORT_WITH_UDEV = yes

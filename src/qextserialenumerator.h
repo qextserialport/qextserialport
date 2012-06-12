@@ -63,6 +63,9 @@ Q_SIGNALS:
 
 private:
     Q_DISABLE_COPY(QextSerialEnumerator)
+#if defined(Q_OS_LINUX) && !defined(QESP_NO_UDEV)
+    Q_PRIVATE_SLOT(d_func(), void _q_deviceEvent())
+#endif
     QextSerialEnumeratorPrivate *d_ptr;
 };
 
