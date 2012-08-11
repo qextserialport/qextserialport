@@ -147,9 +147,6 @@ QextSerialEnumerator::~QextSerialEnumerator( )
 */
 QList<QextPortInfo> QextSerialEnumerator::getPorts()
 {
-#if defined(Q_OS_UNIX) && !defined(Q_OS_LINUX) && !defined(Q_OS_MAC)
-    qCritical("Enumeration for POSIX systems (except Linux) is not implemented yet.");
-#endif
     return QextSerialEnumeratorPrivate::getPorts_sys();
 }
 
@@ -158,9 +155,6 @@ QList<QextPortInfo> QextSerialEnumerator::getPorts()
 */
 void QextSerialEnumerator::setUpNotifications()
 {
-#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC) && !(defined(Q_OS_LINUX) && !defined(QESP_NO_UDEV))
-    qCritical("Notifications for *Nix/FreeBSD are not implemented yet");
-#endif
     Q_D(QextSerialEnumerator);
     if (!d->setUpNotifications_sys(true))
         QESP_WARNING("Setup Notification Failed...");

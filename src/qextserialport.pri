@@ -26,7 +26,7 @@ qextserialport-library:!qextserialport-buildlib {
                               $$PWD/qextserialenumerator.cpp
     unix {
         SOURCES            += $$PWD/qextserialport_unix.cpp
-        linux*:!qextserialport-no-udev {
+        linux* {
             SOURCES        += $$PWD/qextserialenumerator_linux.cpp
         } else:macx {
             SOURCES        += $$PWD/qextserialenumerator_osx.cpp
