@@ -16,6 +16,7 @@ qtc-gdbmacros/
 *.ilk
 *.pdb
 *.lib
+Thumbs.db
 moc_*.cpp
 qrc_*.cpp
 *.o
