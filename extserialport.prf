@@ -2,11 +2,11 @@ INCLUDEPATH += $$[QT_INSTALL_HEADERS]/QtExtSerialPort
 
 SAVE_TEMPLATE = $$TEMPLATE
 TEMPLATE = fakelib
-contains(QT_VERSION, ^5\\..*\\..*) {
+greaterThan(QT_MAJOR_VERSION, 4) {
     #different name for Qt4 and Qt5
-    QEXTSERIALPORT_LIBNAME = $$qtLibraryTarget(QtExtSerialPort-1.2)
+    QEXTSERIALPORT_LIBNAME = $$qtLibraryTarget(QtExtSerialPort)
 } else {
-    QEXTSERIALPORT_LIBNAME = $$qtLibraryTarget(qextserialport-1.2)
+    QEXTSERIALPORT_LIBNAME = $$qtLibraryTarget(qextserialport)
 }
 TEMPLATE = $$SAVE_TEMPLATE
 

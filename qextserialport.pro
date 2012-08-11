@@ -1,20 +1,19 @@
 TEMPLATE=lib
 include(src/qextserialport.pri)
-CONFIG += dll
+#create_prl is needed,
+#otherwise, MinGW can't found qextserialport1.a
+CONFIG += dll create_prl
 
 #generate proper library name
-SAVE_TEMPLATE = $$TEMPLATE
-TEMPLATE = fakelib
-contains(QT_VERSION, ^5\\..*\\..*) {
-    QEXTSERIALPORT_LIBNAME = $$qtLibraryTarget(QtExtSerialPort-1.2)
+greaterThan(QT_MAJOR_VERSION, 4) {
+    QEXTSERIALPORT_LIBNAME = $$qtLibraryTarget(QtExtSerialPort)
 } else {
-    QEXTSERIALPORT_LIBNAME = $$qtLibraryTarget(qextserialport-1.2)
+    QEXTSERIALPORT_LIBNAME = $$qtLibraryTarget(qextserialport)
 }
-TEMPLATE = $$SAVE_TEMPLATE
 
 TARGET = $$QEXTSERIALPORT_LIBNAME
 DEFINES += QEXTSERIALPORT_BUILD_SHARED
-
+VERSION = 1.2.0
 mac:CONFIG += absolute_library_soname
 win32|mac:!wince*:!win32-msvc:!macx-xcode:CONFIG += debug_and_release build_all
 
