@@ -11,12 +11,11 @@ INCLUDEPATH += $$PWD
 DEPENDPATH += $$PWD
 
 qextserialport-library:!qextserialport-buildlib {
-    # Using QextSerialPort as shared or static library.
+    # Using QextSerialPort as shared library.
     LIBS += -L$$QEXTSERIALPORT_LIBDIR -l$$QEXTSERIALPORT_LIBNAME
-   !qextserialport-static: DEFINES += QEXTSERIALPORT_USING_SHARED
+    DEFINES += QEXTSERIALPORT_USING_SHARED
 } else {
-    # Building library(shared or static)
-    # or including source files
+    # Building shared library or including source files
     HEADERS                += $$PWD/qextserialport.h \
                               $$PWD/qextserialport_p.h \
                               $$PWD/qextserialenumerator.h \
