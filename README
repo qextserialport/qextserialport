@@ -4,14 +4,6 @@ QextSerialPort provides an interface to old fashioned serial ports for Qt-based 
 
     http://code.google.com/p/qextserialport/
 
-== Getting started ==
-
-This simplest way to play with this library is using Qt Creator.
-
-You can open the toplevel qextserialport.pro with Qt Creator, or open other xxxx.pro seperately. For example,
- * If want to build shared libaray, open buildlib.pro
- * If want to run examples, open one xxxx.pro
-
 == How to use (1) ==
 
  * Download the source code.
@@ -41,7 +33,7 @@ It's very easy to compile QextSerialPort directly into your application
 
  * Download the source code, and put it in any location you like.
 
- * Goto qextserialport/buildlib, and run following command to generate library. (Yes, config.pri is not needed.)
+ * Run following command to generate library. 
 
           qmake
           make (or nmake)
@@ -58,50 +50,15 @@ It's very easy to compile QextSerialPort directly into your application
             QextSerialPort * port = new QextSerialPort();
             ....
 
-== How to use (3) ==
-
-Someone complains that, I want to used !QextSerialPort as a shared or static libaray, but I don't want
-to install them to system. OK, let's go...
-
- * Download the source code, and put it in any location you like.
-
-           |-- yourpath\
-           |     |-- qextserialport\
-           |     |
-
- * Create a config.pri file, and put into qextserialport's directory.
-
-           |-- yourpath\
-           |     |-- qextserialport\
-           |     |     |-- config.pri
-           
-   * Contents of config_example.pri
-  
-           # uncomment the following line if you want to use qesp as library
-           # QEXTSERIALPORT_LIBRARY = yes
-
-           # uncomment the following line too if you want to use it as static library
-           # QEXTSERIALPORT_STATIC = yes
-
- * Goto qextserialport/buildlib, and run following command to generate library.
-
+== Build Documents ==
+ * Run
            qmake
-           make (or nmake)
+           make docs
 
- * Add following line to your qmake project file. Enjoy it!
+ * Note: More information can be found in doc/readme.txt
 
-           include(pathToQextserialport/src/qextserialport.pri)
-
-== Build (optional) ==
-
- * Run qmake from the toplevel directory.(If your has create a config.pri file properly, this will generate the library, and then all examples will use the library. Otherwise, qextserialport will be directly compiled into the examples)
-
+== Build examples ==
+ * Goto examples directory, then run
            qmake (or qmake -r)
            make (or nmake)
-
- * Run qdoc3 from the doc directory.
-
-           qdoc3 qextserialport.qdocconf
-
- * Note: qdoc3 has been renamed to qdoc under Qt5.
 
