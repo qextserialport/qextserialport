@@ -33,6 +33,8 @@
 #include "qextserialenumerator.h"
 #include "qextserialenumerator_p.h"
 #include <QtCore/QDebug>
+#include <QtCore/QStringList>
+#include <QtCore/QDir>
 
 void QextSerialEnumeratorPrivate::platformSpecificInit()
 {
