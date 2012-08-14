@@ -347,6 +347,11 @@ void QextSerialPortPrivate::updatePortSettings()
             setBaudRate2Termios(&Posix_CommConfig, B4000000);
             break;
 #endif
+#ifdef Q_OS_MAC
+        default:
+            setBaudRate2Termios(&Posix_CommConfig, Settings.BaudRate);
+            break;
+#endif
         }
     }
     if (settingsDirtyFlags & DFE_Parity) {
