@@ -1,4 +1,4 @@
-CONFIG += qextserialport-no-udev
+linux*:CONFIG += qesp_linux_no_udev
 
 INCLUDEPATH += $$PWD
 DEPENDPATH += $$PWD
@@ -24,8 +24,8 @@ win32:SOURCES          += $$PWD/qextserialport_win.cpp \
                           $$PWD/qextserialenumerator_win.cpp
 
 linux*{
-    qextserialport-no-udev:DEFINES += QESP_NO_UDEV
-    !qextserialport-no-udev: LIBS += -ludev
+    qesp_linux_no_udev:DEFINES += QESP_NO_UDEV
+    !qesp_linux_no_udev: LIBS += -ludev
 }
 
 macx:LIBS              += -framework IOKit -framework CoreFoundation
