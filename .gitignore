@@ -26,11 +26,13 @@ qrc_*.cpp
 ui_*.h
 *~
 .qmake.cache
+extserialport.prf
 lib/*
 *.orig
 *.exe
 *.vcproj
 *.vcproj.*.user
+*_resource.rc
 *.sln
 *.idb
 *.ncb

@@ -22,6 +22,9 @@ win32 {
     QMAKE_DISTCLEAN += $$[QT_INSTALL_BINS]\\$${QEXTSERIALPORT_LIBNAME}.dll
 }
 
+# generate feature file by qmake based on this *.in file.
+QMAKE_SUBSTITUTES += extserialport.prf.in
+
 # for make docs
 include(doc/doc.pri)
 
