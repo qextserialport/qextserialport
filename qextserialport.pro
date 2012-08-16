@@ -4,6 +4,9 @@
 # Uncomment following line if build framework for mac
 # macx:CONFIG += qesp_mac_framework
 
+# Uncomment following line if enable udev for linux
+# linux*:CONFIG += qesp_linux_udev
+
 ######################################################
 
 TEMPLATE=lib
