@@ -17,25 +17,34 @@ include(src/qextserialport.pri)
 CONFIG += create_prl
 
 #mac framework is designed for shared library
-macx:qesp_mac_framework: CONFIG -= qesp_static
+macx:qesp_mac_framework:qesp_static: CONFIG -= qesp_static
+!macx:qesp_mac_framework:CONFIG -= qesp_mac_framework
 
 qesp_static {
     CONFIG += static
 } else {
     CONFIG += shared
-    macx:CONFIG += absolute_library_soname
+    macx:!qesp_mac_framework:CONFIG += absolute_library_soname
     DEFINES += QEXTSERIALPORT_BUILD_SHARED
 }
+
+#Creare lib bundle for mac
+macx:qesp_mac_framework {
+    CONFIG += lib_bundle
+    FRAMEWORK_HEADERS.files = $$PUBLIC_HEADERS
+    FRAMEWORK_HEADERS.path = Headers
+    QMAKE_BUNDLE_DATA += FRAMEWORK_HEADERS
+}
+
 win32|mac:!wince*:!win32-msvc:!macx-xcode:CONFIG += debug_and_release build_all
 
 #generate proper library name
 greaterThan(QT_MAJOR_VERSION, 4) {
-    QESP_LIBNAME = $$qtLibraryTarget(QtExtSerialPort)
+    QESP_LIB_BASENAME = QtExtSerialPort
 } else {
-    QESP_LIBNAME = $$qtLibraryTarget(qextserialport)
+    QESP_LIB_BASENAME = qextserialport
 }
-
-TARGET = $$QESP_LIBNAME
+TARGET = $$qtLibraryTarget($$QESP_LIB_BASENAME)
 VERSION = 1.2.0
 
 # generate feature file by qmake based on this *.in file.
@@ -49,12 +58,13 @@ win32:!qesp_static {
    dlltarget.path = $$[QT_INSTALL_BINS]
    INSTALLS += dlltarget
 }
+!macx|!qesp_mac_framework {
+    headers.files = $$PUBLIC_HEADERS
+    headers.path = $$[QT_INSTALL_HEADERS]/QtExtSerialPort
+    INSTALLS += headers
+}
 target.path = $$[QT_INSTALL_LIBS]
-headers.files = src/qextserialport.h \
-                src/qextserialenumerator.h \
-                src/qextserialport_global.h
-headers.path = $$[QT_INSTALL_HEADERS]/QtExtSerialPort
+
 features.files = extserialport.prf
 features.path = $$[QMAKE_MKSPECS]/features
-INSTALLS += target headers features
-
+INSTALLS += target features

@@ -1,11 +1,14 @@
 INCLUDEPATH += $$PWD
 DEPENDPATH += $$PWD
 
-HEADERS                += $$PWD/qextserialport.h \
-                          $$PWD/qextserialport_p.h \
+PUBLIC_HEADERS                += $$PWD/qextserialport.h \
                           $$PWD/qextserialenumerator.h \
-                          $$PWD/qextserialenumerator_p.h \
                           $$PWD/qextserialport_global.h
+
+HEADERS                += $$PUBLIC_HEADERS \
+                          $$PWD/qextserialport_p.h \
+                          $$PWD/qextserialenumerator_p.h \
+
 SOURCES                += $$PWD/qextserialport.cpp \
                           $$PWD/qextserialenumerator.cpp
 unix {

@@ -2,8 +2,11 @@ syntax: glob
 *.pro.user*
 *.app
 *.moc
+*.prl
 Makefile*
 doc/html/
+*.framework/
+*.xcodeproj/
 debug/
 release/
 qtc-gdbmacros/

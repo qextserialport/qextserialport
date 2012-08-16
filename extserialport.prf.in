@@ -1,20 +1,14 @@
-#Generate proper name for the library
-SAVE_TEMPLATE = \$\$TEMPLATE
-TEMPLATE = fakelib
-!!IF greaterThan(QT_MAJOR_VERSION, 4)
-QESP_LIBNAME = \$\$qtLibraryTarget(QtExtSerialPort)
+!!IF qesp_mac_framework
+    LIBS += -framework $$QESP_LIB_BASENAME
+    INCLUDEPATH += $$[QT_INSTALL_LIBS]/$${QESP_LIB_BASENAME}.framework/Headers
 !!ELSE
-QESP_LIBNAME = \$\$qtLibraryTarget(qextserialport)
-!!ENDIF
-TEMPLATE = \$\$SAVE_TEMPLATE
-
-!!IF macx:qesp_mac_framework
-#TODO...
-!!ELSE
-LIBS += -l\$\$QESP_LIBNAME
-INCLUDEPATH += \$\$[QT_INSTALL_HEADERS]/QtExtSerialPort
+    SAVE_TEMPLATE = \$\$TEMPLATE
+    TEMPLATE = fakelib
+    LIBS += -l\$\$qtLibraryTarget($$QESP_LIB_BASENAME)
+    TEMPLATE = \$\$SAVE_TEMPLATE
+    INCLUDEPATH += $$[QT_INSTALL_HEADERS]/QtExtSerialPort
 !!ENDIF
 
 !!IF !qesp_static
-DEFINES += QEXTSERIALPORT_USING_SHARED
+    DEFINES += QEXTSERIALPORT_USING_SHARED
 !!ENDIF
