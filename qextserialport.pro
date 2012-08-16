@@ -6,19 +6,15 @@
 
 ######################################################
 
-# Configurate our extserialport.prf file
-macx:qesp_mac_framework {
-    QESP_PRF_CONFIG += qesp_mac_framework
-    CONFIG -= qesp_static
-}
-qesp_static:QESP_PRF_CONFIG += qesp_static
-
 TEMPLATE=lib
 include(src/qextserialport.pri)
 
 #create_prl is needed,
-#otherwise, MinGW can't found qextserialport1.a
+#otherwise, MinGW can't found libqextserialport1.a
 CONFIG += create_prl
+
+#mac framework is designed for shared library
+macx:qesp_mac_framework: CONFIG -= qesp_static
 
 qesp_static {
     CONFIG += static
