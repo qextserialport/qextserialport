@@ -1,19 +1,22 @@
-# Uncomment following line if build static library
+############################### *User Config* ###############################
+
+# Uncomment following line if you want to build a static library
 # CONFIG += qesp_static
 
-# Uncomment following line if build framework for mac
+# Uncomment following line if you want to build framework for mac
 # macx:CONFIG += qesp_mac_framework
 
-# Uncomment following line if enable udev for linux
+# Uncomment following line if you want to enable udev for linux
 # linux*:CONFIG += qesp_linux_udev
 
-######################################################
+# Note: you can create a ".qmake.cache" file, then copy these lines to it.
+# If so, you can avoid to change this project file.
+############################### *User Config* ###############################
 
 TEMPLATE=lib
 include(src/qextserialport.pri)
 
-#create_prl is needed,
-#otherwise, MinGW can't found libqextserialport1.a
+#create_prl is needed, otherwise, MinGW can't found libqextserialport1.a
 CONFIG += create_prl
 
 #mac framework is designed for shared library
@@ -49,6 +52,7 @@ VERSION = 1.2.0
 
 # generate feature file by qmake based on this *.in file.
 QMAKE_SUBSTITUTES += extserialport.prf.in
+OTHER_FILES += extserialport.prf.in
 
 # for make docs
 include(doc/doc.pri)
