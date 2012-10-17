@@ -8,6 +8,7 @@ namespace Ui {
 }
 class QTimer;
 class QextSerialPort;
+class QextSerialEnumerator;
 
 class Dialog : public QDialog
 {
@@ -32,10 +33,13 @@ private Q_SLOTS:
     void onSendButtonClicked();
     void onReadyRead();
 
+    void onPortAddedOrRemoved();
+
 private:
     Ui::Dialog *ui;
     QTimer *timer;
     QextSerialPort *port;
+    QextSerialEnumerator *enumerator;
 };
 
 #endif // DIALOG_H

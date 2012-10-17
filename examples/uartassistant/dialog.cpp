@@ -1,4 +1,5 @@
 #include "qextserialport.h"
+#include "qextserialenumerator.h"
 #include "dialog.h"
 #include "ui_dialog.h"
 #include <QtCore>
@@ -10,11 +11,8 @@ Dialog::Dialog(QWidget *parent) :
     ui->setupUi(this);
 
     //! [0]
-#ifdef Q_OS_WIN
-    ui->portBox->addItems(QStringList()<<"COM1"<<"COM2"<<"COM3"<<"COM4");
-#else
-    ui->portBox->addItems(QStringList()<<"/dev/ttyS0"<<"/dev/ttyS1"<<"/dev/ttyUSB0"<<"/dev/ttyUSB1");
-#endif
+    foreach (QextPortInfo info, QextSerialEnumerator::getPorts())
+        ui->portBox->addItem(info.portName);
     //make sure user can input their own port name!
     ui->portBox->setEditable(true);
 
@@ -50,6 +48,10 @@ Dialog::Dialog(QWidget *parent) :
     PortSettings settings = {BAUD9600, DATA_8, PAR_NONE, STOP_1, FLOW_OFF, 10};
     port = new QextSerialPort(ui->portBox->currentText(), settings, QextSerialPort::Polling);
     //! [1]
+
+    enumerator = new QextSerialEnumerator(this);
+    enumerator->setUpNotifications();
+
     connect(ui->baudRateBox, SIGNAL(currentIndexChanged(int)), SLOT(onBaudRateChanged(int)));
     connect(ui->parityBox, SIGNAL(currentIndexChanged(int)), SLOT(onParityChanged(int)));
     connect(ui->dataBitsBox, SIGNAL(currentIndexChanged(int)), SLOT(onDataBitsChanged(int)));
@@ -61,6 +63,9 @@ Dialog::Dialog(QWidget *parent) :
     connect(ui->sendButton, SIGNAL(clicked()), SLOT(onSendButtonClicked()));
     connect(timer, SIGNAL(timeout()), SLOT(onReadyRead()));
     connect(port, SIGNAL(readyRead()), SLOT(onReadyRead()));
+
+    connect(enumerator, SIGNAL(deviceDiscovered(QextPortInfo)), SLOT(onPortAddedOrRemoved()));
+    connect(enumerator, SIGNAL(deviceRemoved(QextPortInfo)), SLOT(onPortAddedOrRemoved()));
 
     setWindowTitle(tr("QextSerialPort Demo"));
 }
@@ -156,4 +161,19 @@ void Dialog::onReadyRead()
         ui->recvEdit->insertPlainText(QString::fromLatin1(port->readAll()));
     }
 }
+
+void Dialog::onPortAddedOrRemoved()
+{
+    QString current = ui->portBox->currentText();
+
+    ui->portBox->blockSignals(true);
+    ui->portBox->clear();
+    foreach (QextPortInfo info, QextSerialEnumerator::getPorts())
+        ui->portBox->addItem(info.portName);
+
+    ui->portBox->setCurrentIndex(ui->portBox->findText(current));
+
+    ui->portBox->blockSignals(false);
+}
+
 //! [4]
