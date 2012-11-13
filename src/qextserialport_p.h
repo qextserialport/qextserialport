@@ -95,7 +95,7 @@ public:
     inline char* reserve(size_t size) {
         if ((first - buf) + len + size > capacity) {
             size_t newCapacity = qMax(capacity, basicBlockSize);
-            while (newCapacity < size)
+            while (newCapacity < len + size)
                 newCapacity *= 2;
             if (newCapacity > capacity) {
                 // allocate more space
