@@ -41,6 +41,10 @@ macx:qesp_mac_framework {
 
 win32|mac:!wince*:!win32-msvc:!macx-xcode:CONFIG += debug_and_release build_all
 
+#For non-windows system, only depends on QtCore module
+unix:QT = core
+else:QT = core gui
+
 #generate proper library name
 greaterThan(QT_MAJOR_VERSION, 4) {
     QESP_LIB_BASENAME = QtExtSerialPort
