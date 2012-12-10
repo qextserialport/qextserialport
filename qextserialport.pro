@@ -63,8 +63,8 @@ include(doc/doc.pri)
 
 # for make install
 win32:!qesp_static {
-   dlltarget.path = $$[QT_INSTALL_BINS]
-   INSTALLS += dlltarget
+    dlltarget.path = $$[QT_INSTALL_BINS]
+    INSTALLS += dlltarget
 }
 !macx|!qesp_mac_framework {
     headers.files = $$PUBLIC_HEADERS

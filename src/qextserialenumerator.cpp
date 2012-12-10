@@ -75,7 +75,7 @@ QextSerialEnumeratorPrivate::~QextSerialEnumeratorPrivate()
     \bold Example
     \code
     QList<QextPortInfo> ports = QextSerialEnumerator::getPorts();
-    foreach( QextPortInfo port, ports ) {
+    foreach (QextPortInfo port, ports) {
         // inspect port...
     }
     \endcode
@@ -86,7 +86,7 @@ QextSerialEnumeratorPrivate::~QextSerialEnumeratorPrivate()
   
     \bold Example
     \code
-    QextSerialEnumerator* enumerator = new QextSerialEnumerator();
+    QextSerialEnumerator *enumerator = new QextSerialEnumerator();
     connect(enumerator, SIGNAL(deviceDiscovered(const QextPortInfo &)),
                myClass, SLOT(onDeviceDiscovered(const QextPortInfo &)));
     connect(enumerator, SIGNAL(deviceRemoved(const QextPortInfo &)),
@@ -103,7 +103,7 @@ QextSerialEnumeratorPrivate::~QextSerialEnumeratorPrivate()
 */
 
 /*!
-    \fn void QextSerialEnumerator::deviceDiscovered( const QextPortInfo & info )
+    \fn void QextSerialEnumerator::deviceDiscovered(const QextPortInfo &info)
     A new device has been connected to the system.
   
     setUpNotifications() must be called first to enable event-driven device notifications.
@@ -113,7 +113,7 @@ QextSerialEnumeratorPrivate::~QextSerialEnumeratorPrivate()
 */
 
 /*!
-   \fn void QextSerialEnumerator::deviceRemoved( const QextPortInfo & info );
+   \fn void QextSerialEnumerator::deviceRemoved(const QextPortInfo &info);
     A device has been disconnected from the system.
   
     setUpNotifications() must be called first to enable event-driven device notifications.
@@ -128,14 +128,14 @@ QextSerialEnumeratorPrivate::~QextSerialEnumeratorPrivate()
 QextSerialEnumerator::QextSerialEnumerator(QObject *parent)
     :QObject(parent), d_ptr(new QextSerialEnumeratorPrivate(this))
 {
-    if( !QMetaType::isRegistered( QMetaType::type("QextPortInfo") ) )
+    if (!QMetaType::isRegistered(QMetaType::type("QextPortInfo")))
         qRegisterMetaType<QextPortInfo>("QextPortInfo");
 }
 
 /*!
    Destructs the QextSerialEnumerator object.
 */
-QextSerialEnumerator::~QextSerialEnumerator( )
+QextSerialEnumerator::~QextSerialEnumerator()
 {
     delete d_ptr;
 }

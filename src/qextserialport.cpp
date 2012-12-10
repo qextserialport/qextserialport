@@ -125,7 +125,7 @@ void QextSerialPortPrivate::setBaudRate(BaudRateType baudRate, bool update)
 #if defined(Q_OS_WIN) || defined(Q_OS_MAC)
     default:
 #endif
-        Settings.BaudRate=baudRate;
+        Settings.BaudRate = baudRate;
         settingsDirtyFlags |= DFE_BaudRate;
         if (update && q_func()->isOpen())
             updatePortSettings();
@@ -141,7 +141,7 @@ void QextSerialPortPrivate::setParity(ParityType parity, bool update)
 {
     switch (parity) {
     case PAR_SPACE:
-        if (Settings.DataBits==DATA_8) {
+        if (Settings.DataBits == DATA_8) {
 #ifdef Q_OS_WIN
             QESP_PORTABILITY_WARNING("QextSerialPort Portability Warning: Space parity with 8 data bits is not supported by POSIX systems.");
 #else
@@ -165,7 +165,7 @@ void QextSerialPortPrivate::setParity(ParityType parity, bool update)
         QESP_WARNING()<<"QextSerialPort does not support Parity:" << parity;
     }
 
-    Settings.Parity=parity;
+    Settings.Parity = parity;
     settingsDirtyFlags |= DFE_Parity;
     if (update && q_func()->isOpen())
         updatePortSettings();
@@ -176,50 +176,50 @@ void QextSerialPortPrivate::setDataBits(DataBitsType dataBits, bool update)
     switch(dataBits) {
 
     case DATA_5:
-        if (Settings.StopBits==STOP_2) {
+        if (Settings.StopBits == STOP_2) {
             QESP_WARNING("QextSerialPort: 5 Data bits cannot be used with 2 stop bits.");
         }
         else {
-            Settings.DataBits=dataBits;
+            Settings.DataBits = dataBits;
             settingsDirtyFlags |= DFE_DataBits;
         }
         break;
 
     case DATA_6:
 #ifdef Q_OS_WIN
-        if (Settings.StopBits==STOP_1_5) {
+        if (Settings.StopBits == STOP_1_5) {
             QESP_WARNING("QextSerialPort: 6 Data bits cannot be used with 1.5 stop bits.");
         }
         else
 #endif
         {
-            Settings.DataBits=dataBits;
+            Settings.DataBits = dataBits;
             settingsDirtyFlags |= DFE_DataBits;
         }
         break;
 
     case DATA_7:
 #ifdef Q_OS_WIN
-        if (Settings.StopBits==STOP_1_5) {
+        if (Settings.StopBits == STOP_1_5) {
             QESP_WARNING("QextSerialPort: 7 Data bits cannot be used with 1.5 stop bits.");
         }
         else
 #endif
         {
-            Settings.DataBits=dataBits;
+            Settings.DataBits = dataBits;
             settingsDirtyFlags |= DFE_DataBits;
         }
         break;
 
     case DATA_8:
 #ifdef Q_OS_WIN
-        if (Settings.StopBits==STOP_1_5) {
+        if (Settings.StopBits == STOP_1_5) {
             QESP_WARNING("QextSerialPort: 8 Data bits cannot be used with 1.5 stop bits.");
         }
         else
 #endif
         {
-            Settings.DataBits=dataBits;
+            Settings.DataBits = dataBits;
             settingsDirtyFlags |= DFE_DataBits;
         }
         break;
@@ -244,7 +244,7 @@ void QextSerialPortPrivate::setStopBits(StopBitsType stopBits, bool update)
         /*1.5 stop bits*/
     case STOP_1_5:
         QESP_PORTABILITY_WARNING("QextSerialPort Portability Warning: 1.5 stop bit operation is not supported by POSIX.");
-        if (Settings.DataBits!=DATA_5) {
+        if (Settings.DataBits != DATA_5) {
             QESP_WARNING("QextSerialPort: 1.5 stop bits can only be used with 5 data bits");
         }
         else {
@@ -256,7 +256,7 @@ void QextSerialPortPrivate::setStopBits(StopBitsType stopBits, bool update)
 
         /*two stop bits*/
     case STOP_2:
-        if (Settings.DataBits==DATA_5) {
+        if (Settings.DataBits == DATA_5) {
             QESP_WARNING("QextSerialPort: 2 stop bits cannot be used with 5 data bits");
         }
         else {
@@ -273,7 +273,7 @@ void QextSerialPortPrivate::setStopBits(StopBitsType stopBits, bool update)
 
 void QextSerialPortPrivate::setFlowControl(FlowType flow, bool update)
 {
-    Settings.FlowControl=flow;
+    Settings.FlowControl = flow;
     settingsDirtyFlags |= DFE_Flow;
     if (update && q_func()->isOpen())
         updatePortSettings();
@@ -305,7 +305,7 @@ void QextSerialPortPrivate::_q_canRead()
 {
     qint64 maxSize = bytesAvailable_sys();
     if (maxSize > 0) {
-        char * writePtr = readBuffer.reserve(size_t(maxSize));
+        char *writePtr = readBuffer.reserve(size_t(maxSize));
         qint64 bytesRead = readData_sys(writePtr, maxSize);
         if (bytesRead < maxSize)
             readBuffer.chop(maxSize - bytesRead);
@@ -325,7 +325,7 @@ void QextSerialPortPrivate::_q_canRead()
 
     \bold Example
     \code
-    QextSerialPort* port = new QextSerialPort("COM1");
+    QextSerialPort *port = new QextSerialPort("COM1");
     connect(port, SIGNAL(readyRead()), myClass, SLOT(onDataAvailable()));
     port->open();
 
@@ -438,7 +438,7 @@ QextSerialPort::QextSerialPort(QextSerialPort::QueryMode mode, QObject *parent)
     \a name is the name of the device, which is windowsystem-specific,
     e.g."COM1" or "/dev/ttyS0". \a mode
 */
-QextSerialPort::QextSerialPort(const QString & name, QextSerialPort::QueryMode mode, QObject *parent)
+QextSerialPort::QextSerialPort(const QString &name, QextSerialPort::QueryMode mode, QObject *parent)
     : QIODevice(parent), d_ptr(new QextSerialPortPrivate(this))
 {
     setQueryMode(mode);
@@ -448,7 +448,7 @@ QextSerialPort::QextSerialPort(const QString & name, QextSerialPort::QueryMode m
 /*!
     Constructs a port with default name and specified \a settings.
 */
-QextSerialPort::QextSerialPort(const PortSettings& settings, QextSerialPort::QueryMode mode, QObject *parent)
+QextSerialPort::QextSerialPort(const PortSettings &settings, QextSerialPort::QueryMode mode, QObject *parent)
     : QIODevice(parent), d_ptr(new QextSerialPortPrivate(this))
 {
     Q_D(QextSerialPort);
@@ -459,7 +459,7 @@ QextSerialPort::QextSerialPort(const PortSettings& settings, QextSerialPort::Que
 /*!
     Constructs a port with specified \a name , \a mode and \a settings.
 */
-QextSerialPort::QextSerialPort(const QString & name, const PortSettings& settings, QextSerialPort::QueryMode mode, QObject *parent)
+QextSerialPort::QextSerialPort(const QString &name, const PortSettings &settings, QextSerialPort::QueryMode mode, QObject *parent)
     : QIODevice(parent), d_ptr(new QextSerialPortPrivate(this))
 {
     Q_D(QextSerialPort);
@@ -577,7 +577,7 @@ void QextSerialPort::setQueryMode(QueryMode mode)
 /*!
     Sets the \a name of the device associated with the object, e.g. "COM1", or "/dev/ttyS0".
 */
-void QextSerialPort::setPortName(const QString & name)
+void QextSerialPort::setPortName(const QString &name)
 {
     Q_D(QextSerialPort);
     QWriteLocker locker(&d->lock);

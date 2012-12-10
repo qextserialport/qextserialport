@@ -44,7 +44,7 @@
 #endif
 void QextSerialPortPrivate::platformSpecificInit()
 {
-    Win_Handle=INVALID_HANDLE_VALUE;
+    Win_Handle = INVALID_HANDLE_VALUE;
     ZeroMemory(&overlap, sizeof(OVERLAPPED));
     overlap.hEvent = CreateEvent(NULL, true, false, NULL);
     winEventNotifier = 0;
@@ -64,11 +64,11 @@ void QextSerialPortPrivate::platformSpecificDestruct() {
 
     This is only need when open the port.
 */
-static QString fullPortNameWin(const QString & name)
+static QString fullPortNameWin(const QString &name)
 {
     QRegExp rx(QLatin1String("^COM(\\d+)"));
     QString fullName(name);
-    if(fullName.contains(rx))
+    if (fullName.contains(rx))
         fullName.prepend(QLatin1String("\\\\.\\"));
     return fullName;
 }
@@ -83,29 +83,29 @@ bool QextSerialPortPrivate::open_sys(QIODevice::OpenMode mode)
         dwFlagsAndAttributes += FILE_FLAG_OVERLAPPED;
 
     /*open the port*/
-    Win_Handle=CreateFileW((wchar_t*)fullPortNameWin(port).utf16(), GENERIC_READ|GENERIC_WRITE,
+    Win_Handle = CreateFileW((wchar_t *)fullPortNameWin(port).utf16(), GENERIC_READ|GENERIC_WRITE,
                            0, NULL, OPEN_EXISTING, dwFlagsAndAttributes, NULL);
-    if (Win_Handle!=INVALID_HANDLE_VALUE) {
+    if (Win_Handle != INVALID_HANDLE_VALUE) {
         q->setOpenMode(mode);
         /*configure port settings*/
         GetCommConfig(Win_Handle, &Win_CommConfig, &confSize);
         GetCommState(Win_Handle, &(Win_CommConfig.dcb));
 
         /*set up parameters*/
-        Win_CommConfig.dcb.fBinary=TRUE;
-        Win_CommConfig.dcb.fInX=FALSE;
-        Win_CommConfig.dcb.fOutX=FALSE;
-        Win_CommConfig.dcb.fAbortOnError=FALSE;
-        Win_CommConfig.dcb.fNull=FALSE;
+        Win_CommConfig.dcb.fBinary = TRUE;
+        Win_CommConfig.dcb.fInX = FALSE;
+        Win_CommConfig.dcb.fOutX = FALSE;
+        Win_CommConfig.dcb.fAbortOnError = FALSE;
+        Win_CommConfig.dcb.fNull = FALSE;
         /* Dtr default to true. See Issue 122*/
-        Win_CommConfig.dcb.fDtrControl=TRUE;
+        Win_CommConfig.dcb.fDtrControl = TRUE;
         /*flush all settings*/
         settingsDirtyFlags = DFE_ALL;
         updatePortSettings();
 
         //init event driven approach
         if (_queryMode == QextSerialPort::EventDriven) {
-            if (!SetCommMask( Win_Handle, EV_TXEMPTY | EV_RXCHAR | EV_DSR)) {
+            if (!SetCommMask(Win_Handle, EV_TXEMPTY | EV_RXCHAR | EV_DSR)) {
                 QESP_WARNING()<<"failed to set Comm Mask. Error code:"<<GetLastError();
                 return false;
             }
@@ -125,14 +125,14 @@ bool QextSerialPortPrivate::close_sys()
     CancelIo(Win_Handle);
     if (CloseHandle(Win_Handle))
         Win_Handle = INVALID_HANDLE_VALUE;
-    if (winEventNotifier){
+    if (winEventNotifier) {
         winEventNotifier->setEnabled(false);
         winEventNotifier->deleteLater();
         winEventNotifier = 0;
     }
     _bytesToWrite = 0;
 
-    foreach(OVERLAPPED* o, pendingWrites) {
+    foreach (OVERLAPPED *o, pendingWrites) {
         CloseHandle(o->hEvent);
         delete o;
     }
@@ -161,29 +161,29 @@ qint64 QextSerialPortPrivate::bytesAvailable_sys() const
 */
 void QextSerialPortPrivate::translateError(ulong error)
 {
-    if (error&CE_BREAK) {
-        lastErr=E_BREAK_CONDITION;
+    if (error & CE_BREAK) {
+        lastErr = E_BREAK_CONDITION;
     }
-    else if (error&CE_FRAME) {
-        lastErr=E_FRAMING_ERROR;
+    else if (error & CE_FRAME) {
+        lastErr = E_FRAMING_ERROR;
     }
-    else if (error&CE_IOE) {
-        lastErr=E_IO_ERROR;
+    else if (error & CE_IOE) {
+        lastErr = E_IO_ERROR;
     }
-    else if (error&CE_MODE) {
-        lastErr=E_INVALID_FD;
+    else if (error & CE_MODE) {
+        lastErr = E_INVALID_FD;
     }
-    else if (error&CE_OVERRUN) {
-        lastErr=E_BUFFER_OVERRUN;
+    else if (error & CE_OVERRUN) {
+        lastErr = E_BUFFER_OVERRUN;
     }
-    else if (error&CE_RXPARITY) {
-        lastErr=E_RECEIVE_PARITY_ERROR;
+    else if (error & CE_RXPARITY) {
+        lastErr = E_RECEIVE_PARITY_ERROR;
     }
-    else if (error&CE_RXOVER) {
-        lastErr=E_RECEIVE_OVERFLOW;
+    else if (error & CE_RXOVER) {
+        lastErr = E_RECEIVE_OVERFLOW;
     }
-    else if (error&CE_TXFULL) {
-        lastErr=E_TRANSMIT_OVERFLOW;
+    else if (error & CE_TXFULL) {
+        lastErr = E_TRANSMIT_OVERFLOW;
     }
 }
 
@@ -202,13 +202,13 @@ qint64 QextSerialPortPrivate::readData_sys(char *data, qint64 maxSize)
     if (_queryMode == QextSerialPort::EventDriven) {
         OVERLAPPED overlapRead;
         ZeroMemory(&overlapRead, sizeof(OVERLAPPED));
-        if (!ReadFile(Win_Handle, (void*)data, (DWORD)maxSize, & bytesRead, & overlapRead)) {
+        if (!ReadFile(Win_Handle, (void *)data, (DWORD)maxSize, &bytesRead, &overlapRead)) {
             if (GetLastError() == ERROR_IO_PENDING)
-                GetOverlappedResult(Win_Handle, & overlapRead, & bytesRead, true);
+                GetOverlappedResult(Win_Handle, &overlapRead, &bytesRead, true);
             else
                 failed = true;
         }
-    } else if (!ReadFile(Win_Handle, (void*)data, (DWORD)maxSize, & bytesRead, NULL)) {
+    } else if (!ReadFile(Win_Handle, (void *)data, (DWORD)maxSize, &bytesRead, NULL)) {
         failed = true;
     }
     if (!failed)
@@ -231,10 +231,10 @@ qint64 QextSerialPortPrivate::writeData_sys(const char *data, qint64 maxSize)
     DWORD bytesWritten = 0;
     bool failed = false;
     if (_queryMode == QextSerialPort::EventDriven) {
-        OVERLAPPED* newOverlapWrite = new OVERLAPPED;
+        OVERLAPPED *newOverlapWrite = new OVERLAPPED;
         ZeroMemory(newOverlapWrite, sizeof(OVERLAPPED));
         newOverlapWrite->hEvent = CreateEvent(NULL, true, false, NULL);
-        if (WriteFile(Win_Handle, (void*)data, (DWORD)maxSize, & bytesWritten, newOverlapWrite)) {
+        if (WriteFile(Win_Handle, (void *)data, (DWORD)maxSize, &bytesWritten, newOverlapWrite)) {
             CloseHandle(newOverlapWrite->hEvent);
             delete newOverlapWrite;
         }
@@ -247,13 +247,13 @@ qint64 QextSerialPortPrivate::writeData_sys(const char *data, qint64 maxSize)
         else {
             QESP_WARNING()<<"QextSerialPort write error:"<<GetLastError();
             failed = true;
-            if(!CancelIo(newOverlapWrite->hEvent))
+            if (!CancelIo(newOverlapWrite->hEvent))
                 QESP_WARNING("QextSerialPort: couldn't cancel IO");
-            if(!CloseHandle(newOverlapWrite->hEvent))
+            if (!CloseHandle(newOverlapWrite->hEvent))
                 QESP_WARNING("QextSerialPort: couldn't close OVERLAPPED handle");
             delete newOverlapWrite;
         }
-    } else if (!WriteFile(Win_Handle, (void*)data, (DWORD)maxSize, & bytesWritten, NULL)) {
+    } else if (!WriteFile(Win_Handle, (void *)data, (DWORD)maxSize, &bytesWritten, NULL)) {
         failed = true;
     }
 
@@ -273,12 +273,12 @@ void QextSerialPortPrivate::setRts_sys(bool set) {
 }
 
 ulong QextSerialPortPrivate::lineStatus_sys(void) {
-    unsigned long Status=0, Temp=0;
+    unsigned long Status = 0, Temp = 0;
     GetCommModemStatus(Win_Handle, &Temp);
-    if (Temp & MS_CTS_ON) Status|=LS_CTS;
-    if (Temp & MS_DSR_ON) Status|=LS_DSR;
-    if (Temp & MS_RING_ON) Status|=LS_RI;
-    if (Temp & MS_RLSD_ON) Status|=LS_DCD;
+    if (Temp & MS_CTS_ON) Status |= LS_CTS;
+    if (Temp & MS_DSR_ON) Status |= LS_DSR;
+    if (Temp & MS_RING_ON) Status |= LS_RI;
+    if (Temp & MS_RLSD_ON) Status |= LS_DCD;
     return Status;
 }
 
@@ -288,7 +288,7 @@ ulong QextSerialPortPrivate::lineStatus_sys(void) {
 void QextSerialPortPrivate::_q_onWinEvent(HANDLE h)
 {
     Q_Q(QextSerialPort);
-    if(h == overlap.hEvent) {
+    if (h == overlap.hEvent) {
         if (eventMask & EV_RXCHAR) {
             if (q->sender() != q && bytesAvailable_sys() > 0)
                 _q_canRead();
@@ -300,13 +300,13 @@ void QextSerialPortPrivate::_q_onWinEvent(HANDLE h)
               Otherwise, leave them on there so they can finish.
             */
             qint64 totalBytesWritten = 0;
-            QList<OVERLAPPED*> overlapsToDelete;
-            foreach(OVERLAPPED* o, pendingWrites) {
+            QList<OVERLAPPED *> overlapsToDelete;
+            foreach (OVERLAPPED *o, pendingWrites) {
                 DWORD numBytes = 0;
-                if (GetOverlappedResult(Win_Handle, o, & numBytes, false)) {
+                if (GetOverlappedResult(Win_Handle, o, &numBytes, false)) {
                     overlapsToDelete.append(o);
                     totalBytesWritten += numBytes;
-                } else if( GetLastError() != ERROR_IO_INCOMPLETE ) {
+                } else if (GetLastError() != ERROR_IO_INCOMPLETE) {
                     overlapsToDelete.append(o);
                     QESP_WARNING()<<"CommEvent overlapped write error:" << GetLastError();
                 }
@@ -318,7 +318,7 @@ void QextSerialPortPrivate::_q_onWinEvent(HANDLE h)
                 _bytesToWrite = 0;
             }
 
-            foreach(OVERLAPPED* o, overlapsToDelete) {
+            foreach (OVERLAPPED *o, overlapsToDelete) {
                 OVERLAPPED *toDelete = pendingWrites.takeAt(pendingWrites.indexOf(o));
                 CloseHandle(toDelete->hEvent);
                 delete toDelete;
@@ -367,24 +367,24 @@ void QextSerialPortPrivate::updatePortSettings()
         switch(Settings.FlowControl) {
         /*no flow control*/
         case FLOW_OFF:
-            Win_CommConfig.dcb.fOutxCtsFlow=FALSE;
-            Win_CommConfig.dcb.fRtsControl=RTS_CONTROL_DISABLE;
-            Win_CommConfig.dcb.fInX=FALSE;
-            Win_CommConfig.dcb.fOutX=FALSE;
+            Win_CommConfig.dcb.fOutxCtsFlow = FALSE;
+            Win_CommConfig.dcb.fRtsControl = RTS_CONTROL_DISABLE;
+            Win_CommConfig.dcb.fInX = FALSE;
+            Win_CommConfig.dcb.fOutX = FALSE;
             break;
         /*software (XON/XOFF) flow control*/
         case FLOW_XONXOFF:
-            Win_CommConfig.dcb.fOutxCtsFlow=FALSE;
-            Win_CommConfig.dcb.fRtsControl=RTS_CONTROL_DISABLE;
-            Win_CommConfig.dcb.fInX=TRUE;
-            Win_CommConfig.dcb.fOutX=TRUE;
+            Win_CommConfig.dcb.fOutxCtsFlow = FALSE;
+            Win_CommConfig.dcb.fRtsControl = RTS_CONTROL_DISABLE;
+            Win_CommConfig.dcb.fInX = TRUE;
+            Win_CommConfig.dcb.fOutX = TRUE;
             break;
         /*hardware flow control*/
         case FLOW_HARDWARE:
-            Win_CommConfig.dcb.fOutxCtsFlow=TRUE;
-            Win_CommConfig.dcb.fRtsControl=RTS_CONTROL_HANDSHAKE;
-            Win_CommConfig.dcb.fInX=FALSE;
-            Win_CommConfig.dcb.fOutX=FALSE;
+            Win_CommConfig.dcb.fOutxCtsFlow = TRUE;
+            Win_CommConfig.dcb.fRtsControl = RTS_CONTROL_HANDSHAKE;
+            Win_CommConfig.dcb.fInX = FALSE;
+            Win_CommConfig.dcb.fOutX = FALSE;
             break;
         }
     }

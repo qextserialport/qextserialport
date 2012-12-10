@@ -111,7 +111,7 @@ bool QextSerialPortPrivate::close_sys()
     // Using both TCSAFLUSH and TCSANOW here discards any pending input
     ::tcsetattr(fd, TCSAFLUSH | TCSANOW, &old_termios);   // Restore termios
     ::close(fd);
-    if(readNotifier) {
+    if (readNotifier) {
         delete readNotifier;
         readNotifier = 0;
     }
@@ -186,12 +186,12 @@ unsigned long QextSerialPortPrivate::lineStatus_sys()
     ::ioctl(fd, TIOCMGET, &Temp);
     if (Temp & TIOCM_CTS) Status |= LS_CTS;
     if (Temp & TIOCM_DSR) Status |= LS_DSR;
-    if (Temp & TIOCM_RI ) Status |= LS_RI;
-    if (Temp & TIOCM_CD ) Status |= LS_DCD;
+    if (Temp & TIOCM_RI) Status |= LS_RI;
+    if (Temp & TIOCM_CD) Status |= LS_DCD;
     if (Temp & TIOCM_DTR) Status |= LS_DTR;
     if (Temp & TIOCM_RTS) Status |= LS_RTS;
-    if (Temp & TIOCM_ST ) Status |= LS_ST;
-    if (Temp & TIOCM_SR ) Status |= LS_SR;
+    if (Temp & TIOCM_ST) Status |= LS_ST;
+    if (Temp & TIOCM_SR) Status |= LS_SR;
     return Status;
 }
 
@@ -203,7 +203,7 @@ unsigned long QextSerialPortPrivate::lineStatus_sys()
     \warning before calling this function ensure that serial port associated with this class
     is currently open (use isOpen() function to check if port is open).
 */
-qint64 QextSerialPortPrivate::readData_sys(char * data, qint64 maxSize)
+qint64 QextSerialPortPrivate::readData_sys(char *data, qint64 maxSize)
 {
     int retVal = ::read(fd, data, maxSize);
     if (retVal == -1)
@@ -220,7 +220,7 @@ qint64 QextSerialPortPrivate::readData_sys(char * data, qint64 maxSize)
     \warning before calling this function ensure that serial port associated with this class
     is currently open (use isOpen() function to check if port is open).
 */
-qint64 QextSerialPortPrivate::writeData_sys(const char * data, qint64 maxSize)
+qint64 QextSerialPortPrivate::writeData_sys(const char *data, qint64 maxSize)
 {
     int retVal = ::write(fd, data, maxSize);
     if (retVal == -1)
@@ -451,9 +451,9 @@ void QextSerialPortPrivate::updatePortSettings()
             //however this seems not working on Linux 2.6.21 (works on OpenBSD 4.2)
             ::fcntl(fd, F_SETFL, O_SYNC);
         }
-        ::tcgetattr(fd, & Posix_CommConfig);
+        ::tcgetattr(fd, &Posix_CommConfig);
         Posix_CommConfig.c_cc[VTIME] = millisec/100;
-        ::tcsetattr(fd, TCSAFLUSH, & Posix_CommConfig);
+        ::tcsetattr(fd, TCSAFLUSH, &Posix_CommConfig);
     }
 
     settingsDirtyFlags = 0;
