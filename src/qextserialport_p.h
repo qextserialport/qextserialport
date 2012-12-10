@@ -193,23 +193,23 @@ public:
     };
     mutable QReadWriteLock lock;
     QString port;
-    PortSettings Settings;
+    PortSettings settings;
     QextReadBuffer readBuffer;
     int settingsDirtyFlags;
     ulong lastErr;
-    QextSerialPort::QueryMode _queryMode;
+    QextSerialPort::QueryMode queryMode;
 
     // platform specific members
 #ifdef Q_OS_UNIX
     int fd;
     QSocketNotifier *readNotifier;
-    struct termios Posix_CommConfig;
-    struct termios old_termios;
+    struct termios currentTermios;
+    struct termios oldTermios;
 #elif (defined Q_OS_WIN)
-    HANDLE Win_Handle;
+    HANDLE handle;
     OVERLAPPED overlap;
-    COMMCONFIG Win_CommConfig;
-    COMMTIMEOUTS Win_CommTimeouts;
+    COMMCONFIG commConfig;
+    COMMTIMEOUTS commTimeouts;
     QWinEventNotifier *winEventNotifier;
     DWORD eventMask;
     QList<OVERLAPPED *> pendingWrites;
