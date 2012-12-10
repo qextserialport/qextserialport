@@ -41,7 +41,7 @@ class MessageWindow: public QDockWidget
 		 * 	@param parent parent widget.
 		 * 	@param flags widget flags.
 		 */
-		MessageWindow(QWidget* parent = 0, Qt::WFlags flags = 0);
+        MessageWindow(QWidget* parent = 0, Qt::WindowFlags flags = 0);
 
 		/**
 		 * Append message wrapper. Since ISO forbids casting member functions
@@ -51,7 +51,9 @@ class MessageWindow: public QDockWidget
 		 * 	@param msg message string.
 		 */
 		static void AppendMsgWrapper(QtMsgType type, const char *msg);
-		
+#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
+        static void AppendMsgWrapper(QtMsgType type, const QMessageLogContext &context, const QString &msg);
+#endif
 		/**
 		 * Post message event to the main event loop. This function encapsulates
 		 * message into MessageEvent object and passes it to the main event loop.

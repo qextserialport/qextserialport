@@ -14,7 +14,7 @@
 const char* MessageWindow::WINDOW_TITLE = "Message Window";
 MessageWindow* MessageWindow::MsgHandler = NULL;
 
-MessageWindow::MessageWindow(QWidget* parent, Qt::WFlags flags) 
+MessageWindow::MessageWindow(QWidget* parent, Qt::WindowFlags flags)
 	: QDockWidget(parent, flags),
 		msgTextEdit(this)
 {
@@ -53,6 +53,13 @@ void MessageWindow::AppendMsgWrapper(QtMsgType type, const char* msg)
 	else
         fprintf(stderr, "%s", MessageWindow::QtMsgToQString(type, msg).toLatin1().data());
 }
+
+#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
+void MessageWindow::AppendMsgWrapper(QtMsgType type, const QMessageLogContext & /*context*/, const QString &msg)
+{
+    AppendMsgWrapper(type, msg.toLatin1().data());
+}
+#endif
 
 void MessageWindow::customEvent(QEvent* event)
 {

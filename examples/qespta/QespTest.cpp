@@ -77,8 +77,7 @@ QespTest::~QespTest()
 
 void QespTest::transmitMsg()
 {
-  int i = port->write((message->text()).toAscii(),
-                       (message->text()).length());
+  int i = port->write(message->text().toLatin1());
   qDebug("trasmitted : %d", i);
 }
 
