@@ -23,7 +23,7 @@ public slots:
     void turnOff(bool off=true);
 
 protected:
-    void paintEvent(QPaintEvent*);
+    void paintEvent(QPaintEvent *);
     int ledWidth() const;
 
 private:

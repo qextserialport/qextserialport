@@ -11,7 +11,7 @@ class PortListener : public QObject
 {
 Q_OBJECT
 public:
-    PortListener(const QString & portName);
+    PortListener(const QString &portName);
 
 private:
     QextSerialPort *port;

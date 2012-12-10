@@ -2,7 +2,7 @@
 #include "PortListener.h"
 #include <QtDebug>
 
-PortListener::PortListener(const QString & portName)
+PortListener::PortListener(const QString &portName)
 {
     qDebug() << "hi there";
     this->port = new QextSerialPort(portName, QextSerialPort::EventDriven);

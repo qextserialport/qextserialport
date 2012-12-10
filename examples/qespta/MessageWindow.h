@@ -17,51 +17,51 @@
  */
 class MessageWindow: public QDockWidget
 {
-	Q_OBJECT
+    Q_OBJECT
 
-	QTextEdit msgTextEdit;				///< Main widget.
-	static MessageWindow* MsgHandler;	///< Set in constructor.
-	static const char* WINDOW_TITLE; 	///< Window title.
+    QTextEdit msgTextEdit;              ///< Main widget.
+    static MessageWindow *MsgHandler;   ///< Set in constructor.
+    static const char *WINDOW_TITLE;    ///< Window title.
 
-	private:
-		static QString QtMsgToQString(QtMsgType type, const char *msg);
-	
-	protected:
-		/**
-		 * Handle custom events. MessageWindow hadles custom events listed in
-		 * EventType enum.
-		 */
-		virtual void customEvent(QEvent* event);
-		
-	public:
-        enum EventType {MessageEventType = QEvent::User};	///< Custom event types.
-		
-		/**
-		 * Default constructor.
-		 * 	@param parent parent widget.
-		 * 	@param flags widget flags.
-		 */
-        MessageWindow(QWidget* parent = 0, Qt::WindowFlags flags = 0);
+private:
+    static QString QtMsgToQString(QtMsgType type, const char *msg);
 
-		/**
-		 * Append message wrapper. Since ISO forbids casting member functions
-		 * to C functions, wrapper is needed to use this class as QtMsgHandler.
-		 * This method is thread-safe but not reentrant.
-		 * 	@param type message type.
-		 * 	@param msg message string.
-		 */
-		static void AppendMsgWrapper(QtMsgType type, const char *msg);
+protected:
+    /**
+         * Handle custom events. MessageWindow hadles custom events listed in
+         * EventType enum.
+         */
+    virtual void customEvent(QEvent* event);
+
+public:
+    enum EventType {MessageEventType = QEvent::User};    ///< Custom event types.
+
+    /**
+         * Default constructor.
+         *     @param parent parent widget.
+         *     @param flags widget flags.
+         */
+    MessageWindow(QWidget* parent = 0, Qt::WindowFlags flags = 0);
+
+    /**
+         * Append message wrapper. Since ISO forbids casting member functions
+         * to C functions, wrapper is needed to use this class as QtMsgHandler.
+         * This method is thread-safe but not reentrant.
+         *     @param type message type.
+         *     @param msg message string.
+         */
+    static void AppendMsgWrapper(QtMsgType type, const char *msg);
 #if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
-        static void AppendMsgWrapper(QtMsgType type, const QMessageLogContext &context, const QString &msg);
+    static void AppendMsgWrapper(QtMsgType type, const QMessageLogContext &context, const QString &msg);
 #endif
-		/**
-		 * Post message event to the main event loop. This function encapsulates
-		 * message into MessageEvent object and passes it to the main event loop.
-		 * 	@param type message type.
-		 * 	@param msg message string.
-		 */
-		void postMsgEvent(QtMsgType type, const char *msg);
-	
+    /**
+         * Post message event to the main event loop. This function encapsulates
+         * message into MessageEvent object and passes it to the main event loop.
+         *     @param type message type.
+         *     @param msg message string.
+         */
+    void postMsgEvent(QtMsgType type, const char *msg);
+
 };
 
 
@@ -71,14 +71,14 @@ class MessageWindow: public QDockWidget
  */
 class MessageEvent: public QEvent
 {
-    public:
-        QString msg;	///< Message string.
+public:
+    QString msg;    ///< Message string.
 
-        /**
+    /**
          * Contructor.
-         * 	@param msg message to post.
+         *     @param msg message to post.
          */
-        MessageEvent(QString & msg);
+    MessageEvent(QString &msg);
 };
 
 #endif /*MESSAGEWINDOW_H_*/

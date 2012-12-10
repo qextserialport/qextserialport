@@ -12,25 +12,25 @@ class QSpinBox;
 
 class QespTest :  public QWidget
 {
-  Q_OBJECT
+    Q_OBJECT
 public:
-  QespTest(QWidget *parent=0);
+    QespTest(QWidget *parent=0);
 
-  virtual ~QespTest();
+    virtual ~QespTest();
 
 private:
-  QLineEdit *message;
-  QSpinBox* delaySpinBox;
-  QTextEdit *received_msg;
-  QextSerialPort *port;
+    QLineEdit *message;
+    QSpinBox *delaySpinBox;
+    QTextEdit *received_msg;
+    QextSerialPort *port;
 
 private slots:
-  void transmitMsg();
-  void receiveMsg();
-  void appendCR();
-  void appendLF();
-  void closePort();
-  void openPort();
+    void transmitMsg();
+    void receiveMsg();
+    void appendCR();
+    void appendLF();
+    void closePort();
+    void openPort();
 };
 
 #endif

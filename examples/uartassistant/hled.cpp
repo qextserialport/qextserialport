@@ -62,7 +62,7 @@ void HLed::turnOff(bool off)
     turnOn(!off);
 }
 
-void HLed::paintEvent(QPaintEvent* /* event*/)
+void HLed::paintEvent(QPaintEvent * /*event*/)
 {
     int width = ledWidth();
 
