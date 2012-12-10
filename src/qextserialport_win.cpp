@@ -49,7 +49,6 @@ void QextSerialPortPrivate::platformSpecificInit()
     overlap.hEvent = CreateEvent(NULL, true, false, NULL);
     winEventNotifier = 0;
     bytesToWriteLock = new QReadWriteLock;
-    _bytesToWrite = 0;
 }
 
 void QextSerialPortPrivate::platformSpecificDestruct() {
@@ -130,7 +129,6 @@ bool QextSerialPortPrivate::close_sys()
         winEventNotifier->deleteLater();
         winEventNotifier = 0;
     }
-    _bytesToWrite = 0;
 
     foreach (OVERLAPPED *o, pendingWrites) {
         CloseHandle(o->hEvent);
@@ -241,7 +239,6 @@ qint64 QextSerialPortPrivate::writeData_sys(const char *data, qint64 maxSize)
         else if (GetLastError() == ERROR_IO_PENDING) {
             // writing asynchronously...not an error
             QWriteLocker writelocker(bytesToWriteLock);
-            _bytesToWrite += maxSize;
             pendingWrites.append(newOverlapWrite);
         }
         else {
@@ -315,7 +312,6 @@ void QextSerialPortPrivate::_q_onWinEvent(HANDLE h)
             if (q->sender() != q && totalBytesWritten > 0) {
                 QWriteLocker writelocker(bytesToWriteLock);
                 Q_EMIT q->bytesWritten(totalBytesWritten);
-                _bytesToWrite = 0;
             }
 
             foreach (OVERLAPPED *o, overlapsToDelete) {

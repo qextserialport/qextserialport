@@ -214,7 +214,6 @@ public:
     DWORD eventMask;
     QList<OVERLAPPED *> pendingWrites;
     QReadWriteLock *bytesToWriteLock;
-    qint64 _bytesToWrite;
 #endif
 
     /*fill PortSettings*/
