@@ -13,6 +13,24 @@
 # If so, you can avoid to change this project file.
 ############################### *User Config* ###############################
 
+defineReplace(qextLibraryName) {
+   unset(LIBRARY_NAME)
+   LIBRARY_NAME = $$1
+   macx:qesp_mac_framework {
+      QMAKE_FRAMEWORK_BUNDLE_NAME = $$LIBRARY_NAME
+      export(QMAKE_FRAMEWORK_BUNDLE_NAME)
+   } else {
+       greaterThan(QT_MAJOR_VERSION, 4):LIBRARY_NAME ~= s,^Qt,Qt$$QT_MAJOR_VERSION,
+   }
+   CONFIG(debug, debug|release) {
+      !debug_and_release|build_pass {
+          mac:LIBRARY_NAME = $${LIBRARY_NAME}_debug
+          else:win32:LIBRARY_NAME = $${LIBRARY_NAME}d
+      }
+   }
+   return($$LIBRARY_NAME)
+}
+
 TEMPLATE=lib
 include(src/qextserialport.pri)
 
@@ -51,7 +69,7 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 } else {
     QESP_LIB_BASENAME = qextserialport
 }
-TARGET = $$qtLibraryTarget($$QESP_LIB_BASENAME)
+TARGET = $$qextLibraryName($$QESP_LIB_BASENAME)
 VERSION = 1.2.0
 
 # generate feature file by qmake based on this *.in file.
