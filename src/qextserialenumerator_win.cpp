@@ -201,7 +201,8 @@ static void enumerateDevicesWin(const GUID &guid, QList<QextPortInfo> *infoList)
             QextPortInfo info;
             info.productID = info.vendorID = 0;
             getDeviceDetailsWin(&info, devInfo, &devInfoData);
-            infoList->append(info);
+            if (!info.portName.startsWith(QLatin1String("LPT"), Qt::CaseInsensitive))
+                infoList->append(info);
         }
         ::SetupDiDestroyDeviceInfoList(devInfo);
     }
