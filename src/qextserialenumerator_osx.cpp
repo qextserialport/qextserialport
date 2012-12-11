@@ -219,7 +219,7 @@ void QextSerialEnumeratorPrivate::onDeviceTerminatedOSX(io_object_t service)
   to these notifications once to arm them, and discover any devices that
   are currently connected at the time notifications are setup.
 */
-bool QextSerialEnumeratorPrivate::setUpNotifications_sys(bool setup)
+bool QextSerialEnumeratorPrivate::setUpNotifications_sys(bool /*setup*/)
 {
     kern_return_t kernResult;
     mach_port_t masterPort;
