@@ -12,13 +12,13 @@ defineReplace(qextLibraryName) {
 }
 
 !!IF qesp_mac_framework
-    LIBS += -framework $$QESP_LIB_BASENAME
-    INCLUDEPATH += $$[QT_INSTALL_LIBS]/$${QESP_LIB_BASENAME}.framework/Headers
+LIBS += -framework $$QESP_LIB_BASENAME
+INCLUDEPATH += $$[QT_INSTALL_LIBS]/$${QESP_LIB_BASENAME}.framework/Headers
 !!ELSE
-    LIBS += -l\$\$qextLibraryName($$QESP_LIB_BASENAME)
-    INCLUDEPATH += $$[QT_INSTALL_HEADERS]/QtExtSerialPort
+LIBS += -l\$\$qextLibraryName($$QESP_LIB_BASENAME)
+INCLUDEPATH += $$[QT_INSTALL_HEADERS]/QtExtSerialPort
 !!ENDIF
 
 !!IF !qesp_static
-    DEFINES += QEXTSERIALPORT_USING_SHARED
+DEFINES += QEXTSERIALPORT_USING_SHARED
 !!ENDIF
