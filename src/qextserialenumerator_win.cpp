@@ -96,9 +96,17 @@ void QextSerialEnumeratorPrivate::platformSpecificDestruct()
 
 // see http://msdn.microsoft.com/en-us/library/windows/hardware/ff553426(v=vs.85).aspx
 // for list of GUID classes
-#ifndef GUID_DEVCLASS_PORTS
-    DEFINE_GUID(GUID_DEVCLASS_PORTS, 0x4D36E978, 0xE325, 0x11CE, 0xBF, 0xC1, 0x08, 0x00, 0x2B, 0xE1, 0x03, 0x18);
-#endif
+const GUID deviceClassGuids[] =
+{
+    // Ports (COM & LPT ports), Class = Ports
+    {0x4D36E978, 0xE325, 0x11CE, {0xBF, 0xC1, 0x08, 0x00, 0x2B, 0xE1, 0x03, 0x18}},
+    // Modem, Class = Modem
+    {0x4D36E96D, 0xE325, 0x11CE, {0xBF, 0xC1, 0x08, 0x00, 0x2B, 0xE1, 0x03, 0x18}},
+    // Bluetooth Devices, Class = Bluetooth
+    {0xE0CBF06C, 0xCD8B, 0x4647, {0xBB, 0x8A, 0x26, 0x3B, 0x43, 0xF0, 0xF9, 0x74}},
+    // Added by Arne Kristian Jansen, for use with com0com virtual ports (See Issue 54)
+    {0xDF799E12, 0x3C56, 0x421B, {0xB2, 0x98, 0xB6, 0xD3, 0x64, 0x2B, 0xC8, 0x78}}
+};
 
 /* Gordon Schumacher's macros for TCHAR -> QString conversions and vice versa */
 #ifdef UNICODE
@@ -218,7 +226,9 @@ static bool lessThan(const QextPortInfo &s1, const QextPortInfo &s2)
 QList<QextPortInfo> QextSerialEnumeratorPrivate::getPorts_sys()
 {
     QList<QextPortInfo> ports;
-    enumerateDevicesWin(GUID_DEVCLASS_PORTS, &ports);
+    const int count = sizeof(deviceClassGuids)/sizeof(deviceClassGuids[0]);
+    for (int i=0; i<count; ++i)
+        enumerateDevicesWin(deviceClassGuids[i], &ports);
     qSort(ports.begin(), ports.end(), lessThan);
     return ports;
 }
@@ -266,7 +276,11 @@ LRESULT QextSerialEnumeratorPrivate::onDeviceChanged(WPARAM wParam, LPARAM lPara
              // delimiters are different across APIs...change to backslash.  ugh.
             QString deviceID = TCHARToQString(pDevInf->dbcc_name).toUpper().replace(QLatin1String("#"), QLatin1String("\\"));
 
-            matchAndDispatchChangedDevice(deviceID, GUID_DEVCLASS_PORTS, wParam);
+            const int count = sizeof(deviceClassGuids)/sizeof(deviceClassGuids[0]);
+            for (int i=0; i<count; ++i) {
+                if (matchAndDispatchChangedDevice(deviceID, deviceClassGuids[i], wParam))
+                    break;
+            }
         }
     }
     return 0;
