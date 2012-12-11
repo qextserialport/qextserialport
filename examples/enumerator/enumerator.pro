@@ -1,6 +1,6 @@
 TEMPLATE = app
 DEPENDPATH += .
 CONFIG += console
-include(../../src/qextserialport.pri)
+include(../../src/extserialport/qextserialport.pri)
 SOURCES += main.cpp
 

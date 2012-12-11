@@ -32,7 +32,7 @@ defineReplace(qextLibraryName) {
 }
 
 TEMPLATE=lib
-include(src/qextserialport.pri)
+include(qextserialport.pri)
 
 #create_prl is needed, otherwise, MinGW can't found libqextserialport1.a
 CONFIG += create_prl
@@ -75,9 +75,6 @@ VERSION = 1.2.0
 # generate feature file by qmake based on this *.in file.
 QMAKE_SUBSTITUTES += extserialport.prf.in
 OTHER_FILES += extserialport.prf.in
-
-# for make docs
-include(doc/doc.pri)
 
 # for make install
 win32:!qesp_static {
