@@ -12,3 +12,6 @@ SOURCES += main.cpp \
            QespTest.cpp
 
 include(../../../src/extserialport/qextserialport.pri)
+
+target.path = $$[QT_INSTALL_EXAMPLES]/extserialport/qespta
+INSTALLS += target

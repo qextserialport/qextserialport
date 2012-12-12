@@ -20,3 +20,6 @@ HEADERS  += dialog.h \
             hled.h
 
 FORMS    += dialog.ui
+
+target.path = $$[QT_INSTALL_EXAMPLES]/extserialport/uartassistant
+INSTALLS += target
