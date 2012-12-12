@@ -10,7 +10,7 @@ contains(QT_VERSION, ^5\\..*\\..*): QT += widgets
 TARGET = uartassistant
 TEMPLATE = app
 
-include(../../src/extserialport/qextserialport.pri)
+include(../../../src/extserialport/qextserialport.pri)
 
 SOURCES += main.cpp\
         dialog.cpp\

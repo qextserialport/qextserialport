@@ -11,4 +11,4 @@ SOURCES += main.cpp \
            MessageWindow.cpp \
            QespTest.cpp
 
-include(../../src/extserialport/qextserialport.pri)
+include(../../../src/extserialport/qextserialport.pri)
