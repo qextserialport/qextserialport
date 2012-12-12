@@ -1,0 +1,11 @@
+/*!
+    \module QtExtSerialPort
+    \title Qt ExtSerialPort C++ Classes
+    \ingroup modules
+
+    \brief Qt ExtSerialPort provides an interface to old fashioned serial ports for Qt-based applications.
+
+    It currently supports Mac OS X, Windows, Linux, FreeBSD. 
+
+*/
+

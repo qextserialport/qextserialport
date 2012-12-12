@@ -1,0 +1,48 @@
+include($QT_INSTALL_DOCS/global/qt-html-templates-offline.qdocconf)
+include($QT_INSTALL_DOCS/global/qt-module-defaults.qdocconf)
+
+project                 = QtExtSerialPort
+description             = Qt ExtSerialPort Reference Documentation
+url                     = http://docs.qextserialport.googlecode.com/git/2.0/
+version                 = 2.0.0
+
+qhp.projects            = QtExtSerialPort
+
+qhp.QtExtSerialPort.file                = qtextserialport.qhp
+qhp.QtExtSerialPort.namespace           = com.googlecode.qextserialport.200
+qhp.QtExtSerialPort.virtualFolder       = qtextserialport
+qhp.QtExtSerialPort.indexTitle          = Qt ExtSerialPort
+qhp.QtExtSerialPort.indexRoot           =
+
+qhp.QtExtSerialPort.filterAttributes    = qtextserialport 2.0.0 qtrefdoc
+qhp.QtExtSerialPort.customFilters.Qt.name = QtExtSerialPort 2.0.0
+qhp.QtExtSerialPort.customFilters.Qt.filterAttributes = qtextserialport 2.0.0
+qhp.QtExtSerialPort.subprojects         = classes
+qhp.QtExtSerialPort.subprojects.classes.title = C++ Classes
+qhp.QtExtSerialPort.subprojects.classes.indexTitle = Qt ExtSerialPort C++ Classes
+qhp.QtExtSerialPort.subprojects.classes.selectors = class fake:headerfile
+qhp.QtExtSerialPort.subprojects.classes.sortPages = true
+
+depends += qtcore
+
+tagfile                 = ../../../doc/qtextserialport/qtextserialport.tags
+
+headerdirs  += .. 
+
+sourcedirs  += .. 
+
+exampledirs += ../../../examples/extserialport \
+               snippets
+
+imagedirs   += images
+
+HTML.footer  = "<hr />\n" \
+               "<table width=\"100%\" cellspacing=\"0\" border=\"0\">\n" \
+               "<tr class=\"address\">\n" \
+               "<td width=\"40%\" align=\"left\">Copyright &copy; 2000-2012</td>\n" \
+               "<td width=\"20%\" align=\"center\">\n" \
+                    "<a href=\"http://code.google.com/p/qextserialport\">QtExtSerialPort Project</a>\n" \
+               "</td>\n" \
+               "<td width=\"40%\" align=\"right\"><div align=\"right\">QtExtSerialPort Manual</div></td>\n" \
+               "</tr>\n" \
+               "</table>"

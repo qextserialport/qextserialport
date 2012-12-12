@@ -41,6 +41,8 @@
 
     \brief The PortSettings class contain port settings
 
+    \inmodule QtExtSerialPort
+
     Structure to contain port settings.
 
     \code
@@ -317,6 +319,8 @@ void QextSerialPortPrivate::_q_canRead()
 /*! \class QextSerialPort
 
     \brief The QextSerialPort class encapsulates a serial port on both POSIX and Windows systems.
+
+    \inmodule QtExtSerialPort
 
     \section1 Usage
     QextSerialPort offers both a polling and event driven API.  Event driven

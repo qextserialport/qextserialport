@@ -51,6 +51,7 @@ QextSerialEnumeratorPrivate::~QextSerialEnumeratorPrivate()
   \class QextPortInfo
 
   \brief The QextPortInfo class containing port information.
+  \inmodule QtExtSerialPort
 
   Structure containing port information.
 
@@ -67,7 +68,8 @@ QextSerialEnumeratorPrivate::~QextSerialEnumeratorPrivate()
 /*! \class QextSerialEnumerator
 
     \brief The QextSerialEnumerator class provides list of ports available in the system.
-  
+    \inmodule QtExtSerialPort
+
     \section1 Usage
     To poll the system for a list of connected devices, simply use getPorts().  Each
     QextPortInfo structure will populated with information about the corresponding device.

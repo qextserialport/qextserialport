@@ -1,0 +1,31 @@
+/*!
+    \title Qt ExtSerialPort
+    \page qtextserialport-index.html
+    \brief Qt ExtSerialPort provides an interface to old fashioned serial ports for Qt-based applications.
+
+    It currently supports Mac OS X, Windows, Linux, FreeBSD. 
+
+    \section1 Getting Started
+
+    Qt ExtSerialPort provides classes for controlling serial ports. To include the definitions
+    of the module's classes, use the following directive:
+
+    \snippet doc_src_qtextserialport.cpp 0
+
+    To link against the module, add this line to your \l qmake \c
+    .pro file:
+
+    \snippet doc_src_qtextserialport.pro 1
+
+    \section1 References
+    \list
+        \li \l{Qt ExtSerialPort C++ Classes}
+    \endlist
+
+    Qt ExtSerialPort comes with the following examples:
+
+    \list
+        \li \l{ExtSerialPort UartAssistant Example}
+        \li \l{ExtSerialPort enumerator Example}
+    \endlist
+*/
