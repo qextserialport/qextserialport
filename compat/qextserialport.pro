@@ -32,7 +32,7 @@ defineReplace(qextLibraryName) {
 }
 
 TEMPLATE=lib
-include(qextserialport.pri)
+include(../src/extserialport/qextserialport.pri)
 
 #create_prl is needed, otherwise, MinGW can't found libqextserialport1.a
 CONFIG += create_prl
