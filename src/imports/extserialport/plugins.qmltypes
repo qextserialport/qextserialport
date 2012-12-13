@@ -1,0 +1,66 @@
+import QtQuick.tooling 1.1
+
+// This file describes the plugin-supplied types contained in the library.
+// It is used for QML tooling purposes only.
+
+Module {
+    Component {
+        name: "QextQmlSerialPort"
+        prototype: "QObject"
+        exports: ["ExtSerialPort 2.0"]
+        Enum {
+            name: "DataBitsType"
+            values: {
+                "DATA_5": 5,
+                "DATA_6": 6,
+                "DATA_7": 7,
+                "DATA_8": 8
+            }
+        }
+        Enum {
+            name: "ParityType"
+            values: {
+                "PAR_NONE":  0,
+                "PAR_ODD":   1,
+                "PAR_EVEN":  2,
+                "PAR_MARK":  3,
+                "PAR_SPACE": 4,
+            }
+        }
+        Enum {
+            name: "StopBitsType"
+            values: {
+                "STOP_1":   0,
+                "STOP_1_5": 1,
+                "STOP_2":   2
+            }
+        }
+        Enum {
+            name: "FlowType"
+            values: {
+                "FLOW_OFF": 0,
+                "FLOW_HARDWARE": 1,
+                "FLOW_XONXOFF": 2
+            }
+        }
+        Property { name: "connected"; type: "bool" }
+        Property { name: "stringData"; type: "string" }
+        Property { name: "stringCodec"; type: "string" }
+        Property { name: "portName"; type: "string" }
+        Property { name: "baudRate"; type: "int" }
+        Property { name: "dataBits"; type: "QextQmlSerialPort::DataBitsType" }
+        Property { name: "parity"; type: "QextQmlSerialPort::ParityType" }
+        Property { name: "stopBits"; type: "QextQmlSerialPort::StopBitsType" }
+        Property { name: "flowControl"; type: "QextQmlSerialPort::FlowType" }
+        Signal { name: "dataAvailable" }
+        Signal { name: "connectedChanged" }
+        Method {
+            name: "setConnected"
+            Parameter { name: "connected"; type: "bool" }
+        }
+        Method {
+            name: "sendStringData"
+            Parameter { name: "data"; type: "string" }
+        }
+    }
+}

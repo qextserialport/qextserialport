@@ -1,4 +1,3 @@
-include($QT_INSTALL_DOCS/global/qt-html-templates-offline.qdocconf)
 include($QT_INSTALL_DOCS/global/qt-module-defaults.qdocconf)
 
 project                 = QtExtSerialPort
@@ -17,19 +16,21 @@ qhp.QtExtSerialPort.indexRoot           =
 qhp.QtExtSerialPort.filterAttributes    = qtextserialport 2.0.0 qtrefdoc
 qhp.QtExtSerialPort.customFilters.Qt.name = QtExtSerialPort 2.0.0
 qhp.QtExtSerialPort.customFilters.Qt.filterAttributes = qtextserialport 2.0.0
-qhp.QtExtSerialPort.subprojects         = classes
+qhp.QtExtSerialPort.subprojects         = classes qmltypes
 qhp.QtExtSerialPort.subprojects.classes.title = C++ Classes
 qhp.QtExtSerialPort.subprojects.classes.indexTitle = Qt ExtSerialPort C++ Classes
 qhp.QtExtSerialPort.subprojects.classes.selectors = class fake:headerfile
 qhp.QtExtSerialPort.subprojects.classes.sortPages = true
+qhp.QtExtSerialPort.subprojects.qmltypes.title = QML Types
+qhp.QtExtSerialPort.subprojects.qmltypes.indexTitle = Qt ExtSerialPort QML Types
+qhp.QtExtSerialPort.subprojects.qmltypes.selectors = class fake:headerfile
+qhp.QtExtSerialPort.subprojects.qmltypes.sortPages = true
 
-depends += qtcore
+depends += qtcore qtqml
 
-tagfile                 = ../../../doc/qtextserialport/qtextserialport.tags
+headerdirs  += ../.. 
 
-headerdirs  += .. 
-
-sourcedirs  += .. 
+sourcedirs  += ../.. 
 
 exampledirs += ../../../examples/extserialport \
                snippets

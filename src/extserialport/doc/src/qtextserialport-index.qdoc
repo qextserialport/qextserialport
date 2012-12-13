@@ -20,6 +20,7 @@
     \section1 References
     \list
         \li \l{Qt ExtSerialPort C++ Classes}
+        \li \l{Qt ExtSerialPort QML Types}
     \endlist
 
     Qt ExtSerialPort comes with the following examples:

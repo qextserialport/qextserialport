@@ -1,3 +1,4 @@
 TEMPLATE = subdirs
 
-SUBDIRS += extserialport
+SUBDIRS += extserialport \
+           imports

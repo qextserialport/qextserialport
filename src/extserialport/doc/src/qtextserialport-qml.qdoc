@@ -1,0 +1,9 @@
+/*!
+
+\qmlmodule QtExtSerialPort 2.0
+\title Qt ExtSerialPort QML Types
+\ingroup qmlmodules
+\brief Provides QML types for basic ExtSerialPort operations on serial port.
+
+*/
+
