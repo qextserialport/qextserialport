@@ -2,6 +2,14 @@ Change history for QextSerialPort (formerly QwSerialPort):
 (Lines beginning with + represent new functionality, * represent changed or
 fixed functionality, - represent removed or deprecated functionality)
 
+Version 1.2 rc (2012 Debao Zhang)
+  * Build-system refactor
+  * Issue 145 : Custom baud support for MacOS
+  * Issue 36  : Fix Devices Notification for Vista
+  * Issue 54 and Issue 108 : Try detect more ports for windows
+  * Issue 139 : Adjust the name of generated library
+  - QextWinEventNotifier has been removed
+
 Version 1.2 beta2 (2012 Debao Zhang)
   * Issue 124 : implement canReadLine
   * Issue 122 : make Dtr default to TRUE under Windows.
