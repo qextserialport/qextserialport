@@ -23,14 +23,23 @@
     
     \section1 Getting Started
 
-This simplest way to play with this library is using Qt Creator. You can open the toplevel qextserialport.pro with Qt Creator, or open other xxxx.pro seperately.
 
-    \section2 Build into user application directly
+    \section2 Usage(1): Source Code Only
 
-      The package contains a qextserialport.pri file that allows you to integrate the 
-      component into programs that use qmake for the build step.
+ The package contains a qextserialport.pri file that allows you to integrate the component into programs that use qmake for the build step.
 
-      All you need is adding following line to your qmake's project file:
+      Download the source code.
+      Put the source code in any directory you like. For example, 3rdparty:
+
+      \code
+       |-- project.pro
+       |-- ....
+       |-- 3rdparty\
+       |     |-- qextserialport\
+       |     |
+      \endcode
+
+      Add following line to your qmake project file:
       \code
       include(pathToPri/qextserialport.pri)
       \endcode
@@ -53,17 +62,16 @@ This simplest way to play with this library is using Qt Creator. You can open th
       }
       \endcode
 
-    \section2 Using QexSerialPort as a system library
+    \section2 Usage(2): shared library
       Although QextSerialPort can be directly compiled into your application, You may prefer
       to use QextSerailPort as an library, which is very easy too.
 
      1. Download the source code, and put it in any location you like.
     
-     2. Goto qextserialport/buildlib, and run following command to generate library. (Yes, config.pri is not needed.)
+     2. Goto the top level directory ,run following command to generate library.
     
           \code
           qmake
-          make (or nmake)
           sudo make install (or nmake install)
           \endcode
     
@@ -81,36 +89,75 @@ This simplest way to play with this library is using Qt Creator. You can open th
           QextSerialPort * port = new QextSerialPort();
           ....
           \endcode
+
+    \section2 Usage(3): Static library
+
+        Someone prefer to use QextSerailPort as static library.
+
+        Open the project file: qextserialport.pro, add uncomment follow line
+
+          \code
+           # CONFIG += qesp_static
+          \endcode
+
+        Then follow the same steps as shared library
+
+          \code
+           qmake
+           sudo make install
+          \endcode
+
+        The static library, the header files, and the feature file will be installed to your system.
+
+        Add following line to your qmake's project file:
+
+          \code
+          CONFIG += extserialport
+          \endcode
     
-    \section2 Using QexSerialPort as a non-system library
-      Although QextSerialPort can be directly compiled into your application, You may prefer
-      to use QextSerailPort as an library, which is very easy too.
+      \section1 Platform Special
 
-      1. Write a config.pri file.(read config_example.pri for reference):
+      \section2 For MacX: Build as framework
 
-      \list
-        \o shared library
-        \o static library
-      \endlist
+      Open the project file: *qextserialport.pro*, and uncomment follow line
 
-      2. Changed to subdirectory 'buildlib', run
-      \code
-      qmake
-      make
-      \endcode
-      shared or static library will be generated.
+          \code
+           # CONFIG += qesp_mac_framework
+          \endcode
 
-      3.  Add following line to your qmake project file:
-      \code
-      include(pathToPri/qextserialport.pri)
-      \endcode
+      Then follow the same steps as shared library, Goto the top level directory , and run
+
+          \code
+           qmake
+           sudo make install
+          \endcode
+ 
+      The framework which includes libraries and the header files, and the feature file will be installed to your system.
+
+      Add following line to your qmake's project file:
+
+          \code
+           CONFIG += extserialport
+          \endcode
+
+      \section2 For Linux: Enable udev
+
+       Open the project file: *qextserialport.pro*, uncomment follow line
+
+          \code
+           #linux*:CONFIG += qesp_linux_udev
+          \endcode
+
+       Note, If you are using the usage(1), Add following line before include the qextserialport.pri file. 
+          \code
+           CONFIG += qesp_linux_udev
+          \endcode
+
 
      \section2 Build documents
-      Run qdoc3 from the doc directory.
       \code
-        qdoc3 qextserialport.qdocconf
+        make docs
       \endcode
-      Note: qdoc3 has been renamed to qdoc under Qt5.
 
     \section1 Examples
       \list
@@ -118,15 +165,6 @@ This simplest way to play with this library is using Qt Creator. You can open th
       \o \l examples/qespta
       \o \l examples/uartassistant
       \endlist
-
-     \section2 Build examples
-      Run following commands at toplevel directory
-      \code
-      qmake
-      make
-      \endcode
-
-      or simply open the qextserialport.pro using Qt Creator.
 
     \section1 Resources
         \section2  Nokia(Trolltech)
