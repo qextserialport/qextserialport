@@ -49,10 +49,10 @@
 // needed for mingw to pull in appropriate dbt business...
 // probably a better way to do this
 // http://mingw-users.1079350.n2.nabble.com/DEV-BROADCAST-DEVICEINTERFACE-was-not-declared-in-this-scope-td3552762.html
+// http://msdn.microsoft.com/en-us/library/6sehtctf.aspx
 #  ifdef  __MINGW32__
-#    define _WIN32_WINNT 0x0500
-#    define _WIN32_WINDOWS 0x0500
-#    define WINVER 0x0500
+#    define _WIN32_WINNT 0x0501
+#    define WINVER 0x0501
 #  endif
 #  include <QtCore/qt_windows.h>
 #endif /*Q_OS_WIN*/
