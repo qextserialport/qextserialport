@@ -263,7 +263,7 @@ bool QextSerialEnumeratorPrivate::setUpNotifications_sys(bool setup)
     // setting up notifications doesn't tell us about devices already connected
     // so get those manually
     foreach (QextPortInfo port, getPorts_sys())
-      Q_EMIT q->deviceDiscovered(port);
+        Q_EMIT q->deviceDiscovered(port);
     return true;
 #endif // QT_GUI_LIB
 }

@@ -127,9 +127,8 @@ bool QextSerialPortPrivate::flush_sys()
 qint64 QextSerialPortPrivate::bytesAvailable_sys() const
 {
     int bytesQueued;
-    if (::ioctl(fd, FIONREAD, &bytesQueued) == -1) {
+    if (::ioctl(fd, FIONREAD, &bytesQueued) == -1)
         return (qint64)-1;
-    }
     return bytesQueued;
 }
 
@@ -445,8 +444,7 @@ void QextSerialPortPrivate::updatePortSettings()
         int millisec = settings.Timeout_Millisec;
         if (millisec == -1) {
             ::fcntl(fd, F_SETFL, O_NDELAY);
-        }
-        else {
+        } else {
             //O_SYNC should enable blocking ::write()
             //however this seems not working on Linux 2.6.21 (works on OpenBSD 4.2)
             ::fcntl(fd, F_SETFL, O_SYNC);

@@ -234,7 +234,7 @@ private:
 #endif
     Q_PRIVATE_SLOT(d_func(), void _q_canRead())
 
-    QextSerialPortPrivate *const d_ptr;
+    QextSerialPortPrivate * const d_ptr;
 };
 
 #endif

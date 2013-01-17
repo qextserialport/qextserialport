@@ -178,8 +178,7 @@ void QextSerialPortPrivate::setDataBits(DataBitsType dataBits, bool update)
     case DATA_5:
         if (settings.StopBits == STOP_2) {
             QESP_WARNING("QextSerialPort: 5 Data bits cannot be used with 2 stop bits.");
-        }
-        else {
+        } else {
             settings.DataBits = dataBits;
             settingsDirtyFlags |= DFE_DataBits;
         }
@@ -246,8 +245,7 @@ void QextSerialPortPrivate::setStopBits(StopBitsType stopBits, bool update)
         QESP_PORTABILITY_WARNING("QextSerialPort Portability Warning: 1.5 stop bit operation is not supported by POSIX.");
         if (settings.DataBits != DATA_5) {
             QESP_WARNING("QextSerialPort: 1.5 stop bits can only be used with 5 data bits");
-        }
-        else {
+        } else {
             settings.StopBits = stopBits;
             settingsDirtyFlags |= DFE_StopBits;
         }
@@ -258,8 +256,7 @@ void QextSerialPortPrivate::setStopBits(StopBitsType stopBits, bool update)
     case STOP_2:
         if (settings.DataBits == DATA_5) {
             QESP_WARNING("QextSerialPort: 2 stop bits cannot be used with 5 data bits");
-        }
-        else {
+        } else {
             settings.StopBits = stopBits;
             settingsDirtyFlags |= DFE_StopBits;
         }
@@ -527,9 +524,8 @@ qint64 QextSerialPort::bytesAvailable() const
         if (bytes != -1) {
             return bytes + d_func()->readBuffer.size()
                     + QIODevice::bytesAvailable();
-        } else {
-            return -1;
         }
+        return -1;
     }
     return 0;
 }
@@ -569,9 +565,8 @@ void QextSerialPort::setQueryMode(QueryMode mode)
 {
     Q_D(QextSerialPort);
     QWriteLocker locker(&d->lock);
-    if (mode != d->queryMode) {
+    if (mode != d->queryMode)
         d->queryMode = mode;
-    }
 }
 
 /*!
@@ -765,9 +760,9 @@ QString QextSerialPort::errorString()
 */
 QextSerialPort::~QextSerialPort()
 {
-    if (isOpen()) {
+    if (isOpen())
         close();
-    }
+
     delete d_ptr;
 }
 
@@ -987,9 +982,8 @@ qint64 QextSerialPort::readData(char *data, qint64 maxSize)
             return bytesFromBuffer;
     }
     qint64 bytesFromDevice = d->readData_sys(data+bytesFromBuffer, maxSize-bytesFromBuffer);
-    if (bytesFromDevice < 0) {
+    if (bytesFromDevice < 0)
         return -1;
-    }
     return bytesFromBuffer + bytesFromDevice;
 }
 
