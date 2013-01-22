@@ -133,7 +133,8 @@ static QString getRegKeyValue(HKEY key, LPCTSTR property)
 {
     DWORD size = 0;
     DWORD type;
-    ::RegQueryValueEx(key, property, NULL, NULL, NULL, &size);
+    if (::RegQueryValueEx(key, property, NULL, NULL, NULL, &size) != ERROR_SUCCESS)
+        return QString();
     BYTE *buff = new BYTE[size];
     QString result;
     if (::RegQueryValueEx(key, property, NULL, &type, buff, &size) == ERROR_SUCCESS)
