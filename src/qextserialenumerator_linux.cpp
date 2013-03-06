@@ -197,14 +197,14 @@ void QextSerialEnumeratorPrivate::_q_deviceEvent()
     struct udev_device *dev = udev_monitor_receive_device(monitor);
     if (dev) {
         QextPortInfo pi = portInfoFromDevice(dev);
-
         QLatin1String action(udev_device_get_action(dev));
-        udev_device_unref(dev);
 
         if (action == QLatin1String("add"))
             Q_EMIT q->deviceDiscovered(pi);
         else if (action == QLatin1String("remove"))
             Q_EMIT q->deviceRemoved(pi);
+
+        udev_device_unref(dev);
     }
 }
 #endif
