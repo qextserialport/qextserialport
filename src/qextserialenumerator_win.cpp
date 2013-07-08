@@ -159,6 +159,8 @@ static QString getDeviceProperty(HDEVINFO devInfo, PSP_DEVINFO_DATA devData, DWO
 {
     DWORD buffSize = 0;
     ::SetupDiGetDeviceRegistryProperty(devInfo, devData, property, NULL, NULL, 0, &buffSize);
+    if (GetLastError() != ERROR_INSUFFICIENT_BUFFER)
+        return QString();
     BYTE *buff = new BYTE[buffSize];
     ::SetupDiGetDeviceRegistryProperty(devInfo, devData, property, NULL, buff, buffSize, NULL);
     QString result = TCHARToQString(buff);
