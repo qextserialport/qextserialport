@@ -123,7 +123,6 @@ static QString getRegKeyValue(HKEY key, LPCTSTR property)
     QString result;
     if (::RegQueryValueEx(key, property, NULL, &type, buff, &size) == ERROR_SUCCESS)
         result = QString::fromUtf16(reinterpret_cast<ushort *>(buff));
-    ::RegCloseKey(key);
     delete [] buff;
     return result;
 }
@@ -131,22 +130,22 @@ static QString getRegKeyValue(HKEY key, LPCTSTR property)
 /*!
      \internal
      Get specific property from registry.
-     \a devInfo pointer to the device information set that contains the interface
+     \a devInfoSet pointer to the device information set that contains the interface
         and its underlying device. Returned by SetupDiGetClassDevs() function.
-     \a devData pointer to an SP_DEVINFO_DATA structure that defines the device instance.
+     \a devInfoData pointer to an SP_DEVINFO_DATA structure that defines the device instance.
         this is returned by SetupDiGetDeviceInterfaceDetail() function.
      \a property registry property. One of defined SPDRP_* constants.
 
      return property string.
  */
-static QString getDeviceProperty(HDEVINFO devInfo, PSP_DEVINFO_DATA devData, DWORD property)
+static QString getDeviceRegistryProperty(HDEVINFO devInfoSet, PSP_DEVINFO_DATA devInfoData, DWORD property)
 {
     DWORD buffSize = 0;
-    ::SetupDiGetDeviceRegistryProperty(devInfo, devData, property, NULL, NULL, 0, &buffSize);
+    ::SetupDiGetDeviceRegistryProperty(devInfoSet, devInfoData, property, NULL, NULL, 0, &buffSize);
     if (GetLastError() != ERROR_INSUFFICIENT_BUFFER)
         return QString();
     BYTE *buff = new BYTE[buffSize];
-    ::SetupDiGetDeviceRegistryProperty(devInfo, devData, property, NULL, buff, buffSize, NULL);
+    ::SetupDiGetDeviceRegistryProperty(devInfoSet, devInfoData, property, NULL, buff, buffSize, NULL);
     QString result = QString::fromUtf16(reinterpret_cast<ushort *>(buff));
     delete [] buff;
     return result;
@@ -155,16 +154,19 @@ static QString getDeviceProperty(HDEVINFO devInfo, PSP_DEVINFO_DATA devData, DWO
 /*!
      \internal
 */
-static bool getDeviceDetailsWin(QextPortInfo *portInfo, HDEVINFO devInfo, PSP_DEVINFO_DATA devData
+static bool getDeviceDetailsInformation(QextPortInfo *portInfo, HDEVINFO devInfoSet, PSP_DEVINFO_DATA devInfoData
                                  , WPARAM wParam = DBT_DEVICEARRIVAL)
 {
-    portInfo->friendName = getDeviceProperty(devInfo, devData, SPDRP_FRIENDLYNAME);
+    portInfo->friendName = getDeviceRegistryProperty(devInfoSet, devInfoData, SPDRP_FRIENDLYNAME);
     if (wParam == DBT_DEVICEARRIVAL)
-        portInfo->physName = getDeviceProperty(devInfo, devData, SPDRP_PHYSICAL_DEVICE_OBJECT_NAME);
-    portInfo->enumName = getDeviceProperty(devInfo, devData, SPDRP_ENUMERATOR_NAME);
-    QString hardwareIDs = getDeviceProperty(devInfo, devData, SPDRP_HARDWAREID);
-    HKEY devKey = ::SetupDiOpenDevRegKey(devInfo, devData, DICS_FLAG_GLOBAL, 0, DIREG_DEV, KEY_QUERY_VALUE);
+        portInfo->physName = getDeviceRegistryProperty(devInfoSet, devInfoData, SPDRP_PHYSICAL_DEVICE_OBJECT_NAME);
+    portInfo->enumName = getDeviceRegistryProperty(devInfoSet, devInfoData, SPDRP_ENUMERATOR_NAME);
+
+    HKEY devKey = ::SetupDiOpenDevRegKey(devInfoSet, devInfoData, DICS_FLAG_GLOBAL, 0, DIREG_DEV, KEY_QUERY_VALUE);
     portInfo->portName = getRegKeyValue(devKey, TEXT("PortName"));
+    ::RegCloseKey(devKey);
+
+    QString hardwareIDs = getDeviceRegistryProperty(devInfoSet, devInfoData, SPDRP_HARDWAREID);
     QRegExp idRx(QLatin1String("VID_(\\w+)&PID_(\\w+)"));
     if (hardwareIDs.toUpper().contains(idRx)) {
         bool dummy;
@@ -178,19 +180,19 @@ static bool getDeviceDetailsWin(QextPortInfo *portInfo, HDEVINFO devInfo, PSP_DE
 /*!
      \internal
 */
-static void enumerateDevicesWin(const GUID &guid, QList<QextPortInfo> *infoList)
+static void enumerateDevices(const GUID &guid, QList<QextPortInfo> *infoList)
 {
-    HDEVINFO devInfo = ::SetupDiGetClassDevs(&guid, NULL, NULL, DIGCF_PRESENT | DIGCF_DEVICEINTERFACE);
-    if (devInfo != INVALID_HANDLE_VALUE) {
+    HDEVINFO devInfoSet = ::SetupDiGetClassDevs(&guid, NULL, NULL, DIGCF_PRESENT | DIGCF_DEVICEINTERFACE);
+    if (devInfoSet != INVALID_HANDLE_VALUE) {
         SP_DEVINFO_DATA devInfoData;
         devInfoData.cbSize = sizeof(SP_DEVINFO_DATA);
-        for(int i = 0; ::SetupDiEnumDeviceInfo(devInfo, i, &devInfoData); i++) {
+        for(int i = 0; ::SetupDiEnumDeviceInfo(devInfoSet, i, &devInfoData); i++) {
             QextPortInfo info;
             info.productID = info.vendorID = 0;
-            getDeviceDetailsWin(&info, devInfo, &devInfoData);
+            getDeviceDetailsInformation(&info, devInfoSet, &devInfoData);
             infoList->append(info);
         }
-        ::SetupDiDestroyDeviceInfoList(devInfo);
+        ::SetupDiDestroyDeviceInfoList(devInfoSet);
     }
 }
 
@@ -213,7 +215,7 @@ static bool lessThan(const QextPortInfo &s1, const QextPortInfo &s2)
 QList<QextPortInfo> QextSerialEnumeratorPrivate::getPorts_sys()
 {
     QList<QextPortInfo> ports;
-    enumerateDevicesWin(GUID_DEVINTERFACE_COMPORT, &ports);
+    enumerateDevices(GUID_DEVINTERFACE_COMPORT, &ports);
     std::sort(ports.begin(), ports.end(), lessThan);
     return ports;
 }
@@ -274,19 +276,19 @@ bool QextSerialEnumeratorPrivate::matchAndDispatchChangedDevice(const QString &d
     Q_Q(QextSerialEnumerator);
     bool rv = false;
     DWORD dwFlag = (DBT_DEVICEARRIVAL == wParam) ? DIGCF_PRESENT : DIGCF_PROFILE;
-    HDEVINFO devInfo  = SetupDiGetClassDevs(&guid, NULL, NULL, dwFlag | DIGCF_DEVICEINTERFACE);
-    if (devInfo != INVALID_HANDLE_VALUE) {
+    HDEVINFO devInfoSet  = SetupDiGetClassDevs(&guid, NULL, NULL, dwFlag | DIGCF_DEVICEINTERFACE);
+    if (devInfoSet != INVALID_HANDLE_VALUE) {
         SP_DEVINFO_DATA spDevInfoData;
         spDevInfoData.cbSize = sizeof(SP_DEVINFO_DATA);
-        for(int i=0; SetupDiEnumDeviceInfo(devInfo, i, &spDevInfoData); i++) {
+        for(int i=0; SetupDiEnumDeviceInfo(devInfoSet, i, &spDevInfoData); i++) {
             DWORD nSize = 0;
             TCHAR buf[MAX_PATH];
-            if (SetupDiGetDeviceInstanceId(devInfo, &spDevInfoData, buf, MAX_PATH, &nSize)
+            if (SetupDiGetDeviceInstanceId(devInfoSet, &spDevInfoData, buf, MAX_PATH, &nSize)
                     && deviceID.contains(QString::fromUtf16(reinterpret_cast<ushort *>(buf)))) { // we found a match
                 rv = true;
                 QextPortInfo info;
                 info.productID = info.vendorID = 0;
-                getDeviceDetailsWin(&info, devInfo, &spDevInfoData, wParam);
+                getDeviceDetailsInformation(&info, devInfoSet, &spDevInfoData, wParam);
                 if (wParam == DBT_DEVICEARRIVAL)
                     Q_EMIT q->deviceDiscovered(info);
                 else if (wParam == DBT_DEVICEREMOVECOMPLETE)
@@ -294,7 +296,7 @@ bool QextSerialEnumeratorPrivate::matchAndDispatchChangedDevice(const QString &d
                 break;
             }
         }
-        SetupDiDestroyDeviceInfoList(devInfo);
+        SetupDiDestroyDeviceInfoList(devInfoSet);
     }
     return rv;
 }
