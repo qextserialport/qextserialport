@@ -80,18 +80,16 @@ class QextSerialEnumeratorPrivate
 public:
     QextSerialEnumeratorPrivate(QextSerialEnumerator *enumrator);
     ~QextSerialEnumeratorPrivate();
-    void platformSpecificInit();
-    void platformSpecificDestruct();
+    void init_sys();
+    void destroy_sys();
 
     static QList<QextPortInfo> getPorts_sys();
     bool setUpNotifications_sys(bool setup);
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) && defined(QT_GUI_LIB)
     LRESULT onDeviceChanged(WPARAM wParam, LPARAM lParam);
     bool matchAndDispatchChangedDevice(const QString &deviceID, const GUID &guid, WPARAM wParam);
-#  ifdef QT_GUI_LIB
     QextSerialRegistrationWidget *notificationWidget;
-#  endif
 #endif /*Q_OS_WIN*/
 
 #ifdef Q_OS_MAC

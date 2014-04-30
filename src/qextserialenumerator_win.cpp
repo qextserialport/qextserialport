@@ -41,6 +41,13 @@
 #include "qextserialport.h"
 
 #ifdef QT_GUI_LIB
+/*!
+  \internal
+  \class QextSerialRegistrationWidget
+
+  Internal window which is used to receive device arrvial and removal message.
+*/
+
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
 #include <QtGui/QWidget>
 class QextSerialRegistrationWidget : public QWidget
@@ -73,10 +80,9 @@ protected:
 private:
     QextSerialEnumeratorPrivate *qese;
 };
-
 #endif // QT_GUI_LIB
 
-void QextSerialEnumeratorPrivate::platformSpecificInit()
+void QextSerialEnumeratorPrivate::init_sys()
 {
 #ifdef QT_GUI_LIB
     notificationWidget = 0;
@@ -86,7 +92,7 @@ void QextSerialEnumeratorPrivate::platformSpecificInit()
 /*!
   default
 */
-void QextSerialEnumeratorPrivate::platformSpecificDestruct()
+void QextSerialEnumeratorPrivate::destroy_sys()
 {
 #ifdef QT_GUI_LIB
     if (notificationWidget)
@@ -271,6 +277,7 @@ bool QextSerialEnumeratorPrivate::setUpNotifications_sys(bool setup)
 #endif // QT_GUI_LIB
 }
 
+#ifdef QT_GUI_LIB
 LRESULT QextSerialEnumeratorPrivate::onDeviceChanged(WPARAM wParam, LPARAM lParam)
 {
     if (DBT_DEVICEARRIVAL == wParam || DBT_DEVICEREMOVECOMPLETE == wParam) {
@@ -319,3 +326,4 @@ bool QextSerialEnumeratorPrivate::matchAndDispatchChangedDevice(const QString &d
     }
     return rv;
 }
+#endif //QT_GUI_LIB

@@ -36,7 +36,7 @@
 #include <QtCore/QStringList>
 #include <QtCore/QDir>
 
-void QextSerialEnumeratorPrivate::platformSpecificInit()
+void QextSerialEnumeratorPrivate::init_sys()
 {
 #ifndef QESP_NO_UDEV
     monitor = NULL;
@@ -49,7 +49,7 @@ void QextSerialEnumeratorPrivate::platformSpecificInit()
 #endif
 }
 
-void QextSerialEnumeratorPrivate::platformSpecificDestruct()
+void QextSerialEnumeratorPrivate::destroy_sys()
 {
 #ifndef QESP_NO_UDEV
     if (notifier) {
