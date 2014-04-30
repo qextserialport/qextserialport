@@ -34,11 +34,11 @@
 #include <QtCore/QDebug>
 #include <QtCore/QMetaType>
 #include <QtCore/QRegExp>
+#include <algorithm>
 #include <objbase.h>
 #include <initguid.h>
 #include <setupapi.h>
 #include <dbt.h>
-#include "qextserialport.h"
 
 #ifdef QT_GUI_LIB
 /*!
@@ -100,19 +100,9 @@ void QextSerialEnumeratorPrivate::destroy_sys()
 #endif
 }
 
-// see http://msdn.microsoft.com/en-us/library/windows/hardware/ff553426(v=vs.85).aspx
-// for list of GUID classes
-const GUID deviceClassGuids[] =
-{
-    // Ports (COM & LPT ports), Class = Ports
-    {0x4D36E978, 0xE325, 0x11CE, {0xBF, 0xC1, 0x08, 0x00, 0x2B, 0xE1, 0x03, 0x18}},
-    // Modem, Class = Modem
-    {0x4D36E96D, 0xE325, 0x11CE, {0xBF, 0xC1, 0x08, 0x00, 0x2B, 0xE1, 0x03, 0x18}},
-    // Bluetooth Devices, Class = Bluetooth
-    {0xE0CBF06C, 0xCD8B, 0x4647, {0xBB, 0x8A, 0x26, 0x3B, 0x43, 0xF0, 0xF9, 0x74}},
-    // Added by Arne Kristian Jansen, for use with com0com virtual ports (See Issue 54)
-    {0xDF799E12, 0x3C56, 0x421B, {0xB2, 0x98, 0xB6, 0xD3, 0x64, 0x2B, 0xC8, 0x78}}
-};
+#ifndef GUID_DEVINTERFACE_COMPORT
+DEFINE_GUID(GUID_DEVINTERFACE_COMPORT, 0x86e0d1e0L, 0x8089, 0x11d0, 0x9c, 0xe4, 0x08, 0x00, 0x3e, 0x30, 0x1f, 0x73);
+#endif
 
 /* Gordon Schumacher's macros for TCHAR -> QString conversions and vice versa */
 #ifdef UNICODE
@@ -202,16 +192,15 @@ static bool getDeviceDetailsWin(QextPortInfo *portInfo, HDEVINFO devInfo, PSP_DE
 */
 static void enumerateDevicesWin(const GUID &guid, QList<QextPortInfo> *infoList)
 {
-    HDEVINFO devInfo;
-    if ((devInfo = ::SetupDiGetClassDevs(&guid, NULL, NULL, DIGCF_PRESENT)) != INVALID_HANDLE_VALUE) {
+    HDEVINFO devInfo = ::SetupDiGetClassDevs(&guid, NULL, NULL, DIGCF_PRESENT | DIGCF_DEVICEINTERFACE);
+    if (devInfo != INVALID_HANDLE_VALUE) {
         SP_DEVINFO_DATA devInfoData;
         devInfoData.cbSize = sizeof(SP_DEVINFO_DATA);
         for(int i = 0; ::SetupDiEnumDeviceInfo(devInfo, i, &devInfoData); i++) {
             QextPortInfo info;
             info.productID = info.vendorID = 0;
             getDeviceDetailsWin(&info, devInfo, &devInfoData);
-            if (!info.portName.startsWith(QLatin1String("LPT"), Qt::CaseInsensitive))
-                infoList->append(info);
+            infoList->append(info);
         }
         ::SetupDiDestroyDeviceInfoList(devInfo);
     }
@@ -236,10 +225,8 @@ static bool lessThan(const QextPortInfo &s1, const QextPortInfo &s2)
 QList<QextPortInfo> QextSerialEnumeratorPrivate::getPorts_sys()
 {
     QList<QextPortInfo> ports;
-    const int count = sizeof(deviceClassGuids)/sizeof(deviceClassGuids[0]);
-    for (int i=0; i<count; ++i)
-        enumerateDevicesWin(deviceClassGuids[i], &ports);
-    qSort(ports.begin(), ports.end(), lessThan);
+    enumerateDevicesWin(GUID_DEVINTERFACE_COMPORT, &ports);
+    std::sort(ports.begin(), ports.end(), lessThan);
     return ports;
 }
 
@@ -287,11 +274,7 @@ LRESULT QextSerialEnumeratorPrivate::onDeviceChanged(WPARAM wParam, LPARAM lPara
              // delimiters are different across APIs...change to backslash.  ugh.
             QString deviceID = TCHARToQString(pDevInf->dbcc_name).toUpper().replace(QLatin1String("#"), QLatin1String("\\"));
 
-            const int count = sizeof(deviceClassGuids)/sizeof(deviceClassGuids[0]);
-            for (int i=0; i<count; ++i) {
-                if (matchAndDispatchChangedDevice(deviceID, deviceClassGuids[i], wParam))
-                    break;
-            }
+            matchAndDispatchChangedDevice(deviceID, GUID_DEVINTERFACE_COMPORT, wParam);
         }
     }
     return 0;
@@ -301,9 +284,9 @@ bool QextSerialEnumeratorPrivate::matchAndDispatchChangedDevice(const QString &d
 {
     Q_Q(QextSerialEnumerator);
     bool rv = false;
-    DWORD dwFlag = (DBT_DEVICEARRIVAL == wParam) ? DIGCF_PRESENT : DIGCF_ALLCLASSES;
-    HDEVINFO devInfo;
-    if ((devInfo = SetupDiGetClassDevs(&guid,NULL,NULL,dwFlag)) != INVALID_HANDLE_VALUE) {
+    DWORD dwFlag = (DBT_DEVICEARRIVAL == wParam) ? DIGCF_PRESENT : DIGCF_PROFILE;
+    HDEVINFO devInfo  = SetupDiGetClassDevs(&guid, NULL, NULL, dwFlag | DIGCF_DEVICEINTERFACE);
+    if (devInfo != INVALID_HANDLE_VALUE) {
         SP_DEVINFO_DATA spDevInfoData;
         spDevInfoData.cbSize = sizeof(SP_DEVINFO_DATA);
         for(int i=0; SetupDiEnumDeviceInfo(devInfo, i, &spDevInfoData); i++) {
