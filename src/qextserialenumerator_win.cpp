@@ -104,18 +104,6 @@ void QextSerialEnumeratorPrivate::destroy_sys()
 DEFINE_GUID(GUID_DEVINTERFACE_COMPORT, 0x86e0d1e0L, 0x8089, 0x11d0, 0x9c, 0xe4, 0x08, 0x00, 0x3e, 0x30, 0x1f, 0x73);
 #endif
 
-/* Gordon Schumacher's macros for TCHAR -> QString conversions and vice versa */
-#ifdef UNICODE
-    #define QStringToTCHAR(x)     (wchar_t *) x.utf16()
-    #define PQStringToTCHAR(x)    (wchar_t *) x->utf16()
-    #define TCHARToQString(x)     QString::fromUtf16((ushort *)(x))
-    #define TCHARToQStringN(x,y)  QString::fromUtf16((ushort *)(x),(y))
-#else
-    #define QStringToTCHAR(x)     x.local8Bit().constData()
-    #define PQStringToTCHAR(x)    x->local8Bit().constData()
-    #define TCHARToQString(x)     QString::fromLocal8Bit((char *)(x))
-    #define TCHARToQStringN(x,y)  QString::fromLocal8Bit((char *)(x),(y))
-#endif /*UNICODE*/
 
 /*!
     \internal
@@ -134,7 +122,7 @@ static QString getRegKeyValue(HKEY key, LPCTSTR property)
     BYTE *buff = new BYTE[size];
     QString result;
     if (::RegQueryValueEx(key, property, NULL, &type, buff, &size) == ERROR_SUCCESS)
-        result = TCHARToQString(buff);
+        result = QString::fromUtf16(reinterpret_cast<ushort *>(buff));
     ::RegCloseKey(key);
     delete [] buff;
     return result;
@@ -159,7 +147,7 @@ static QString getDeviceProperty(HDEVINFO devInfo, PSP_DEVINFO_DATA devData, DWO
         return QString();
     BYTE *buff = new BYTE[buffSize];
     ::SetupDiGetDeviceRegistryProperty(devInfo, devData, property, NULL, buff, buffSize, NULL);
-    QString result = TCHARToQString(buff);
+    QString result = QString::fromUtf16(reinterpret_cast<ushort *>(buff));
     delete [] buff;
     return result;
 }
@@ -272,7 +260,8 @@ LRESULT QextSerialEnumeratorPrivate::onDeviceChanged(WPARAM wParam, LPARAM lPara
         if (pHdr->dbch_devicetype == DBT_DEVTYP_DEVICEINTERFACE) {
             PDEV_BROADCAST_DEVICEINTERFACE pDevInf = (PDEV_BROADCAST_DEVICEINTERFACE)pHdr;
              // delimiters are different across APIs...change to backslash.  ugh.
-            QString deviceID = TCHARToQString(pDevInf->dbcc_name).toUpper().replace(QLatin1String("#"), QLatin1String("\\"));
+            QString deviceID = QString::fromUtf16(reinterpret_cast<ushort *>(pDevInf->dbcc_name));
+            deviceID = deviceID.toUpper().replace(QLatin1String("#"), QLatin1String("\\"));
 
             matchAndDispatchChangedDevice(deviceID, GUID_DEVINTERFACE_COMPORT, wParam);
         }
@@ -292,8 +281,8 @@ bool QextSerialEnumeratorPrivate::matchAndDispatchChangedDevice(const QString &d
         for(int i=0; SetupDiEnumDeviceInfo(devInfo, i, &spDevInfoData); i++) {
             DWORD nSize = 0;
             TCHAR buf[MAX_PATH];
-            if (SetupDiGetDeviceInstanceId(devInfo, &spDevInfoData, buf, MAX_PATH, &nSize) &&
-                    deviceID.contains(TCHARToQString(buf))) { // we found a match
+            if (SetupDiGetDeviceInstanceId(devInfo, &spDevInfoData, buf, MAX_PATH, &nSize)
+                    && deviceID.contains(QString::fromUtf16(reinterpret_cast<ushort *>(buf)))) { // we found a match
                 rv = true;
                 QextPortInfo info;
                 info.productID = info.vendorID = 0;
