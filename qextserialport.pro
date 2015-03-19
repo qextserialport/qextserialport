@@ -31,6 +31,13 @@ defineReplace(qextLibraryName) {
    return($$LIBRARY_NAME)
 }
 
+defineReplace(qextGetFirstPath) {
+   win32:sep=;
+   else:sep=:
+   p = $$split(1, $$sep)
+   return ($$member(p))
+}
+
 TEMPLATE=lib
 include(src/qextserialport.pri)
 
@@ -92,5 +99,5 @@ win32:!qesp_static {
 target.path = $$[QT_INSTALL_LIBS]
 
 features.files = extserialport.prf
-features.path = $$[QMAKE_MKSPECS]/features
+features.path = $$qextGetFirstPath($$[QMAKE_MKSPECS])/features
 INSTALLS += target features
