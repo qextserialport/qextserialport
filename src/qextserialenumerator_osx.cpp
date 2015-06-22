@@ -104,6 +104,8 @@ bool QextSerialEnumeratorPrivate::getServiceDetailsOSX(io_object_t service, Qext
     CFTypeRef productNameAsCFString = NULL;
     CFTypeRef vendorIdAsCFNumber = NULL;
     CFTypeRef productIdAsCFNumber = NULL;
+    CFTypeRef serialNumberAsCFString = NULL;
+
     // check the name of the modem's callout device
     bsdPathAsCFString = IORegistryEntryCreateCFProperty(service, CFSTR(kIOCalloutDeviceKey),
                                                         kCFAllocatorDefault, 0);
@@ -112,7 +114,7 @@ bool QextSerialEnumeratorPrivate::getServiceDetailsOSX(io_object_t service, Qext
     // vendor/product IDs and the product name, if available
     io_registry_entry_t parent;
     kern_return_t kernResult = IORegistryEntryGetParentEntry(service, kIOServicePlane, &parent);
-    while (kernResult == KERN_SUCCESS && !vendorIdAsCFNumber && !productIdAsCFNumber) {
+    while (kernResult == KERN_SUCCESS && !vendorIdAsCFNumber && !productIdAsCFNumber && !serialNumberAsCFString) {
         if (!productNameAsCFString)
             productNameAsCFString = IORegistryEntrySearchCFProperty(parent,
                                                                     kIOServicePlane,
@@ -125,6 +127,11 @@ bool QextSerialEnumeratorPrivate::getServiceDetailsOSX(io_object_t service, Qext
         productIdAsCFNumber = IORegistryEntrySearchCFProperty(parent,
                                                               kIOServicePlane,
                                                               CFSTR(kUSBProductID),
+                                                              kCFAllocatorDefault, 0);
+
+        serialNumberAsCFString = IORegistryEntrySearchCFProperty(parent,
+                                                              kIOServicePlane,
+                                                              CFSTR(kUSBSerialNumberString),
                                                               kCFAllocatorDefault, 0);
         io_registry_entry_t oldparent = parent;
         kernResult = IORegistryEntryGetParentEntry(parent, kIOServicePlane, &parent);
@@ -149,6 +156,14 @@ bool QextSerialEnumeratorPrivate::getServiceDetailsOSX(io_object_t service, Qext
                                PATH_MAX, kCFStringEncodingUTF8))
             portInfo->friendName = productName;
         CFRelease(productNameAsCFString);
+    }
+
+    if (serialNumberAsCFString) {
+        char serialNumber[256];
+        if (CFStringGetCString((CFStringRef)serialNumberAsCFString, serialNumber,
+                               256, kCFStringEncodingUTF8))
+            portInfo->serialNumber = serialNumber;
+        CFRelease(serialNumberAsCFString);
     }
 
     if (vendorIdAsCFNumber) {
