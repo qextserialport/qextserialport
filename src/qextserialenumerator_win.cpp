@@ -5,6 +5,7 @@
 ** Copyright (c) 2008 Brandon Fosdick
 ** Copyright (c) 2009-2010 Liam Staskawicz
 ** Copyright (c) 2011 Debao Zhang
+** Copyright (c) 2015 Other Machine Company
 ** All right reserved.
 ** Web: http://code.google.com/p/qextserialport/
 **
@@ -34,6 +35,7 @@
 #include <QtCore/QDebug>
 #include <QtCore/QMetaType>
 #include <QtCore/QRegExp>
+#include <QtCore/QTimer>
 #include <algorithm>
 #include <objbase.h>
 #include <initguid.h>
@@ -71,7 +73,7 @@ protected:
         MSG *message = static_cast<MSG *>(msg);
 #endif
         if (message->message == WM_DEVICECHANGE) {
-            qese->onDeviceChanged(message->wParam, message->lParam);
+            QTimer::singleShot(100, this, &QextSerialRegistrationWidget::triggerRescan);
             *result = 1;
             return true;
         }
@@ -79,6 +81,10 @@ protected:
     }
 private:
     QextSerialEnumeratorPrivate *qese;
+private Q_SLOTS:
+    void triggerRescan() {
+      qese->rescanDevices();
+    }
 };
 #endif // QT_GUI_LIB
 
@@ -100,9 +106,10 @@ void QextSerialEnumeratorPrivate::destroy_sys()
 #endif
 }
 
+#ifndef GUID_DEVINTERFACE_COMPORT
+DEFINE_GUID(GUID_DEVINTERFACE_COMPORT, 0x86e0d1e0L, 0x8089, 0x11d0, 0x9c, 0xe4, 0x08, 0x00, 0x3e, 0x30, 0x1f, 0x73);
+#endif
 
-#define GUID_LIST_ENUM 1
-#if GUID_LIST_ENUM
 // see http://msdn.microsoft.com/en-us/library/windows/hardware/ff553426(v=vs.85).aspx
 // for list of GUID classes
 const GUID deviceClassGuids[] =
@@ -121,17 +128,8 @@ const GUID deviceClassGuids[] =
     // Added by Arne Kristian Jansen, for use with com0com virtual ports (See Issue 54)
     //{0xDF799E12, 0x3C56, 0x421B, {0xB2, 0x98, 0xB6, 0xD3, 0x64, 0x2B, 0xC8, 0x78}},
 
-    //GUID_DEVINTERFACE_COMPORT
-    {0x86e0d1e0, 0x8089, 0x11d0, {0x9c, 0xe4, 0x08, 0x00, 0x3e, 0x30, 0x1f, 0x73}}
+    GUID_DEVINTERFACE_COMPORT
 };
-
-#else
-
-#ifndef GUID_DEVINTERFACE_COMPORT
-DEFINE_GUID(GUID_DEVINTERFACE_COMPORT, 0x86e0d1e0L, 0x8089, 0x11d0, 0x9c, 0xe4, 0x08, 0x00, 0x3e, 0x30, 0x1f, 0x73);
-#endif
-
-#endif
 
 
 /*!
@@ -233,11 +231,7 @@ static bool getDeviceDetailsInformation(QextPortInfo *portInfo, HDEVINFO devInfo
 */
 static void enumerateDevices(const GUID &guid, QList<QextPortInfo> *infoList)
 {
-#if GUID_LIST_ENUM
     HDEVINFO devInfoSet = ::SetupDiGetClassDevs(&guid, NULL, NULL, DIGCF_PRESENT );
-#else
-    HDEVINFO devInfoSet = ::SetupDiGetClassDevs(&guid, NULL, NULL, DIGCF_PRESENT | DIGCF_DEVICEINTERFACE);
-#endif
     if (devInfoSet != INVALID_HANDLE_VALUE) {
         SP_DEVINFO_DATA devInfoData;
         devInfoData.cbSize = sizeof(SP_DEVINFO_DATA);
@@ -246,13 +240,9 @@ static void enumerateDevices(const GUID &guid, QList<QextPortInfo> *infoList)
             info.productID = info.vendorID = 0;
             getDeviceDetailsInformation(&info, devInfoSet, &devInfoData);
 
-#if GUID_LIST_ENUM
             // exclude parallel ports
             if (!info.portName.startsWith(QLatin1String("LPT"), Qt::CaseInsensitive))
                 infoList->append(info);
-#else
-            infoList->append(info);
-#endif
         }
         ::SetupDiDestroyDeviceInfoList(devInfoSet);
     }
@@ -278,14 +268,10 @@ QList<QextPortInfo> QextSerialEnumeratorPrivate::getPorts_sys()
 {
     QList<QextPortInfo> ports;
 
-#if GUID_LIST_ENUM
     // search all device classes
     const int count = sizeof(deviceClassGuids)/sizeof(deviceClassGuids[0]);
     for (int i=0; i<count; ++i)
         enumerateDevices(deviceClassGuids[i], &ports);
-#else
-    enumerateDevices(GUID_DEVINTERFACE_COMPORT, &ports);
-#endif
 
     std::sort(ports.begin(), ports.end(), lessThan);
     return ports;
@@ -302,7 +288,6 @@ bool QextSerialEnumeratorPrivate::setUpNotifications_sys(bool setup)
     QESP_WARNING("QextSerialEnumerator: GUI not enabled - can't register for device notifications.");
     return false;
 #else
-    Q_Q(QextSerialEnumerator);
     if (setup && notificationWidget) //already setup
         return true;
     notificationWidget = new QextSerialRegistrationWidget(this);
@@ -319,71 +304,35 @@ bool QextSerialEnumeratorPrivate::setUpNotifications_sys(bool setup)
     }
     // setting up notifications doesn't tell us about devices already connected
     // so get those manually
-    foreach (QextPortInfo port, getPorts_sys())
-        Q_EMIT q->deviceDiscovered(port);
+    rescanDevices();
     return true;
 #endif // QT_GUI_LIB
 }
 
-#ifdef QT_GUI_LIB
-LRESULT QextSerialEnumeratorPrivate::onDeviceChanged(WPARAM wParam, LPARAM lParam)
+bool operator==(const QextPortInfo &a, const QextPortInfo &b)
 {
-    if (DBT_DEVICEARRIVAL == wParam || DBT_DEVICEREMOVECOMPLETE == wParam) {
-        PDEV_BROADCAST_HDR pHdr = (PDEV_BROADCAST_HDR)lParam;
-        if (pHdr->dbch_devicetype == DBT_DEVTYP_DEVICEINTERFACE) {
-            PDEV_BROADCAST_DEVICEINTERFACE pDevInf = (PDEV_BROADCAST_DEVICEINTERFACE)pHdr;
-             // delimiters are different across APIs...change to backslash.  ugh.
-            QString deviceID = QString::fromUtf16(reinterpret_cast<ushort *>(pDevInf->dbcc_name));
-            deviceID = deviceID.toUpper().replace(QLatin1String("#"), QLatin1String("\\"));
-
-#if GUID_LIST_ENUM
-            const int count = sizeof(deviceClassGuids)/sizeof(deviceClassGuids[0]);
-            for (int i=0; i<count; ++i) {
-                if (matchAndDispatchChangedDevice(deviceID, deviceClassGuids[i], wParam))
-                    break;
-            }
-#else
-            matchAndDispatchChangedDevice(deviceID, GUID_DEVINTERFACE_COMPORT, wParam);
-#endif
-
-        }
-    }
-    return 0;
+  return a.portName == b.portName && \
+         a.physName == b.physName && \
+         a.friendName == b.friendName && \
+         a.enumName == b.enumName && \
+         a.vendorID == b.vendorID && \
+         a.productID == b.productID;
 }
 
-bool QextSerialEnumeratorPrivate::matchAndDispatchChangedDevice(const QString &deviceID, const GUID &guid, WPARAM wParam)
+void QextSerialEnumeratorPrivate::rescanDevices()
 {
     Q_Q(QextSerialEnumerator);
-    bool rv = false;
-
-#if GUID_LIST_ENUM
-    DWORD dwFlag = (DBT_DEVICEARRIVAL == wParam) ? DIGCF_PRESENT : DIGCF_ALLCLASSES;
-    HDEVINFO devInfoSet  = SetupDiGetClassDevs(&guid, NULL, NULL, dwFlag);
-#else
-    DWORD dwFlag = (DBT_DEVICEARRIVAL == wParam) ? DIGCF_PRESENT : DIGCF_PROFILE;
-    HDEVINFO devInfoSet  = SetupDiGetClassDevs(&guid, NULL, NULL, dwFlag | DIGCF_DEVICEINTERFACE);
-#endif
-    if (devInfoSet != INVALID_HANDLE_VALUE) {
-        SP_DEVINFO_DATA spDevInfoData;
-        spDevInfoData.cbSize = sizeof(SP_DEVINFO_DATA);
-        for(int i=0; SetupDiEnumDeviceInfo(devInfoSet, i, &spDevInfoData); i++) {
-            DWORD nSize = 0;
-            TCHAR buf[MAX_PATH];
-            if (SetupDiGetDeviceInstanceId(devInfoSet, &spDevInfoData, buf, MAX_PATH, &nSize)
-                    && deviceID.contains(QString::fromUtf16(reinterpret_cast<ushort *>(buf)))) { // we found a match
-                rv = true;
-                QextPortInfo info;
-                info.productID = info.vendorID = 0;
-                getDeviceDetailsInformation(&info, devInfoSet, &spDevInfoData, wParam);
-                if (wParam == DBT_DEVICEARRIVAL)
-                    Q_EMIT q->deviceDiscovered(info);
-                else if (wParam == DBT_DEVICEREMOVECOMPLETE)
-                    Q_EMIT q->deviceRemoved(info);
-                break;
-            }
+    QList<QextPortInfo> currentlyPresentDevices = getPorts_sys();
+    foreach (QextPortInfo port, currentlyPresentDevices) {
+        if (!m_knownDevices.contains(port)) {
+          m_knownDevices << port;
+          Q_EMIT q->deviceDiscovered(port);
         }
-        SetupDiDestroyDeviceInfoList(devInfoSet);
     }
-    return rv;
+    foreach (QextPortInfo port, m_knownDevices) {
+        if (!currentlyPresentDevices.contains(port)) {
+          m_knownDevices.removeOne(port);
+          Q_EMIT q->deviceRemoved(port);
+        }
+    }
 }
-#endif //QT_GUI_LIB
