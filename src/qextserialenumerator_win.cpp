@@ -185,12 +185,12 @@ static QString getDeviceRegistryProperty(HDEVINFO devInfoSet, PSP_DEVINFO_DATA d
 static QString getDeviceID(HDEVINFO devInfoSet, PSP_DEVINFO_DATA devInfoData )
 {
     DWORD buffSize = 0;
-    WINBOOL success = ::SetupDiGetDeviceInstanceId(devInfoSet, devInfoData, NULL, 0, &buffSize);
+    ::SetupDiGetDeviceInstanceId(devInfoSet, devInfoData, NULL, 0, &buffSize);
     if (GetLastError() != ERROR_INSUFFICIENT_BUFFER)
         return QString();
 
     WCHAR *buff = new WCHAR[buffSize];
-    success = ::SetupDiGetDeviceInstanceId(devInfoSet, devInfoData, buff, buffSize, NULL);
+    ::SetupDiGetDeviceInstanceId(devInfoSet, devInfoData, buff, buffSize, NULL);
     QString result = QString::fromUtf16(reinterpret_cast<ushort *>(buff));
     delete [] buff;
     return result;
