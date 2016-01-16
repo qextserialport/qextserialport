@@ -116,25 +116,31 @@ bool QextSerialEnumeratorPrivate::getServiceDetailsOSX(io_object_t service, Qext
     // vendor/product IDs and the product name, if available
     io_registry_entry_t parent;
     kern_return_t kernResult = IORegistryEntryGetParentEntry(service, kIOServicePlane, &parent);
-    while (kernResult == KERN_SUCCESS && !vendorIdAsCFNumber && !productIdAsCFNumber && !serialNumberAsCFString) {
-        if (!productNameAsCFString)
+    while (kernResult == KERN_SUCCESS && !(vendorIdAsCFNumber && productIdAsCFNumber && serialNumberAsCFString)) {
+        if (!productNameAsCFString) {
             productNameAsCFString = IORegistryEntrySearchCFProperty(parent,
                                                                     kIOServicePlane,
                                                                     CFSTR("Product Name"),
                                                                     kCFAllocatorDefault, 0);
-        vendorIdAsCFNumber = IORegistryEntrySearchCFProperty(parent,
-                                                             kIOServicePlane,
-                                                             CFSTR(kUSBVendorID),
-                                                             kCFAllocatorDefault, 0);
-        productIdAsCFNumber = IORegistryEntrySearchCFProperty(parent,
-                                                              kIOServicePlane,
-                                                              CFSTR(kUSBProductID),
-                                                              kCFAllocatorDefault, 0);
-
-        serialNumberAsCFString = IORegistryEntrySearchCFProperty(parent,
-                                                              kIOServicePlane,
-                                                              CFSTR(kUSBSerialNumberString),
-                                                              kCFAllocatorDefault, 0);
+        }
+        if (!vendorIdAsCFNumber) {
+            vendorIdAsCFNumber = IORegistryEntrySearchCFProperty(parent,
+                                                                 kIOServicePlane,
+                                                                 CFSTR(kUSBVendorID),
+                                                                 kCFAllocatorDefault, 0);
+        }
+        if (!productIdAsCFNumber) {
+            productIdAsCFNumber = IORegistryEntrySearchCFProperty(parent,
+                                                                  kIOServicePlane,
+                                                                  CFSTR(kUSBProductID),
+                                                                  kCFAllocatorDefault, 0);
+        }
+        if (!serialNumberAsCFString) {
+            serialNumberAsCFString = IORegistryEntrySearchCFProperty(parent,
+                                                                     kIOServicePlane,
+                                                                     CFSTR(kUSBSerialNumberString),
+                                                                     kCFAllocatorDefault, 0);
+        }
         io_registry_entry_t oldparent = parent;
         kernResult = IORegistryEntryGetParentEntry(parent, kIOServicePlane, &parent);
         IOObjectRelease(oldparent);
