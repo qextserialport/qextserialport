@@ -1,0 +1,2 @@
+#include "qextserialport.h"
+#include "qextserialenumerator.h"
