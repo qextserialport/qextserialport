@@ -42,7 +42,8 @@ TEMPLATE=lib
 include(src/qextserialport.pri)
 
 #create_prl is needed, otherwise, MinGW can't found libqextserialport1.a
-CONFIG += create_prl
+CONFIG += create_prl create_pc
+QMAKE_PKGCONFIG_DESTDIR = pkgconfig
 
 #mac framework is designed for shared library
 macx:qesp_mac_framework:qesp_static: CONFIG -= qesp_static
