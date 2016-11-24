@@ -3,7 +3,8 @@ DEPENDPATH += $$PWD
 
 PUBLIC_HEADERS         += $$PWD/qextserialport.h \
                           $$PWD/qextserialenumerator.h \
-                          $$PWD/qextserialport_global.h
+                          $$PWD/qextserialport_global.h \
+                          $$PWD/QExtSerialPort
 
 HEADERS                += $$PUBLIC_HEADERS \
                           $$PWD/qextserialport_p.h \
