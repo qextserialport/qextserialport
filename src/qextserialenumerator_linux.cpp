@@ -55,6 +55,7 @@ void QextSerialEnumeratorPrivate::destroy_sys()
     if (notifier) {
         notifier->setEnabled(false);
         delete notifier;
+        notifier = nullptr;
     }
 
     if (monitor)
@@ -183,7 +184,7 @@ bool QextSerialEnumeratorPrivate::setUpNotifications_sys(bool setup)
     udev_monitor_enable_receiving(monitor);
     notifierFd = udev_monitor_get_fd(monitor);
     notifier = new QSocketNotifier(notifierFd, QSocketNotifier::Read);
-    q->connect(notifier, &QSocketNotifier::activated, [this]{_q_deviceEvent();});
+    q->connect(notifier, &QSocketNotifier::activated, q, [this]{_q_deviceEvent();});
     notifier->setEnabled(true);
 
     return true;
