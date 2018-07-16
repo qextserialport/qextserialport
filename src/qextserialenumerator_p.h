@@ -68,6 +68,7 @@
 
 #if defined(Q_OS_LINUX) && !defined(QESP_NO_UDEV)
 #  include <QSocketNotifier>
+#  include <QPointer>
 extern "C" {
 #  include <libudev.h>
 }
@@ -107,7 +108,7 @@ public:
 #endif // Q_OS_MAC
 
 #if defined(Q_OS_LINUX) && !defined(QESP_NO_UDEV)
-    QSocketNotifier *notifier;
+    QPointer<QSocketNotifier> notifier;
     int notifierFd;
     struct udev *udev;
     struct udev_monitor *monitor;
