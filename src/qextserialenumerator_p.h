@@ -68,6 +68,7 @@
 
 #if defined(Q_OS_LINUX) && !defined(QESP_NO_UDEV)
 #  include <QSocketNotifier>
+#  include <QPointer>
 extern "C" {
 #  include <libudev.h>
 }
@@ -87,9 +88,8 @@ public:
     bool setUpNotifications_sys(bool setup);
 
 #if defined(Q_OS_WIN) && defined(QT_GUI_LIB)
-    LRESULT onDeviceChanged(WPARAM wParam, LPARAM lParam);
-    bool matchAndDispatchChangedDevice(const QString &deviceID, const GUID &guid, WPARAM wParam);
     QextSerialRegistrationWidget *notificationWidget;
+    void rescanDevices();
 #endif /*Q_OS_WIN*/
 
 #ifdef Q_OS_MAC
@@ -108,7 +108,7 @@ public:
 #endif // Q_OS_MAC
 
 #if defined(Q_OS_LINUX) && !defined(QESP_NO_UDEV)
-    QSocketNotifier *notifier;
+    QPointer<QSocketNotifier> notifier;
     int notifierFd;
     struct udev *udev;
     struct udev_monitor *monitor;
@@ -118,6 +118,9 @@ public:
 
 private:
     QextSerialEnumerator *q_ptr;
+#ifdef Q_OS_WIN
+    QList<QextPortInfo> m_knownDevices;
+#endif // q_os_win
 };
 
 #endif //_QEXTSERIALENUMERATOR_P_H_

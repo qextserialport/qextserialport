@@ -41,7 +41,7 @@ void QextSerialEnumeratorPrivate::init_sys()
 #ifndef QESP_NO_UDEV
     monitor = NULL;
     notifierFd = -1;
-    notifier = NULL;
+    notifier = nullptr;
 
     udev = udev_new();
     if (!udev)
@@ -70,12 +70,14 @@ static QextPortInfo portInfoFromDevice(struct udev_device *dev)
 {
     QString vendor = QString::fromLatin1(udev_device_get_property_value(dev, "ID_VENDOR_ID"));
     QString product = QString::fromLatin1(udev_device_get_property_value(dev, "ID_MODEL_ID"));
+    QString serial = QString::fromLatin1(udev_device_get_property_value(dev, "ID_SERIAL"));
 
     QextPortInfo pi;
     pi.vendorID = vendor.toInt(0, 16);
     pi.productID = product.toInt(0, 16);
     pi.portName = QString::fromLatin1(udev_device_get_devnode(dev));
     pi.physName = pi.portName;
+    pi.serialNumber = serial;
 
     return pi;
 }
@@ -180,8 +182,8 @@ bool QextSerialEnumeratorPrivate::setUpNotifications_sys(bool setup)
     udev_monitor_filter_add_match_subsystem_devtype(monitor, "tty", NULL);
     udev_monitor_enable_receiving(monitor);
     notifierFd = udev_monitor_get_fd(monitor);
-    notifier = new QSocketNotifier(notifierFd, QSocketNotifier::Read);
-    q->connect(notifier, SIGNAL(activated(int)), q, SLOT(_q_deviceEvent()));
+    notifier = new QSocketNotifier(notifierFd, QSocketNotifier::Read, q);
+    q->connect(notifier, &QSocketNotifier::activated, q, [this]{_q_deviceEvent();});
     notifier->setEnabled(true);
 
     return true;

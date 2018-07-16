@@ -32,6 +32,8 @@
 #include "qextserialenumerator.h"
 #include "qextserialenumerator_p.h"
 #include <QtCore/QDebug>
+#include <QtCore/QTimer>
+#include <QtCore/QSysInfo>
 #include <IOKit/serial/IOSerialKeys.h>
 #include <CoreFoundation/CFNumber.h>
 #include <sys/param.h>
@@ -104,6 +106,8 @@ bool QextSerialEnumeratorPrivate::getServiceDetailsOSX(io_object_t service, Qext
     CFTypeRef productNameAsCFString = NULL;
     CFTypeRef vendorIdAsCFNumber = NULL;
     CFTypeRef productIdAsCFNumber = NULL;
+    CFTypeRef serialNumberAsCFString = NULL;
+
     // check the name of the modem's callout device
     bsdPathAsCFString = IORegistryEntryCreateCFProperty(service, CFSTR(kIOCalloutDeviceKey),
                                                         kCFAllocatorDefault, 0);
@@ -112,20 +116,31 @@ bool QextSerialEnumeratorPrivate::getServiceDetailsOSX(io_object_t service, Qext
     // vendor/product IDs and the product name, if available
     io_registry_entry_t parent;
     kern_return_t kernResult = IORegistryEntryGetParentEntry(service, kIOServicePlane, &parent);
-    while (kernResult == KERN_SUCCESS && !vendorIdAsCFNumber && !productIdAsCFNumber) {
-        if (!productNameAsCFString)
+    while (kernResult == KERN_SUCCESS && !(vendorIdAsCFNumber && productIdAsCFNumber && serialNumberAsCFString)) {
+        if (!productNameAsCFString) {
             productNameAsCFString = IORegistryEntrySearchCFProperty(parent,
                                                                     kIOServicePlane,
                                                                     CFSTR("Product Name"),
                                                                     kCFAllocatorDefault, 0);
-        vendorIdAsCFNumber = IORegistryEntrySearchCFProperty(parent,
-                                                             kIOServicePlane,
-                                                             CFSTR(kUSBVendorID),
-                                                             kCFAllocatorDefault, 0);
-        productIdAsCFNumber = IORegistryEntrySearchCFProperty(parent,
-                                                              kIOServicePlane,
-                                                              CFSTR(kUSBProductID),
-                                                              kCFAllocatorDefault, 0);
+        }
+        if (!vendorIdAsCFNumber) {
+            vendorIdAsCFNumber = IORegistryEntrySearchCFProperty(parent,
+                                                                 kIOServicePlane,
+                                                                 CFSTR(kUSBVendorID),
+                                                                 kCFAllocatorDefault, 0);
+        }
+        if (!productIdAsCFNumber) {
+            productIdAsCFNumber = IORegistryEntrySearchCFProperty(parent,
+                                                                  kIOServicePlane,
+                                                                  CFSTR(kUSBProductID),
+                                                                  kCFAllocatorDefault, 0);
+        }
+        if (!serialNumberAsCFString) {
+            serialNumberAsCFString = IORegistryEntrySearchCFProperty(parent,
+                                                                     kIOServicePlane,
+                                                                     CFSTR(kUSBSerialNumberString),
+                                                                     kCFAllocatorDefault, 0);
+        }
         io_registry_entry_t oldparent = parent;
         kernResult = IORegistryEntryGetParentEntry(parent, kIOServicePlane, &parent);
         IOObjectRelease(oldparent);
@@ -149,6 +164,14 @@ bool QextSerialEnumeratorPrivate::getServiceDetailsOSX(io_object_t service, Qext
                                PATH_MAX, kCFStringEncodingUTF8))
             portInfo->friendName = productName;
         CFRelease(productNameAsCFString);
+    }
+
+    if (serialNumberAsCFString) {
+        char serialNumber[256];
+        if (CFStringGetCString((CFStringRef)serialNumberAsCFString, serialNumber,
+                               256, kCFStringEncodingUTF8))
+            portInfo->serialNumber = serialNumber;
+        CFRelease(serialNumberAsCFString);
     }
 
     if (vendorIdAsCFNumber) {
@@ -195,8 +218,15 @@ void QextSerialEnumeratorPrivate::onDeviceDiscoveredOSX(io_object_t service)
     QextPortInfo info;
     info.vendorID = 0;
     info.productID = 0;
-    if (getServiceDetailsOSX(service, &info))
-        Q_EMIT q->deviceDiscovered(info);
+    if (getServiceDetailsOSX(service, &info)) {
+        // workaround for El Capitan bug where endpoints aren't immediately accessible
+        // when devices are first enumerated. 500ms is an arbitrary value chosen
+        // through experimentation (100ms was too short).
+        static const int delay = QSysInfo::MacintoshVersion >= QSysInfo::MV_ELCAPITAN ? 500 : 0;
+        QTimer::singleShot(delay, [=]{
+            Q_EMIT q->deviceDiscovered(info);
+        });
+    }
 }
 
 /*

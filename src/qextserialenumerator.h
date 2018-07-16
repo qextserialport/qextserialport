@@ -41,6 +41,7 @@ struct QextPortInfo {
     QString physName;   ///< Physical name.
     QString friendName; ///< Friendly name.
     QString enumName;   ///< Enumerator name.
+    QString serialNumber; ///< USB Serial number
     int vendorID;       ///< Vendor ID.
     int productID;      ///< Product ID
 };
