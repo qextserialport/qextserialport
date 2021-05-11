@@ -15,7 +15,7 @@ defineReplace(qextLibraryName) {
 LIBS += -framework $$QESP_LIB_BASENAME
 INCLUDEPATH += $$[QT_INSTALL_LIBS]/$${QESP_LIB_BASENAME}.framework/Headers
 !!ELSE
-LIBS += -l\$\$qextLibraryName($$QESP_LIB_BASENAME)
+LIBS += -L$$[QT_INSTALL_LIBS] -l\$\$qextLibraryName($$QESP_LIB_BASENAME)
 INCLUDEPATH += $$[QT_INSTALL_HEADERS]/QtExtSerialPort
 !!ENDIF
 
